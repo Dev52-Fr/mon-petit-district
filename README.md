@@ -11,7 +11,7 @@ Suivi en direct des matchs de foot amateur (D3, D4…), là où il n'y a ni live
 - **Classement en direct** : il intègre les matchs en cours, avec des flèches ▲▼ qui montrent les changements de place
 - Réglages : nom de la poule, équipes, couleurs et **logo de chaque club** (import depuis le téléphone)
 
-> Les logos des clubs appartiennent aux clubs : ils ne sont pas inclus dans le dépôt, chacun les importe dans l'app (avec l'accord du club pour un usage public).
+> Les logos des clubs (dossier `logos/`, un fichier par club nommé d'après ses initiales) appartiennent à leurs clubs respectifs. Un club qui ne souhaite pas apparaître peut demander le retrait de son logo.
 
 Première compétition : **D3 District Haute-Marne – Poule A (2026/2027)**, classement de départ après la 8e journée.
 

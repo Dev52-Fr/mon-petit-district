@@ -244,8 +244,10 @@ function initials(name) {
 }
 function lum(hex) { const n = parseInt(hex.slice(1), 16); return (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255 }
 let crestN = 0;
+// Logo : 1) image importée sur l'appareil, sinon 2) fichier du dépôt logos/<initiales>.png
 function crest(t, size = 32, plus = false) {
-  if (t.logo) return `<img src="${t.logo}" alt="" width="${size}" height="${size * 1.2}" style="flex:none;object-fit:contain;width:${size}px;height:${size * 1.2}px">`;
+  const src = t.logo || (t.abbr ? `logos/${t.abbr.toLowerCase()}.png` : null);
+  if (src) return `<img src="${src}" alt="" width="${size}" height="${size * 1.2}" style="flex:none;object-fit:contain;width:${size}px;height:${size * 1.2}px">`;
   // Pas de logo : écusson vide (un « + » dans Réglages pour inviter à importer)
   const shape = "M20 1.5 L37.5 6.5 V22 C37.5 34.5 30 42.5 20 46.5 C10 42.5 2.5 34.5 2.5 22 V6.5 Z";
   return `<svg width="${size}" height="${size * 1.2}" viewBox="0 0 40 48" aria-hidden="true" style="flex:none">
@@ -443,7 +445,7 @@ function renderSettings() {
       <input type="text" value="${esc(db.league)}" onchange="db.league=this.value;save();render()"></div>
     <div class="sec"><h2>Équipes</h2><span class="note" style="margin:0">${db.teams.length} clubs</span></div>
     <div class="card">
-      <div class="note" style="margin:12px 14px 8px">Touche l'écusson pour importer le logo du club.</div>
+      <div class="note" style="margin:12px 14px 8px">Les logos des clubs sont inclus. Touche un logo pour le remplacer par une autre image.</div>
       ${db.teams.map(t => `<div class="trow"><label class="lg-btn" title="Importer le logo">${crest(t, 26, true)}<input type="file" accept="image/*" hidden onchange="importLogo('${t.id}',this)"></label>
         <input type="text" value="${esc(t.name)}" onchange="renameTeam('${t.id}',this.value)">
         ${t.logo ? `<button class="x" title="Revenir à l'écusson" style="color:var(--mut);padding:6px 2px" onclick="setColor('${t.id}','logo',null)">↺</button>` : ""}
