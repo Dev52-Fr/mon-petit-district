@@ -596,6 +596,7 @@ render();
 
 /* ================= Tuto « Ajouter à l'écran d'accueil » ================= */
 const SHARE_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></span>`;
+const MENU_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h12M4 17h8"/></svg></span>`;
 const PLUS_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg></span>`;
 function installTip() {
   const ua = navigator.userAgent;
@@ -605,8 +606,10 @@ function installTip() {
   const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
   const iosSafari = ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
   let steps = "";
-  if (iosSafari) steps = `<ol><li>Touche ${SHARE_ICO} <b>Partager</b> (sur certains iPhone : <b>•••</b> puis Partager)</li>
-      <li>Fais défiler et choisis ${PLUS_ICO} <b>Sur l'écran d'accueil</b></li><li>Touche <b>Ajouter</b></li></ol>`;
+  if (iosSafari) steps = `<ol><li>Touche ${MENU_ICO} dans la barre d'adresse, en bas</li>
+      <li>Touche ${SHARE_ICO} <b>Partager</b></li>
+      <li>Touche <b>En voir plus</b>, puis ${PLUS_ICO} <b>Sur l'écran d'accueil</b></li>
+      <li>Touche <b>Ajouter</b></li></ol>`;
   else if (/Android/.test(ua)) steps = `<ol><li>Touche le menu <b>⋮</b> du navigateur</li><li>Choisis <b>Ajouter à l'écran d'accueil</b> (ou « Installer l'application »)</li></ol>`;
   else return;
   const box = document.createElement("div");
