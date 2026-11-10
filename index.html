@@ -6,7 +6,12 @@
 <meta name="theme-color" content="#3d7a2c">
 <title>Mon petit District – Le foot amateur en direct</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2322c55e'/%3E%3Ccircle cx='13' cy='19.5' r='9' fill='%230a2463'/%3E%3Crect x='13' y='10.5' width='17' height='6.5' rx='1.5' fill='%230a2463'/%3E%3Ccircle cx='13' cy='19.5' r='3.6' fill='%2322c55e'/%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2322c55e'/%3E%3Ccircle cx='13' cy='19.5' r='9' fill='%230a2463'/%3E%3Crect x='13' y='10.5' width='17' height='6.5' rx='1.5' fill='%230a2463'/%3E%3Ccircle cx='13' cy='19.5' r='3.6' fill='%2322c55e'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Petit District">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -164,6 +169,19 @@
   .seg label{flex:1;margin:0;text-align:center;padding:9px 4px;border-radius:9px;font-size:13px;color:var(--txt);cursor:pointer}
   .seg input{display:none}
   .seg input:checked+label{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);color:var(--navy)}
+
+  /* ---------- Tuto « écran d'accueil » ---------- */
+  .install{position:fixed;left:10px;right:10px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:20;background:#fff;border-radius:18px;
+    box-shadow:0 12px 40px rgba(10,36,99,.28);padding:14px 14px 12px;max-width:460px;margin:0 auto;animation:up .35s ease-out}
+  @keyframes up{from{transform:translateY(30px);opacity:0}}
+  .install .hd{display:flex;align-items:center;gap:12px}
+  .install .hd img{width:46px;height:46px;border-radius:11px}
+  .install .hd b{display:block;font:800 18px/1.1 var(--cond);text-transform:uppercase;color:var(--navy)}
+  .install .hd span{font-size:13px;color:var(--mut)}
+  .install ol{margin:12px 0 10px;padding-left:22px;font-size:14px;line-height:1.55}
+  .install .ico{display:inline-flex;vertical-align:-4px;background:var(--soft);border-radius:6px;padding:2px 4px;color:var(--blue)}
+  .install .ico svg{width:16px;height:16px}
+  .install .cl{position:absolute;top:8px;right:8px;background:none;border:0;font-size:20px;color:var(--mut);padding:4px 8px}
 </style>
 </head>
 <body>
@@ -571,6 +589,32 @@ setInterval(() => {
 }, 15000);
 
 render();
+
+/* ================= Tuto « Ajouter à l'écran d'accueil » ================= */
+const SHARE_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></span>`;
+const PLUS_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg></span>`;
+function installTip() {
+  const ua = navigator.userAgent;
+  const standalone = window.navigator.standalone || matchMedia("(display-mode: standalone)").matches;
+  let seen = false; try { seen = localStorage.getItem("tuto_install_vu") === "1" } catch (e) {}
+  if (standalone || seen) return;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  const iosSafari = ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+  let steps = "";
+  if (iosSafari) steps = `<ol><li>Touche ${SHARE_ICO} <b>Partager</b> (sur certains iPhone : <b>•••</b> puis Partager)</li>
+      <li>Fais défiler et choisis ${PLUS_ICO} <b>Sur l'écran d'accueil</b></li><li>Touche <b>Ajouter</b></li></ol>`;
+  else if (/Android/.test(ua)) steps = `<ol><li>Touche le menu <b>⋮</b> du navigateur</li><li>Choisis <b>Ajouter à l'écran d'accueil</b> (ou « Installer l'application »)</li></ol>`;
+  else return;
+  const box = document.createElement("div");
+  box.className = "install";
+  box.innerHTML = `<button class="cl" aria-label="Fermer">✕</button>
+    <div class="hd"><img src="apple-touch-icon.png" alt=""><div><b>Installe l'app</b><span>Retrouve tes matchs en un geste, comme une vraie appli.</span></div></div>
+    ${steps}<button class="btn full">Plus tard</button>`;
+  const close = () => { box.remove(); try { localStorage.setItem("tuto_install_vu", "1") } catch (e) {} };
+  box.querySelector(".cl").onclick = close; box.querySelector(".btn").onclick = close;
+  document.body.appendChild(box);
+}
+setTimeout(installTip, 2500);
 </script>
 </body>
 </html>
