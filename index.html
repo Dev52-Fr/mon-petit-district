@@ -23,6 +23,10 @@
     --cond:"Barlow Condensed",system-ui,sans-serif;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  /* Correctif iOS (app sur l'écran d'accueil) : une page trop courte décale la barre du bas.
+     On force la page à couvrir tout l'écran, barre d'état comprise. */
+  html{min-height:calc(100% + env(safe-area-inset-top))}
+  body{min-height:100vh;min-height:100dvh}
   body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.4 Inter,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   button{font-family:inherit;cursor:pointer}
 
