@@ -362,7 +362,7 @@ function renderTable() {
       ${live.map((r, i) => {
         const d = posBefore[r.id] - i, diff = r.BP - r.BC;
         const mv = anyLive && d > 0 ? `<span class="mv u">▲${d}</span>` : anyLive && d < 0 ? `<span class="mv d">▼${-d}</span>` : "";
-        const zone = i === 0 ? "up1" : i >= n - 2 ? "dn1" : "";
+        const zone = i === 0 ? "up1" : i === n - 1 ? "dn1" : "";
         return `<tr class="${zone} ${r.live ? "lv" : ""}">
           <td class="pos">${i + 1}</td>
           <td class="n"><div class="w">${crest(r.team, 20)}<span class="t">${esc(r.team.name)}</span>${mv}</div></td>
