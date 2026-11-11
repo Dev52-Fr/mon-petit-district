@@ -12,6 +12,12 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Petit District">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+  // Thème : choix enregistré, sinon celui du téléphone
+  (function () { let t = null; try { t = localStorage.getItem("theme") } catch (e) {}
+    if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.dataset.theme = t; })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,7 +27,21 @@
     --navy:#0a2463; --navy2:#1e3a8a; --blue:#2563eb; --green:#16a34a; --lime:#22c55e;
     --red:#e11d48; --amber:#f59e0b; --soft:#eef2ff;
     --cond:"Barlow Condensed",system-ui,sans-serif;
+    --ink:#0a2463; --live-bg:#fff1f2; --rep-bg:#fff7ed; --rep-txt:#c2410c; --rep-line:#fed7aa; --red-line:#fecdd3; --chip-on:#0a2463;
+    color-scheme:light;
   }
+  /* ---------- Mode sombre ---------- */
+  :root[data-theme=dark]{
+    --bg:#0b1120; --card:#131c2f; --line:#24304a; --txt:#e6ebf5; --mut:#8e9ab3; --soft:#1b2848;
+    --ink:#b9cdff; --live-bg:#2a1420; --rep-bg:#2b1a0e; --rep-txt:#fdba74; --rep-line:#5b3416; --red-line:#5c1f2e; --chip-on:#2563eb;
+    --navy2:#1e3a8a; color-scheme:dark;
+  }
+  :root[data-theme=dark] header{border-bottom-color:var(--line)}
+  :root[data-theme=dark] .form .N{background:#56627a}
+  :root[data-theme=dark] dialog::backdrop{background:rgba(0,0,0,.6)}
+  :root[data-theme=dark] nav{box-shadow:0 -4px 20px rgba(0,0,0,.4)}
+  .theme-btn{margin-left:auto;width:40px;height:40px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);display:grid;place-items:center;padding:0}
+  .theme-btn svg{width:20px;height:20px}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   /* Correctif iOS (app sur l'écran d'accueil) : une page trop courte décale la barre du bas.
      On force la page à couvrir tout l'écran, barre d'état comprise. */
@@ -31,7 +51,7 @@
   button{font-family:inherit;cursor:pointer}
 
   /* ---------- En-tête ---------- */
-  header{background:#fff;color:var(--navy);padding:12px 18px 14px;border-bottom:1px solid var(--line)}
+  header{background:var(--card);color:var(--ink);padding:12px 18px 14px;border-bottom:1px solid var(--line)}
   header>*{max-width:612px;margin-left:auto;margin-right:auto}
   .banner{position:relative;overflow:hidden;background:#3d7a2c;padding-top:env(safe-area-inset-top)}
   .banner::before{content:"";position:absolute;inset:-30px;background:url(banner.jpg) center 20%/auto 300%;filter:blur(16px) saturate(1.1)}
@@ -47,22 +67,22 @@
   main{padding:14px 14px 20px;max-width:640px;margin:0 auto}
 
   /* ---------- Navigation ---------- */
-  nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:5;box-shadow:0 -4px 20px rgba(15,23,42,.05)}
+  nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:5;box-shadow:0 -4px 20px rgba(15,23,42,.05)}
   nav button{flex:1;background:none;border:0;color:var(--mut);padding:9px 0 11px;font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px}
   nav svg{width:22px;height:22px}
   nav button.on{color:var(--blue)}
-  nav .dot{position:absolute;margin-left:18px;margin-top:-2px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid #fff}
+  nav .dot{position:absolute;margin-left:18px;margin-top:-2px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid var(--card)}
 
   /* ---------- Éléments communs ---------- */
   .sec{display:flex;align-items:center;justify-content:space-between;margin:20px 4px 10px}
   .sec h2{margin:0;font:700 19px/1 var(--cond);text-transform:uppercase;letter-spacing:.6px}
   .card{background:var(--card);border-radius:16px;box-shadow:0 1px 3px rgba(15,23,42,.06),0 1px 0 var(--line);margin-bottom:10px;overflow:hidden}
   .pad{padding:14px}
-  .btn{background:#fff;color:var(--txt);border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;font-size:15px;font-weight:700}
+  .btn{background:var(--card);color:var(--txt);border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;font-size:15px;font-weight:700}
   .btn.p{background:var(--blue);border-color:var(--blue);color:#fff}
   .btn.g{background:var(--green);border-color:var(--green);color:#fff}
-  .btn.r{background:#fff;border-color:#fecdd3;color:var(--red)}
-  .btn.dark{background:var(--navy);border-color:var(--navy);color:#fff}
+  .btn.r{background:var(--card);border-color:var(--red-line);color:var(--red)}
+  .btn.dark{background:var(--navy);border-color:var(--ink);color:#fff}
   .btn.full{width:100%}
   .row{display:flex;gap:8px}
   .row>*{flex:1}
@@ -75,8 +95,8 @@
   /* ---------- Filtres ---------- */
   .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none}
   .chips::-webkit-scrollbar{display:none}
-  .chip{flex:none;border:1.5px solid var(--line);background:#fff;color:var(--txt);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600}
-  .chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+  .chip{flex:none;border:1.5px solid var(--line);background:var(--card);color:var(--txt);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600}
+  .chip.on{background:var(--chip-on);border-color:var(--chip-on);color:#fff}
   .chip .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-size:11px}
 
   /* ---------- Carte match (liste) ---------- */
@@ -87,9 +107,9 @@
   .m .team .nm{flex:1;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .m .team .g{font:800 24px/1 var(--cond);min-width:22px;text-align:right}
   .m .team.lose .nm,.m .team.lose .g{color:#94a3b8;font-weight:500}
-  .m .kick{font:700 20px/1 var(--cond);color:var(--navy)}
-  .m.islive{background:linear-gradient(90deg,#fff1f2 0,#fff 40%)}
-  .rep{display:inline-block;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700;margin-left:4px;vertical-align:1px}
+  .m .kick{font:700 20px/1 var(--cond);color:var(--ink)}
+  .m.islive{background:linear-gradient(90deg,var(--live-bg) 0,var(--card) 40%)}
+  .rep{display:inline-block;background:var(--card)7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700;margin-left:4px;vertical-align:1px}
   .soon{color:var(--amber);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
   .bar{height:3px;background:var(--line);border-radius:2px;margin-top:10px;overflow:hidden}
   .bar i{display:block;height:100%;background:var(--red);border-radius:2px}
@@ -107,7 +127,7 @@
   .st{display:flex;justify-content:center;margin-top:8px}
   .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font-weight:800;font-size:13px;letter-spacing:.5px}
   .badge.lv{background:var(--red);color:#fff}
-  .badge.lv::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;animation:pulse 1.2s infinite}
+  .badge.lv::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--card);animation:pulse 1.2s infinite}
   .badge.mt{background:var(--amber);color:#451a03}
   .badge.fin{background:rgba(255,255,255,.15);color:#fff}
   .badge.av{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
@@ -118,16 +138,16 @@
   .ticks{display:flex;justify-content:space-between;font-size:10px;opacity:.6;margin:4px 6px 0}
 
   .actions{padding:14px}
-  .goal{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 8px;border-radius:14px;border:0;background:var(--soft);color:var(--navy);font-weight:700;font-size:13px}
+  .goal{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 8px;border-radius:14px;border:0;background:var(--soft);color:var(--ink);font-weight:700;font-size:13px}
   .goal b{font:800 22px/1 var(--cond);text-transform:uppercase}
   .goal:active{transform:scale(.97)}
-  .mini{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-size:12px;font-weight:600;color:var(--txt)}
+  .mini{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-size:12px;font-weight:600;color:var(--txt)}
   .mini span{font-size:18px}
 
   .tl{position:relative;padding:8px 14px}
   .tl::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--line);transform:translateX(-1px)}
   .ev{display:grid;grid-template-columns:1fr 44px 1fr;align-items:center;padding:7px 0;position:relative}
-  .ev .min{justify-self:center;background:#fff;border:2px solid var(--line);border-radius:999px;font:700 13px/1 var(--cond);padding:5px 0;width:40px;text-align:center;z-index:1}
+  .ev .min{justify-self:center;background:var(--card);border:2px solid var(--line);border-radius:999px;font:700 13px/1 var(--cond);padding:5px 0;width:40px;text-align:center;z-index:1}
   .ev .tx{font-size:14px;display:flex;align-items:center;gap:6px}
   .ev .tx.h{justify-content:flex-end;text-align:right}
   .ev .tx small{display:block;color:var(--mut);font-size:11px}
@@ -147,8 +167,8 @@
   td.n,th.n{text-align:left}
   td.n .w{display:flex;align-items:center;gap:8px;font-weight:600}
   td.n .w span.t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}
-  td.pts{font:800 18px/1 var(--cond);color:var(--navy)}
-  tr.lv td{background:#fff1f2}
+  td.pts{font:800 18px/1 var(--cond);color:var(--ink)}
+  tr.lv td{background:var(--card)1f2}
   .mv{font-size:10px;font-weight:800}
   .mv.u{color:var(--green)} .mv.d{color:var(--red)}
   .form{display:flex;gap:3px;justify-content:center}
@@ -156,13 +176,13 @@
   .form .V{background:var(--green)} .form .N{background:#94a3b8} .form .D{background:var(--red)}
   .legend{display:flex;gap:14px;font-size:12px;color:var(--mut);margin:10px 4px}
   .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-  .legend .a::before{background:var(--green)} .legend .b::before{background:var(--red)} .legend .c::before{background:#fecdd3}
+  .legend .a::before{background:var(--green)} .legend .b::before{background:var(--red)} .legend .c::before{background:var(--red-line)}
   .hide-s{display:none}
   @media(min-width:430px){.hide-s{display:table-cell}}
 
   /* ---------- Réglages ---------- */
   label{display:block;font-size:12px;font-weight:600;color:var(--mut);margin:12px 0 5px}
-  input,select{width:100%;background:#fff;color:var(--txt);border:1.5px solid var(--line);border-radius:12px;padding:11px;font-size:16px;font-family:inherit}
+  input,select{width:100%;background:var(--card);color:var(--txt);border:1.5px solid var(--line);border-radius:12px;padding:11px;font-size:16px;font-family:inherit}
   input:focus,select:focus{outline:none;border-color:var(--blue)}
   .trow{display:flex;align-items:center;gap:8px;padding:8px 14px;border-top:1px solid var(--line)}
   .trow input[type=text]{flex:1;padding:8px 10px}
@@ -170,21 +190,21 @@
   .lg-btn{margin:0;padding:2px;border-radius:8px;border:1.5px dashed var(--line);cursor:pointer;display:flex}
   .x{background:none;border:0;color:var(--red);font-size:18px;padding:6px}
 
-  dialog{background:#fff;color:var(--txt);border:0;border-radius:20px;width:min(92vw,420px);padding:18px;box-shadow:0 20px 60px rgba(15,23,42,.3)}
+  dialog{background:var(--card);color:var(--txt);border:0;border-radius:20px;width:min(92vw,420px);padding:18px;box-shadow:0 20px 60px rgba(15,23,42,.3)}
   dialog::backdrop{background:rgba(10,36,99,.45);backdrop-filter:blur(2px)}
   dialog h3{margin:0 0 4px;font:800 22px/1.1 var(--cond);text-transform:uppercase}
   .seg{display:flex;background:var(--bg);border-radius:12px;padding:4px;gap:4px}
   .seg label{flex:1;margin:0;text-align:center;padding:9px 4px;border-radius:9px;font-size:13px;color:var(--txt);cursor:pointer}
   .seg input{display:none}
-  .seg input:checked+label{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);color:var(--navy)}
+  .seg input:checked+label{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12);color:var(--ink)}
 
   /* ---------- Tuto « écran d'accueil » ---------- */
-  .install{position:fixed;left:10px;right:10px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:20;background:#fff;border-radius:18px;
+  .install{position:fixed;left:10px;right:10px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:20;background:var(--card);border-radius:18px;
     box-shadow:0 12px 40px rgba(10,36,99,.28);padding:14px 14px 12px;max-width:460px;margin:0 auto;animation:up .35s ease-out}
   @keyframes up{from{transform:translateY(30px);opacity:0}}
   .install .hd{display:flex;align-items:center;gap:12px}
   .install .hd img{width:46px;height:46px;border-radius:11px}
-  .install .hd b{display:block;font:800 18px/1.1 var(--cond);text-transform:uppercase;color:var(--navy)}
+  .install .hd b{display:block;font:800 18px/1.1 var(--cond);text-transform:uppercase;color:var(--ink)}
   .install .hd span{font-size:13px;color:var(--mut)}
   .install ol{margin:12px 0 10px;padding-left:22px;font-size:14px;line-height:1.55}
   .install .ico{display:inline-flex;vertical-align:-4px;background:var(--soft);border-radius:6px;padding:2px 4px;color:var(--blue)}
@@ -193,7 +213,7 @@
 
   /* ---------- Volets dépliants ---------- */
   details.fold{margin:12px 0 0}
-  details.fold summary{list-style:none;display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:13px 14px;cursor:pointer;
+  details.fold summary{list-style:none;display:flex;align-items:center;gap:10px;background:var(--card);border-radius:14px;padding:13px 14px;cursor:pointer;
     box-shadow:0 1px 3px rgba(15,23,42,.06),0 1px 0 var(--line)}
   details.fold summary::-webkit-details-marker{display:none}
   details.fold summary h2{margin:0;flex:1;font:700 18px/1 var(--cond);text-transform:uppercase;letter-spacing:.5px}
@@ -205,22 +225,23 @@
   .stp{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
   .stp .nm{flex:1;font-weight:600;font-size:15px}
   .stp .ctl{display:flex;align-items:center;gap:6px}
-  .stp .ctl button{width:40px;height:40px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-size:22px;font-weight:700;color:var(--navy)}
-  .stp .ctl b{min-width:34px;text-align:center;font:800 30px/1 var(--cond);color:var(--navy)}
+  .stp .ctl button{width:40px;height:40px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-size:22px;font-weight:700;color:var(--ink)}
+  .stp .ctl b{min-width:34px;text-align:center;font:800 30px/1 var(--cond);color:var(--ink)}
   .infos .kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
   .infos .kv:last-child{border-bottom:0}
   .infos .kv span{color:var(--mut)}
   .infos .kv b{text-align:right;font-weight:600}
   .trow.club{padding:10px 14px}
   .trow.club .nm{flex:1;font-weight:600}
-  .trow.club .pos{font:700 16px/1 var(--cond);color:var(--navy)}
+  .trow.club .pos{font:700 16px/1 var(--cond);color:var(--ink)}
   .trow.club sup{font-size:10px}
 </style>
 </head>
 <body>
 <div class="banner"><img src="banner.jpg" alt="Football en Haute-Marne"></div>
 <header>
-  <div class="brand"><div class="logo"><svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><circle cx="5.5" cy="8.5" r="2.6" fill="none" stroke="#0a2463" stroke-width="2"/><path d="M7.5 10.5l3 3" stroke="#0a2463" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="19.5" r="9" fill="#0a2463"/><rect x="13" y="10.5" width="17" height="6.5" rx="1.5" fill="#0a2463"/><rect x="18" y="10.5" width="3" height="3" fill="#22c55e"/><circle cx="13" cy="19.5" r="3.6" fill="#22c55e"/></svg></div><h1><small>Mon petit</small><span>District</span></h1></div>
+  <div class="brand"><div class="logo"><svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><circle cx="5.5" cy="8.5" r="2.6" fill="none" stroke="#0a2463" stroke-width="2"/><path d="M7.5 10.5l3 3" stroke="#0a2463" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="19.5" r="9" fill="#0a2463"/><rect x="13" y="10.5" width="17" height="6.5" rx="1.5" fill="#0a2463"/><rect x="18" y="10.5" width="3" height="3" fill="#22c55e"/><circle cx="13" cy="19.5" r="3.6" fill="#22c55e"/></svg></div><h1><small>Mon petit</small><span>District</span></h1>
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Mode sombre"></button></div>
   <div class="league" id="sub"></div>
 </header>
 <main id="app"></main>
@@ -702,6 +723,27 @@ setInterval(() => {
 
 if (db.matches.some(m => isLive(m) || isImminent(m))) filter = "live";
 render();
+
+/* ================= Mode sombre ================= */
+const MOON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>`;
+const SUN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>`;
+function paintTheme() {
+  const dark = document.documentElement.dataset.theme === "dark";
+  document.getElementById("themeBtn").innerHTML = dark ? SUN : MOON;
+  document.querySelector('meta[name="theme-color"]').content = dark ? "#0b1120" : "#3d7a2c";
+}
+function toggleTheme() {
+  const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem("theme", t) } catch (e) {}
+  paintTheme();
+}
+// Si l'utilisateur n'a rien choisi, on suit le téléphone quand il change (ex. passage auto le soir)
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e => {
+  let t = null; try { t = localStorage.getItem("theme") } catch (x) {}
+  if (!t) { document.documentElement.dataset.theme = e.matches ? "dark" : "light"; paintTheme() }
+});
+paintTheme();
 
 /* ================= Calendrier MyFFF (data/matchs.json, mis à jour chaque jour par GitHub) ================= */
 // Le classement de départ s'arrête à la 8e journée : les matchs d'avant sont importés (pour les résultats)
