@@ -332,7 +332,7 @@ function standings(includeLive) {
 
 /* ================= Rendu ================= */
 const app = document.getElementById("app");
-let tab = "matchs", openId = null, filter = "tout";
+let tab = "matchs", openId = null, filter = db.matches.some(m => ["1MT", "MT", "2MT"].includes(m.status)) ? "live" : "av";
 
 const DISCLAIMER = `<p class="disclaimer">Application non officielle, sans lien avec la FFF ni le District de Haute-Marne.</p>`;
 function render() {
@@ -370,7 +370,7 @@ function renderMatchs() {
   const fin = db.matches.filter(m => m.status === "FIN").sort((a, b) => b.j - a.j || b.date - a.date);
   const chip = (k, l, n) => `<button class="chip ${filter === k ? "on" : ""}" onclick="filter='${k}';render()">${l}${n ? `<span class="n">${n}</span>` : ""}</button>`;
   const block = (title, list, extra = "") => list.length ? `<div class="sec"><h2>${title}</h2>${extra}</div><div class="card">${list.map(matchRow).join("")}</div>` : "";
-  let html = `<div class="chips">${chip("tout", "Tout")}${chip("live", "En direct", live.length)}${chip("av", "À venir")}${chip("fin", "Résultats")}</div>`;
+  let html = `<div class="chips">${chip("live", "En direct", live.length)}${chip("av", "À venir")}${chip("fin", "Résultats")}${chip("tout", "Tout")}</div>`;
   if (filter === "tout" || filter === "live") html += block("En direct", live, `<span class="live">Live</span>`);
   if (filter === "tout" || filter === "av") {
     // Journées rangées par date ; les matchs reportés sont à part
@@ -378,13 +378,13 @@ function renderMatchs() {
     const byJ = {}; normaux.forEach(m => (byJ[m.j] = byJ[m.j] || []).push(m));
     const js = Object.keys(byJ).sort((a, b) => dateJournee(+a) - dateJournee(+b));
     const quand = j => `<span class="note" style="margin:0">${fmtDate(dateJournee(+j))}</span>`;
-    (filter === "tout" ? js.slice(0, 1) : js).forEach((j, i) => {
+    (filter === "av" ? js.slice(0, 1) : js).forEach((j, i) => {
       html += block(`${i === 0 ? "Prochaine journée · " : ""}J${j}`, byJ[j], quand(j));
       if (i === 0 && reportes.length) html += block("Matchs reportés", reportes, `<span class="rep">${reportes.length}</span>`);
     });
     if (!js.length && reportes.length) html += block("Matchs reportés", reportes);
-    if (filter === "tout" && js.length > 1)
-      html += `<button class="btn full" style="margin-bottom:6px" onclick="filter='av';render();scrollTo(0,0)">Voir tout le calendrier (${next.length} matchs)</button>`;
+    if (filter === "av" && js.length > 1)
+      html += `<button class="btn full" style="margin-bottom:6px" onclick="filter='tout';render();scrollTo(0,0)">Voir tout le calendrier (${next.length} matchs)</button>`;
   }
   if (filter === "tout" || filter === "fin") {
     const byJ = {}; fin.forEach(m => (byJ[m.j] = byJ[m.j] || []).push(m));
