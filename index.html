@@ -89,6 +89,7 @@
   .m .team.lose .nm,.m .team.lose .g{color:#94a3b8;font-weight:500}
   .m .kick{font:700 20px/1 var(--cond);color:var(--navy)}
   .m.islive{background:linear-gradient(90deg,#fff1f2 0,#fff 40%)}
+  .rep{display:inline-block;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700;margin-left:4px;vertical-align:1px}
   .bar{height:3px;background:var(--line);border-radius:2px;margin-top:10px;overflow:hidden}
   .bar i{display:block;height:100%;background:var(--red);border-radius:2px}
 
@@ -255,6 +256,13 @@ const score = m => ({
   a: m.events.filter(e => e.type === "but" && e.side === "away").length
 });
 const isLive = m => ["1MT", "MT", "2MT"].includes(m.status);
+// Match reporté : joué plus de 3 jours après la date habituelle de sa journée
+function dateJournee(j) {
+  if (db.datesJ && db.datesJ[j]) return db.datesJ[j];          // date habituelle d'après le calendrier complet
+  const d = db.matches.filter(m => m.j === j).map(m => m.date).sort((a, b) => a - b);
+  return d.length ? d[Math.floor((d.length - 1) / 2)] : 0;
+}
+const isReporte = m => m.date - dateJournee(m.j) > 3 * 86400000;
 
 /* ================= Écussons générés ================= */
 function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h }
@@ -348,7 +356,7 @@ function matchRow(m) {
   const line = (t, g, lose) => `<div class="team ${lose ? "lose" : ""}">${crest(t, 24)}<span class="nm">${esc(t.name)}</span>
     ${m.status === "AV" ? "" : `<span class="g">${g}</span>`}</div>`;
   return `<button class="m ${lv ? "islive" : ""}" onclick="openMatch('${m.id}')">
-    <div class="top"><span>Journée ${m.j}</span>${right}</div>
+    <div class="top"><span>Journée ${m.j}${isReporte(m) ? ` <span class="rep">Reporté</span>` : ""}</span>${right}</div>
     <div style="display:flex;align-items:center;gap:12px"><div style="flex:1">
       ${line(H, s.h, m.status === "FIN" && s.h < s.a)}${line(A, s.a, m.status === "FIN" && s.a < s.h)}
     </div>${m.status === "AV" ? `<div class="kick">${fmtHour(m.date)}</div>` : ""}</div>
@@ -365,13 +373,18 @@ function renderMatchs() {
   let html = `<div class="chips">${chip("tout", "Tout")}${chip("live", "En direct", live.length)}${chip("av", "À venir")}${chip("fin", "Résultats")}</div>`;
   if (filter === "tout" || filter === "live") html += block("En direct", live, `<span class="live">Live</span>`);
   if (filter === "tout" || filter === "av") {
-    // Rangement par journée ; « Tout » ne montre que la prochaine journée
-    const byJ = {}; next.forEach(m => (byJ[m.j] = byJ[m.j] || []).push(m));
-    const js = Object.keys(byJ).sort((a, b) => a - b);
-    (filter === "tout" ? js.slice(0, 1) : js).forEach(j =>
-      html += block(`Journée ${j}`, byJ[j], `<span class="note" style="margin:0">À venir</span>`));
+    // Journées rangées par date ; les matchs reportés sont à part
+    const normaux = next.filter(m => !isReporte(m)), reportes = next.filter(isReporte);
+    const byJ = {}; normaux.forEach(m => (byJ[m.j] = byJ[m.j] || []).push(m));
+    const js = Object.keys(byJ).sort((a, b) => dateJournee(+a) - dateJournee(+b));
+    const quand = j => `<span class="note" style="margin:0">${fmtDate(dateJournee(+j))}</span>`;
+    (filter === "tout" ? js.slice(0, 1) : js).forEach((j, i) => {
+      html += block(`${i === 0 ? "Prochaine journée · " : ""}J${j}`, byJ[j], quand(j));
+      if (i === 0 && reportes.length) html += block("Matchs reportés", reportes, `<span class="rep">${reportes.length}</span>`);
+    });
+    if (!js.length && reportes.length) html += block("Matchs reportés", reportes);
     if (filter === "tout" && js.length > 1)
-      html += `<button class="btn full" style="margin-bottom:6px" onclick="filter='av';render()">Voir tout le calendrier (${next.length} matchs)</button>`;
+      html += `<button class="btn full" style="margin-bottom:6px" onclick="filter='av';render();scrollTo(0,0)">Voir tout le calendrier (${next.length} matchs)</button>`;
   }
   if (filter === "tout" || filter === "fin") {
     const byJ = {}; fin.forEach(m => (byJ[m.j] = byJ[m.j] || []).push(m));
@@ -443,7 +456,7 @@ function renderMatch(m) {
 
   app.innerHTML = `
     <div class="hero">
-      <div class="tp"><button class="back" onclick="openId=null;render()">‹ Matchs</button><span style="font-size:12px;opacity:.75">Journée ${m.j}</span></div>
+      <div class="tp"><button class="back" onclick="openId=null;render()">‹ Matchs</button><span style="font-size:12px;opacity:.75">Journée ${m.j}</span>${isReporte(m) ? ` <span class="rep">Reporté</span>` : ""}</div>
       <div class="lg">${esc(db.league)}</div>
       <div class="duel">
         <div class="tm">${crest(H, 56)}<span>${esc(H.name)}</span></div>
@@ -616,7 +629,11 @@ async function syncCalendrier() {
   try { const r = await fetch("data/matchs.json", { cache: "no-store" }); if (!r.ok) return; data = await r.json() } catch (e) { return }
   const byName = {}; db.teams.forEach(t => byName[norm(t.name)] = t.id);
   db.masques = db.masques || [];
-  let change = false;
+  // Date habituelle de chaque journée (médiane de tous ses matchs, saison complète)
+  const parJ = {}; (data.matchs || []).forEach(f => (parJ[f.j] = parJ[f.j] || []).push(Date.parse(f.date)));
+  const datesJ = {}; for (const j in parJ) { const d = parJ[j].sort((a, b) => a - b); datesJ[j] = d[Math.floor((d.length - 1) / 2)] }
+  let change = JSON.stringify(datesJ) !== JSON.stringify(db.datesJ || {});
+  db.datesJ = datesJ;
   for (const f of data.matchs || []) {
     const t = Date.parse(f.date); if (!(t >= DEBUT_IMPORT)) continue;
     const home = byName[norm(f.domicile)], away = byName[norm(f.exterieur)];
