@@ -235,6 +235,15 @@
   .trow.club .nm{flex:1;font-weight:600}
   .trow.club .pos{font:700 16px/1 var(--cond);color:var(--ink)}
   .trow.club sup{font-size:10px}
+
+  /* ---------- Bulle d'aide du bouton thème ---------- */
+  header{position:relative}
+  .tip{position:absolute;right:12px;top:calc(100% - 6px);z-index:30;width:min(250px,calc(100vw - 24px));background:var(--chip-on);color:#fff;
+    border-radius:14px;padding:12px 34px 12px 14px;font-size:14px;line-height:1.35;box-shadow:0 10px 30px rgba(10,36,99,.35);animation:tipIn .3s ease-out}
+  .tip::before{content:"";position:absolute;top:-7px;right:26px;width:14px;height:14px;background:inherit;transform:rotate(45deg);border-radius:3px}
+  .tip b{display:block;font:800 16px/1.1 var(--cond);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+  .tip .x{position:absolute;top:6px;right:6px;color:#fff;opacity:.8;font-size:16px}
+  @keyframes tipIn{from{opacity:0;transform:translateY(-6px)}}
 </style>
 </head>
 <body>
@@ -732,7 +741,27 @@ function paintTheme() {
   document.getElementById("themeBtn").innerHTML = dark ? SUN : MOON;
   document.querySelector('meta[name="theme-color"]').content = dark ? "#0b1120" : "#3d7a2c";
 }
+// Bulle d'aide affichée une seule fois à côté du bouton
+function themeTip() {
+  let vu = false; try { vu = localStorage.getItem("tuto_theme_vu") === "1" } catch (e) {}
+  if (vu) return false;
+  const tip = document.createElement("div");
+  tip.className = "tip"; tip.id = "themeTip";
+  const dark = document.documentElement.dataset.theme === "dark";
+  tip.innerHTML = dark
+    ? `<b>Mode clair / sombre</b>L'app est en mode nuit comme ton téléphone. Touche ☀️ pour passer en mode clair.<button class="x" aria-label="Fermer">✕</button>`
+    : `<b>Mode sombre</b>Touche ce bouton pour passer l'app en mode nuit 🌙, et ☀️ pour revenir en clair.<button class="x" aria-label="Fermer">✕</button>`;
+  tip.onclick = closeThemeTip;
+  setTimeout(() => document.querySelector("header").appendChild(tip), 1000);
+  return true;
+}
+function closeThemeTip() {
+  const t = document.getElementById("themeTip"); if (t) t.remove();
+  try { localStorage.setItem("tuto_theme_vu", "1") } catch (e) {}
+  if (window._apresTip) { const f = window._apresTip; window._apresTip = null; setTimeout(f, 600) }
+}
 function toggleTheme() {
+  closeThemeTip();
   const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
   document.documentElement.dataset.theme = t;
   try { localStorage.setItem("theme", t) } catch (e) {}
@@ -804,7 +833,8 @@ function installTip() {
   box.querySelector(".cl").onclick = close; box.querySelector(".btn").onclick = close;
   document.body.appendChild(box);
 }
-setTimeout(installTip, 2500);
+if (themeTip()) window._apresTip = installTip;   // une aide à la fois
+else setTimeout(installTip, 2500);
 </script>
 </body>
 </html>
