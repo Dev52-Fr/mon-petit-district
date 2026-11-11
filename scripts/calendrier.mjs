@@ -62,7 +62,8 @@ for (const url of urls) {
     if (!txt) { console.log(`✗ ${id} : refusé`); continue; }
     writeFileSync(`data/brut/${id}.ics`, txt);
     const evs = parseICS(txt);
-    console.log(`✓ ${id} : ${evs.length} rencontres`);
+    const nom = (txt.match(/X-WR-CALNAME:(.*)/) || [, "?"])[1].trim();
+    console.log(`✓ ${id} : ${evs.length} rencontres — ${nom}`);
     for (const e of evs) {
       const summary = e.SUMMARY?.value || "", desc = e.DESCRIPTION?.value || "";
       const competition = desc.split("\n")[0].trim();

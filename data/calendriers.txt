@@ -1,2 +1,13 @@
 # Un lien de calendrier MyFFF par ligne (webcal:// ou https://). Les lignes avec # sont ignorées.
 webcal://media.fff.fr/calendars/2026/eq/15232_SEM_1.ics
+webcal://media.fff.fr/calendars/2026/eq/6873_SEM_2.ics
+webcal://media.fff.fr/calendars/2026/eq/105070_SEM_2.ics
+webcal://media.fff.fr/calendars/2026/eq/15234_SEM_1.ics
+webcal://media.fff.fr/calendars/2026/eq/1566_SEM_2.ics
+webcal://media.fff.fr/calendars/2026/eq/7824_SEM_4.ics
+webcal://media.fff.fr/calendars/2026/eq/25894_SEM_1.ics
+webcal://media.fff.fr/calendars/2026/eq/169201_SEM_2.ics
+webcal://media.fff.fr/calendars/2026/eq/3380_SEM_2.ics
+webcal://media.fff.fr/calendars/2026/eq/1567_SEM_11.ics
+webcal://media.fff.fr/calendars/2026/eq/3785_SEM_3.ics
+webcal://media.fff.fr/calendars/2026/eq/203878_SEM_1.ics
