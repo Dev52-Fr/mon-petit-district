@@ -90,6 +90,7 @@
   .m .kick{font:700 20px/1 var(--cond);color:var(--navy)}
   .m.islive{background:linear-gradient(90deg,#fff1f2 0,#fff 40%)}
   .rep{display:inline-block;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700;margin-left:4px;vertical-align:1px}
+  .soon{color:var(--amber);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
   .bar{height:3px;background:var(--line);border-radius:2px;margin-top:10px;overflow:hidden}
   .bar i{display:block;height:100%;background:var(--red);border-radius:2px}
 
@@ -268,6 +269,7 @@ const score = m => ({
   a: m.events.filter(e => e.type === "but" && e.side === "away").length
 });
 const isLive = m => ["1MT", "MT", "2MT"].includes(m.status);
+const isImminent = m => m.status === "AV" && Date.now() >= m.date - 15 * 60000 && Date.now() <= m.date + 2 * 3600000;
 // Match reporté : joué plus de 3 jours après la date habituelle de sa journée
 function dateJournee(j) {
   if (db.datesJ && db.datesJ[j]) return db.datesJ[j];          // date habituelle d'après le calendrier complet
@@ -345,14 +347,14 @@ function standings(includeLive) {
 /* ================= Rendu ================= */
 const app = document.getElementById("app");
 const voletsOuverts = {};
-let tab = "matchs", openId = null, filter = db.matches.some(m => ["1MT", "MT", "2MT"].includes(m.status)) ? "live" : "av";
+let tab = "matchs", openId = null, filter = "av";
 
 const DISCLAIMER = `<p class="disclaimer">Application non officielle, sans lien avec la FFF ni le District de Haute-Marne.</p>`;
 function render() {
   crestN = 0;
   document.getElementById("sub").textContent = db.league;
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab && !openId || (openId && b.dataset.tab === "matchs")));
-  document.getElementById("navdot").hidden = !db.matches.some(isLive);
+  document.getElementById("navdot").hidden = !db.matches.some(m => isLive(m) || isImminent(m));
   if (openId) { renderMatch(db.matches.find(m => m.id === openId)); if (openId) app.insertAdjacentHTML("beforeend", DISCLAIMER); return }
   if (tab === "matchs") renderMatchs();
   if (tab === "classement") renderTable();
@@ -364,6 +366,7 @@ function matchRow(m) {
   const s = score(m), H = team(m.home), A = team(m.away), lv = isLive(m);
   let right;
   if (lv) right = m.status === "MT" ? `<span class="live">Mi-temps</span>` : `<span class="live">${minute(m)}'</span>`;
+  else if (isImminent(m)) right = `<span class="soon">Coup d'envoi ${fmtHour(m.date)}</span>`;
   else if (m.status === "FIN") right = `<span>Terminé</span>`;
   else right = `<span>${fmtDate(m.date)}</span>`;
   const line = (t, g, lose) => `<div class="team ${lose ? "lose" : ""}">${crest(t, 24)}<span class="nm">${esc(t.name)}</span>
@@ -378,8 +381,8 @@ function matchRow(m) {
 }
 
 function renderMatchs() {
-  const live = db.matches.filter(isLive);
-  const next = db.matches.filter(m => m.status === "AV").sort((a, b) => a.date - b.date);
+  const live = db.matches.filter(m => isLive(m) || isImminent(m)).sort((a, b) => a.date - b.date);
+  const next = db.matches.filter(m => m.status === "AV" && !isImminent(m)).sort((a, b) => a.date - b.date);
   const fin = db.matches.filter(m => m.status === "FIN").sort((a, b) => b.j - a.j || b.date - a.date);
   const chip = (k, l, n) => `<button class="chip ${filter === k ? "on" : ""}" onclick="filter='${k}';render()">${l}${n ? `<span class="n">${n}</span>` : ""}</button>`;
   // Dans « Tout » : chaque section est un volet dépliant
@@ -417,9 +420,9 @@ function renderMatchs() {
       ? fold(`fin${j}`, `Résultats · J${j}`, byJ[j], "", false)
       : block(`Journée ${j}`, byJ[j], `<span class="note" style="margin:0">Résultats</span>`));
   }
-  if (!db.matches.length) html += `<div class="card"><div class="empty">Aucun match saisi pour l'instant.<br>Ajoute les matchs de la prochaine journée avec le bouton ci-dessous.</div></div>`;
+  if (!db.matches.length) html += `<div class="card"><div class="empty">Le calendrier se charge…</div></div>`;
   else if (filter === "live" && !live.length) html += `<div class="card"><div class="empty">Aucun match en direct.<br>Ouvre un match à venir et lance le coup d'envoi.</div></div>`;
-  html += `<button class="btn p full" style="margin-top:14px" onclick="newMatch()">＋ Nouveau match</button>`;
+
   app.innerHTML = html;
 }
 
@@ -452,7 +455,7 @@ function renderMatch(m) {
   if (!m) { openId = null; return render() }
   const s = score(m), H = team(m.home), A = team(m.away);
   let badge;
-  if (m.status === "AV") badge = `<span class="badge av">${fmtDate(m.date)} · ${fmtHour(m.date)}</span>`;
+  if (m.status === "AV") badge = isImminent(m) ? `<span class="badge mt">COUP D'ENVOI IMMINENT · ${fmtHour(m.date)}</span>` : `<span class="badge av">${fmtDate(m.date)} · ${fmtHour(m.date)}</span>`;
   else if (m.status === "MT") badge = `<span class="badge mt">MI-TEMPS</span>`;
   else if (m.status === "FIN") badge = `<span class="badge fin">TERMINÉ</span>`;
   else badge = `<span class="badge lv">${minute(m)}'</span>`;
@@ -642,9 +645,10 @@ document.querySelectorAll("nav button").forEach(b => b.onclick = () => { tab = b
 
 // Rafraîchit le chrono toutes les 15 s (sauf pendant une saisie)
 setInterval(() => {
-  if (db.matches.some(isLive) && !document.querySelector("dialog[open]") && document.activeElement.tagName !== "INPUT") render();
+  if (db.matches.some(m => isLive(m) || isImminent(m)) && !document.querySelector("dialog[open]") && document.activeElement.tagName !== "INPUT") render();
 }, 15000);
 
+if (db.matches.some(m => isLive(m) || isImminent(m))) filter = "live";
 render();
 
 /* ================= Calendrier MyFFF (data/matchs.json, mis à jour chaque jour par GitHub) ================= */
