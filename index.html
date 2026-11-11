@@ -202,6 +202,11 @@
   details.fold[open] .chev{transform:rotate(-135deg);margin-top:4px}
   details.fold[open] summary{border-radius:14px 14px 0 0;box-shadow:none;border-bottom:1px solid var(--line)}
   details.fold[open] .card{border-radius:0 0 16px 16px;margin-bottom:0}
+  .stp{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .stp .nm{flex:1;font-weight:600;font-size:15px}
+  .stp .ctl{display:flex;align-items:center;gap:6px}
+  .stp .ctl button{width:40px;height:40px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-size:22px;font-weight:700;color:var(--navy)}
+  .stp .ctl b{min-width:34px;text-align:center;font:800 30px/1 var(--cond);color:var(--navy)}
 </style>
 </head>
 <body>
@@ -264,11 +269,12 @@ function save() { try { localStorage.setItem(KEY, JSON.stringify(db)) } catch (e
 load();
 
 const team = id => db.teams.find(t => t.id === id) || { name: "?", id: "?" };
-const score = m => ({
+const score = m => m.scoreManuel ? { ...m.scoreManuel } : ({
   h: m.events.filter(e => e.type === "but" && e.side === "home").length,
   a: m.events.filter(e => e.type === "but" && e.side === "away").length
 });
 const isLive = m => ["1MT", "MT", "2MT"].includes(m.status);
+const isASaisir = m => m.status === "AV" && Date.now() > m.date + 2 * 3600000;   // joué, mais score pas encore rentré
 const isImminent = m => m.status === "AV" && Date.now() >= m.date - 15 * 60000 && Date.now() <= m.date + 2 * 3600000;
 // Match reporté : joué plus de 3 jours après la date habituelle de sa journée
 function dateJournee(j) {
@@ -331,7 +337,7 @@ function standings(includeLive) {
       Pts: 3 * (b.G || 0) + (b.N || 0) - (b.F || 0) - (b.pen || 0), live: false, form: [...(b.form || [])] };
   });
   [...db.matches].sort((a, b) => a.date - b.date).forEach(m => {
-    if (m.status === "AV") return;
+    if (m.status === "AV" || m.base) return;
     if (isLive(m) && !includeLive) return;
     const { h, a } = score(m), H = t[m.home], A = t[m.away];
     if (!H || !A) return;
@@ -367,23 +373,26 @@ function matchRow(m) {
   let right;
   if (lv) right = m.status === "MT" ? `<span class="live">Mi-temps</span>` : `<span class="live">${minute(m)}'</span>`;
   else if (isImminent(m)) right = `<span class="soon">Coup d'envoi ${fmtHour(m.date)}</span>`;
+  else if (isASaisir(m)) right = `<span class="soon">Score à saisir</span>`;
   else if (m.status === "FIN") right = `<span>Terminé</span>`;
   else right = `<span>${fmtDate(m.date)}</span>`;
   const line = (t, g, lose) => `<div class="team ${lose ? "lose" : ""}">${crest(t, 24)}<span class="nm">${esc(t.name)}</span>
     ${m.status === "AV" ? "" : `<span class="g">${g}</span>`}</div>`;
+  const kick = m.status === "AV" && !isASaisir(m);
   return `<button class="m ${lv ? "islive" : ""}" onclick="openMatch('${m.id}')">
     <div class="top"><span>Journée ${m.j}${isReporte(m) ? ` <span class="rep">Reporté</span>` : ""}</span>${right}</div>
     <div style="display:flex;align-items:center;gap:12px"><div style="flex:1">
       ${line(H, s.h, m.status === "FIN" && s.h < s.a)}${line(A, s.a, m.status === "FIN" && s.a < s.h)}
-    </div>${m.status === "AV" ? `<div class="kick">${fmtHour(m.date)}</div>` : ""}</div>
+    </div>${kick ? `<div class="kick">${fmtHour(m.date)}</div>` : ""}</div>
     ${lv ? `<div class="bar"><i style="width:${progress(m)}%"></i></div>` : ""}
   </button>`;
 }
 
 function renderMatchs() {
   const live = db.matches.filter(m => isLive(m) || isImminent(m)).sort((a, b) => a.date - b.date);
-  const next = db.matches.filter(m => m.status === "AV" && !isImminent(m)).sort((a, b) => a.date - b.date);
-  const fin = db.matches.filter(m => m.status === "FIN").sort((a, b) => b.j - a.j || b.date - a.date);
+  const next = db.matches.filter(m => m.status === "AV" && !isImminent(m) && !isASaisir(m)).sort((a, b) => a.date - b.date);
+  const fin = db.matches.filter(m => m.status === "FIN" || isASaisir(m)).sort((a, b) => b.j - a.j || a.date - b.date);
+  const nbSaisir = fin.filter(isASaisir).length;
   const chip = (k, l, n) => `<button class="chip ${filter === k ? "on" : ""}" onclick="filter='${k}';render()">${l}${n ? `<span class="n">${n}</span>` : ""}</button>`;
   // Dans « Tout » : chaque section est un volet dépliant
   const fold = (key, title, list, extra = "", ouvert = false) => {
@@ -455,25 +464,31 @@ function renderMatch(m) {
   if (!m) { openId = null; return render() }
   const s = score(m), H = team(m.home), A = team(m.away);
   let badge;
-  if (m.status === "AV") badge = isImminent(m) ? `<span class="badge mt">COUP D'ENVOI IMMINENT · ${fmtHour(m.date)}</span>` : `<span class="badge av">${fmtDate(m.date)} · ${fmtHour(m.date)}</span>`;
+  if (isASaisir(m)) badge = `<span class="badge mt">SCORE À SAISIR · ${fmtDate(m.date)}</span>`;
+  else if (m.status === "AV") badge = isImminent(m) ? `<span class="badge mt">COUP D'ENVOI IMMINENT · ${fmtHour(m.date)}</span>` : `<span class="badge av">${fmtDate(m.date)} · ${fmtHour(m.date)}</span>`;
   else if (m.status === "MT") badge = `<span class="badge mt">MI-TEMPS</span>`;
   else if (m.status === "FIN") badge = `<span class="badge fin">TERMINÉ</span>`;
   else badge = `<span class="badge lv">${minute(m)}'</span>`;
 
   let ctrl = "";
-  if (m.status === "AV") ctrl = `<button class="btn g full" onclick="setStatus('1MT')">▶ Coup d'envoi</button>`;
+  if (m.status === "AV") ctrl = isASaisir(m)
+    ? `<button class="btn p full" onclick="saisirScore()">✎ Saisir le score final</button>`
+    : `<button class="btn g full" onclick="setStatus('1MT')">▶ Coup d'envoi</button>`;
   if (m.status === "1MT") ctrl = `<button class="btn dark full" onclick="setStatus('MT')">⏸ Siffler la mi-temps</button>`;
   if (m.status === "MT") ctrl = `<button class="btn g full" onclick="setStatus('2MT')">▶ Reprise 2e mi-temps</button>`;
   if (m.status === "2MT") ctrl = `<button class="btn dark full" onclick="setStatus('FIN')">⏹ Siffler la fin du match</button>`;
-  if (m.status === "FIN") ctrl = `<button class="btn full" onclick="setStatus('2MT')">↩ Rouvrir le match</button>`;
-  const canEdit = m.status !== "AV";
+  if (m.status === "FIN") ctrl = m.scoreManuel
+    ? `<button class="btn full" onclick="saisirScore()">✎ Modifier le score</button>`
+    : `<button class="btn full" onclick="setStatus('2MT')">↩ Rouvrir le match</button>`;
+  const canEdit = isLive(m) || (m.status === "FIN" && !m.scoreManuel);
 
   // Fil du match
   const evs = [...m.events].sort((a, b) => a.min - b.min);
   const icon = e => e.type === "but" ? "⚽" : e.type === "jaune" ? "🟨" : "🟥";
   const lbl = e => e.type === "but" ? "But" : e.type === "jaune" ? "Carton jaune" : "Carton rouge";
   let run = { h: 0, a: 0 }, tl = "", mtShown = false;
-  if (m.status !== "AV") tl += `<div class="phase"><span>Coup d'envoi</span></div>`;
+  if (m.scoreManuel && !m.events.length) tl = `<div class="phase"><span>Score final saisi après le match</span></div>`;
+  else if (m.status !== "AV") tl += `<div class="phase"><span>Coup d'envoi</span></div>`;
   evs.forEach(e => {
     if (!mtShown && e.min > 45 && m.status !== "1MT") { tl += `<div class="phase"><span>Mi-temps ${run.h} - ${run.a}</span></div>`; mtShown = true }
     if (e.type === "but") e.side === "home" ? run.h++ : run.a++;
@@ -481,8 +496,8 @@ function renderMatch(m) {
     tl += `<div class="ev ${e.type === "but" ? "g" : ""}">
       <div class="tx h">${e.side === "home" ? body : ""}</div><div class="min">${e.min}'</div><div class="tx">${e.side === "away" ? body : ""}</div></div>`;
   });
-  if (!mtShown && ["MT", "2MT", "FIN"].includes(m.status)) tl += `<div class="phase"><span>Mi-temps ${run.h} - ${run.a}</span></div>`;
-  if (m.status === "FIN") tl += `<div class="phase"><span>Fin du match</span></div>`;
+  if (!mtShown && !m.scoreManuel && ["MT", "2MT", "FIN"].includes(m.status)) tl += `<div class="phase"><span>Mi-temps ${run.h} - ${run.a}</span></div>`;
+  if (m.status === "FIN" && !m.scoreManuel) tl += `<div class="phase"><span>Fin du match</span></div>`;
 
   app.innerHTML = `
     <div class="hero">
@@ -490,12 +505,12 @@ function renderMatch(m) {
       <div class="lg">${esc(db.league)}</div>
       <div class="duel">
         <div class="tm">${crest(H, 56)}<span>${esc(H.name)}</span></div>
-        <div class="sc">${m.status === "AV" ? `<span style="font-size:40px">VS</span>` : `${s.h}<small>-</small>${s.a}`}</div>
+        <div class="sc">${m.status === "AV" ? `<span style="font-size:40px">${isASaisir(m) ? "– : –" : "VS"}</span>` : `${s.h}<small>-</small>${s.a}`}</div>
         <div class="tm">${crest(A, 56)}<span>${esc(A.name)}</span></div>
       </div>
       <div class="st">${badge}</div>
       ${m.lieu || m.fiche ? `<div class="lieu">${m.lieu ? `📍 ${esc(cap(m.lieu))}` : ""}${m.lieu && m.fiche ? " · " : ""}${m.fiche ? `<a href="${esc(m.fiche)}" target="_blank" rel="noopener">Fiche MyFFF ↗</a>` : ""}</div>` : ""}
-      ${m.status !== "AV" ? `<div class="bar"><i style="width:${progress(m)}%"></i></div><div class="ticks"><span>0'</span><span>45'</span><span>90'</span></div>` : ""}
+      ${isLive(m) || (m.status === "FIN" && !m.scoreManuel) ? `<div class="bar"><i style="width:${progress(m)}%"></i></div><div class="ticks"><span>0'</span><span>45'</span><span>90'</span></div>` : ""}
     </div>
 
     <div class="card" style="margin-top:12px"><div class="actions">
@@ -568,6 +583,28 @@ function addEvent(type, side) {
   };
 }
 
+// Saisie du score final (match joué sans direct, ou résultat officiel FFF)
+function saisirScore() {
+  const m = cur(), H = team(m.home), A = team(m.away), sc = m.scoreManuel || { h: 0, a: 0 };
+  const dlg = document.getElementById("dlg");
+  const stepper = (k, t, v) => `<div class="stp">${crest(t, 30)}<span class="nm">${esc(t.name)}</span>
+    <div class="ctl"><button type="button" onclick="stp('${k}',-1)">−</button><b id="sc-${k}">${v}</b><button type="button" onclick="stp('${k}',1)">+</button></div></div>`;
+  dlg.innerHTML = `<form method="dialog"><h3>Score final</h3>
+    <p class="note" style="margin:4px 0 12px">Journée ${m.j} · ${fmtDate(m.date)}</p>
+    ${stepper("h", H, sc.h)}${stepper("a", A, sc.a)}
+    <div class="row" style="margin-top:16px"><button class="btn" value="no">Annuler</button><button class="btn p" value="ok">Enregistrer</button></div>
+    ${m.scoreManuel ? `<button class="btn r full" style="margin-top:8px" value="del">Effacer le score</button>` : ""}</form>`;
+  dlg.returnValue = ""; dlg.showModal();
+  dlg.onclose = () => {
+    if (dlg.returnValue === "ok") {
+      m.scoreManuel = { h: +dlg.querySelector("#sc-h").textContent, a: +dlg.querySelector("#sc-a").textContent };
+      m.status = "FIN";
+    } else if (dlg.returnValue === "del") { delete m.scoreManuel; m.status = "AV" }
+    else return;
+    save(); render();
+  };
+}
+function stp(k, d) { const el = document.getElementById("sc-" + k); el.textContent = Math.max(0, Math.min(30, +el.textContent + d)) }
 function undo() { const m = cur(); if (m.events.length) { m.events.pop(); save(); render() } }
 async function delMatch() { if (!await ask("Supprimer ce match ?", "Supprimer")) return; const mm = cur(); if (mm && mm.uid) { db.masques = db.masques || []; db.masques.push(mm.uid) }
   db.matches = db.matches.filter(m => m.id !== openId); openId = null; save(); render() }
@@ -652,7 +689,8 @@ if (db.matches.some(m => isLive(m) || isImminent(m))) filter = "live";
 render();
 
 /* ================= Calendrier MyFFF (data/matchs.json, mis à jour chaque jour par GitHub) ================= */
-// Le classement de départ s'arrête à la 8e journée : on importe seulement les rencontres d'après.
+// Le classement de départ s'arrête à la 8e journée : les matchs d'avant sont importés (pour les résultats)
+// mais ne comptent pas une 2e fois dans le classement.
 const DEBUT_IMPORT = Date.parse("2026-11-09T00:00:00+01:00");
 const norm = s => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, " ").trim();
 async function syncCalendrier() {
@@ -666,14 +704,14 @@ async function syncCalendrier() {
   let change = JSON.stringify(datesJ) !== JSON.stringify(db.datesJ || {});
   db.datesJ = datesJ;
   for (const f of data.matchs || []) {
-    const t = Date.parse(f.date); if (!(t >= DEBUT_IMPORT)) continue;
+    const t = Date.parse(f.date), base = t < DEBUT_IMPORT;    // base = déjà compté dans le classement de départ
     const home = byName[norm(f.domicile)], away = byName[norm(f.exterieur)];
     if (!home || !away || db.masques.includes(f.uid)) continue;
     const m = db.matches.find(x => x.uid === f.uid);
     if (m) {
-      if (m.status === "AV" && (m.date !== t || m.lieu !== f.lieu)) { Object.assign(m, { date: t, j: f.j, lieu: f.lieu, fiche: f.fiche, home, away }); change = true }
+      if (m.status === "AV" && (m.date !== t || m.lieu !== f.lieu || m.base !== base)) { Object.assign(m, { date: t, j: f.j, lieu: f.lieu, fiche: f.fiche, home, away, base }); change = true }
     } else {
-      db.matches.push({ id: uid(), uid: f.uid, j: f.j, home, away, date: t, lieu: f.lieu, fiche: f.fiche, status: "AV", kick1: null, kick2: null, events: [] });
+      db.matches.push({ id: uid(), uid: f.uid, j: f.j, home, away, date: t, lieu: f.lieu, fiche: f.fiche, base, status: "AV", kick1: null, kick2: null, events: [] });
       change = true;
     }
   }
