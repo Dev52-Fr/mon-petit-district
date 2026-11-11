@@ -1,187 +1,203 @@
 {
-  "maj": "2026-11-11T00:25:50.509Z",
+  "maj": "2026-11-11T00:28:26.704Z",
   "matchs": [
     {
-      "uid": "55708289@fff.fr",
-      "date": "2026-08-16T16:00:00+02:00",
-      "titre": "J1 - CHAM. ROCHES - LUZY A.S.L.V.F",
-      "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
-    },
-    {
-      "uid": "56594443@fff.fr",
-      "date": "2026-08-30T16:00:00+02:00",
-      "titre": "J2 - CHAM. ROCHES - DIANE EURV. BIENV.",
-      "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
-    },
-    {
-      "uid": "55853868@fff.fr",
-      "date": "2026-09-06T15:00:00+02:00",
-      "titre": "J2 - JOINVILLE VECQUE FC 2 - CHAMOUILLEY ROCHES",
-      "lieu": "STADE MARCEL VARINOT 1",
-      "description": "Match dans 15 minutes"
-    },
-    {
-      "uid": "79330100@fff.fr",
-      "date": "2026-09-13T15:00:00+02:00",
-      "titre": "J2 - CHAMOUILLEY ROCHES - ROLAMPONT CA",
-      "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
-    },
-    {
-      "uid": "55853878@fff.fr",
-      "date": "2026-09-20T15:00:00+02:00",
-      "titre": "J3 - CHAMOUILLEY ROCHES - MARNAVAL SC 4",
-      "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
-    },
-    {
-      "uid": "55853867@fff.fr",
+      "uid": "55853867",
+      "j": 1,
+      "domicile": "VAUX SUR BLAISE USIB 3",
+      "exterieur": "CHAMOUILLEY ROCHES",
       "date": "2026-09-27T15:00:00+02:00",
-      "titre": "J1 - VAUX SUR BLAISE USIB 3 - CHAMOUILLEY ROCHES",
       "lieu": "STADE ROBERT LUTERS 2",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853867-u-s-intercommunale-de-la-blaise-a-s-chamouilley-roches-s-marne/match"
     },
     {
-      "uid": "55853881@fff.fr",
+      "uid": "55853868",
+      "j": 2,
+      "domicile": "JOINVILLE VECQUE FC 2",
+      "exterieur": "CHAMOUILLEY ROCHES",
+      "date": "2026-09-06T15:00:00+02:00",
+      "lieu": "STADE MARCEL VARINOT 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853868-f-c-joinville-vecqueville-a-s-chamouilley-roches-s-marne/match"
+    },
+    {
+      "uid": "55853878",
+      "j": 3,
+      "domicile": "CHAMOUILLEY ROCHES",
+      "exterieur": "MARNAVAL SC 4",
+      "date": "2026-09-20T15:00:00+02:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853878-a-s-chamouilley-roches-s-marne-s-marnaval-c-st-dizier/match"
+    },
+    {
+      "uid": "55853881",
+      "j": 4,
+      "domicile": "MONTIER EN DER US 2",
+      "exterieur": "CHAMOUILLEY ROCHES",
       "date": "2026-10-04T15:00:00+02:00",
-      "titre": "J4 - MONTIER EN DER US 2 - CHAMOUILLEY ROCHES",
       "lieu": "STADE RAYMOND OUDIN",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853881-u-s-montier-en-der-a-s-chamouilley-roches-s-marne/match"
     },
     {
-      "uid": "79760764@fff.fr",
-      "date": "2026-10-11T15:00:00+02:00",
-      "titre": "J2 - CHAMOUILLEY ROCHES - ROUVRES AUBERIVE US",
-      "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
-    },
-    {
-      "uid": "55973902@fff.fr",
+      "uid": "55973902",
+      "j": 5,
+      "domicile": "CHAMOUILLEY ROCHES",
+      "exterieur": "CHEVILLON STADE 3",
       "date": "2026-10-18T15:00:00+02:00",
-      "titre": "J5 - CHAMOUILLEY ROCHES - CHEVILLON STADE 3",
       "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55973902-a-s-chamouilley-roches-s-marne-st-chevillon/match"
     },
     {
-      "uid": "55853894@fff.fr",
+      "uid": "55853894",
+      "j": 6,
+      "domicile": "VALCOURT AF 2",
+      "exterieur": "CHAMOUILLEY ROCHES",
       "date": "2026-10-25T14:30:00+01:00",
-      "titre": "J6 - VALCOURT AF 2 - CHAMOUILLEY ROCHES",
       "lieu": "STADE G. MAIZIERES",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853894-a-de-football-de-valcourt-a-s-chamouilley-roches-s-marne/match"
     },
     {
-      "uid": "55853900@fff.fr",
+      "uid": "55853900",
+      "j": 7,
+      "domicile": "CHAMOUILLEY ROCHES",
+      "exterieur": "VOILLECOMTE US",
       "date": "2026-11-01T14:30:00+01:00",
-      "titre": "J7 - CHAMOUILLEY ROCHES - VOILLECOMTE US",
       "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853900-a-s-chamouilley-roches-s-marne-u-s-de-voillecomte/match"
     },
     {
-      "uid": "55853907@fff.fr",
+      "uid": "55853907",
+      "j": 8,
+      "domicile": "ORNEL CHANC SL 2",
+      "exterieur": "CHAMOUILLEY ROCHES",
       "date": "2026-11-08T14:30:00+01:00",
-      "titre": "J8 - ORNEL CHANC SL 2 - CHAMOUILLEY ROCHES",
       "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853907-s-l-de-l-ornel-a-chancenay-a-s-chamouilley-roches-s-marne/match"
     },
     {
-      "uid": "55853910@fff.fr",
+      "uid": "55853910",
+      "j": 9,
+      "domicile": "CHAMOUILLEY ROCHES",
+      "exterieur": "EURVILLE BIENV. DS 2",
       "date": "2026-11-15T14:30:00+01:00",
-      "titre": "J9 - CHAMOUILLEY ROCHES - EURVILLE BIENV. DS 2",
       "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853910-a-s-chamouilley-roches-s-marne-diane-s-eurville-bienville/match"
     },
     {
-      "uid": "55853920@fff.fr",
+      "uid": "55853920",
+      "j": 10,
+      "domicile": "SOMMEVOIRE ROZ UJ",
+      "exterieur": "CHAMOUILLEY ROCHES",
       "date": "2026-11-22T14:30:00+01:00",
-      "titre": "J10 - SOMMEVOIRE ROZ UJ - CHAMOUILLEY ROCHES",
       "lieu": "STADE ANNE DE GALLARD",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853920-u-des-jeunes-de-sommevoire-rozieres-a-s-chamouilley-roches-s-marne/match"
     },
     {
-      "uid": "55973914@fff.fr",
+      "uid": "55973914",
+      "j": 11,
+      "domicile": "CHAMOUILLEY ROCHES",
+      "exterieur": "ROUVROY FC",
       "date": "2026-11-29T14:30:00+01:00",
-      "titre": "J11 - CHAMOUILLEY ROCHES - ROUVROY FC",
       "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55973914-a-s-chamouilley-roches-s-marne-rouvroy-football-club/match"
     },
     {
-      "uid": "55853928@fff.fr",
+      "uid": "55853928",
+      "j": 12,
+      "domicile": "CHAMOUILLEY ROCHES",
+      "exterieur": "JOINVILLE VECQUE FC 2",
       "date": "2027-02-21T14:30:00+01:00",
-      "titre": "J12 - CHAMOUILLEY ROCHES - JOINVILLE VECQUE FC 2",
       "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853928-a-s-chamouilley-roches-s-marne-f-c-joinville-vecqueville/match"
     },
     {
-      "uid": "55853938@fff.fr",
+      "uid": "55853938",
+      "j": 13,
+      "domicile": "MARNAVAL SC 4",
+      "exterieur": "CHAMOUILLEY ROCHES",
       "date": "2027-03-07T11:30:00+01:00",
-      "titre": "J13 - MARNAVAL SC 4 - CHAMOUILLEY ROCHES",
       "lieu": "STADE DES ACIERIES 4",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853938-s-marnaval-c-st-dizier-a-s-chamouilley-roches-s-marne/match"
     },
     {
-      "uid": "55853941@fff.fr",
+      "uid": "55853941",
+      "j": 14,
+      "domicile": "CHAMOUILLEY ROCHES",
+      "exterieur": "MONTIER EN DER US 2",
       "date": "2027-03-14T14:30:00+01:00",
-      "titre": "J14 - CHAMOUILLEY ROCHES - MONTIER EN DER US 2",
       "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853941-a-s-chamouilley-roches-s-marne-u-s-montier-en-der/match"
     },
     {
-      "uid": "55973921@fff.fr",
+      "uid": "55973921",
+      "j": 15,
+      "domicile": "CHEVILLON STADE 3",
+      "exterieur": "CHAMOUILLEY ROCHES",
       "date": "2027-03-21T11:30:00+01:00",
-      "titre": "J15 - CHEVILLON STADE 3 - CHAMOUILLEY ROCHES",
       "lieu": "STADE RENE ROLLIN",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55973921-st-chevillon-a-s-chamouilley-roches-s-marne/match"
     },
     {
-      "uid": "55853954@fff.fr",
+      "uid": "55853954",
+      "j": 16,
+      "domicile": "CHAMOUILLEY ROCHES",
+      "exterieur": "VALCOURT AF 2",
       "date": "2027-04-04T15:00:00+02:00",
-      "titre": "J16 - CHAMOUILLEY ROCHES - VALCOURT AF 2",
       "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853954-a-s-chamouilley-roches-s-marne-a-de-football-de-valcourt/match"
     },
     {
-      "uid": "55853960@fff.fr",
+      "uid": "55853960",
+      "j": 17,
+      "domicile": "VOILLECOMTE US",
+      "exterieur": "CHAMOUILLEY ROCHES",
       "date": "2027-04-11T15:00:00+02:00",
-      "titre": "J17 - VOILLECOMTE US - CHAMOUILLEY ROCHES",
       "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853960-u-s-de-voillecomte-a-s-chamouilley-roches-s-marne/match"
     },
     {
-      "uid": "55853967@fff.fr",
+      "uid": "55853967",
+      "j": 18,
+      "domicile": "CHAMOUILLEY ROCHES",
+      "exterieur": "ORNEL CHANC SL 2",
       "date": "2027-04-18T15:00:00+02:00",
-      "titre": "J18 - CHAMOUILLEY ROCHES - ORNEL CHANC SL 2",
       "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853967-a-s-chamouilley-roches-s-marne-s-l-de-l-ornel-a-chancenay/match"
     },
     {
-      "uid": "55853970@fff.fr",
+      "uid": "55853970",
+      "j": 19,
+      "domicile": "EURVILLE BIENV. DS 2",
+      "exterieur": "CHAMOUILLEY ROCHES",
       "date": "2027-05-02T15:00:00+02:00",
-      "titre": "J19 - EURVILLE BIENV. DS 2 - CHAMOUILLEY ROCHES",
       "lieu": "STADE LOUIS BAZIRE 1",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853970-diane-s-eurville-bienville-a-s-chamouilley-roches-s-marne/match"
     },
     {
-      "uid": "55853980@fff.fr",
+      "uid": "55853980",
+      "j": 20,
+      "domicile": "CHAMOUILLEY ROCHES",
+      "exterieur": "SOMMEVOIRE ROZ UJ",
       "date": "2027-05-09T15:00:00+02:00",
-      "titre": "J20 - CHAMOUILLEY ROCHES - SOMMEVOIRE ROZ UJ",
       "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853980-a-s-chamouilley-roches-s-marne-u-des-jeunes-de-sommevoire-rozieres/match"
     },
     {
-      "uid": "55973933@fff.fr",
+      "uid": "55973933",
+      "j": 21,
+      "domicile": "ROUVROY FC",
+      "exterieur": "CHAMOUILLEY ROCHES",
       "date": "2027-05-23T15:00:00+02:00",
-      "titre": "J21 - ROUVROY FC - CHAMOUILLEY ROCHES",
       "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55973933-rouvroy-football-club-a-s-chamouilley-roches-s-marne/match"
     },
     {
-      "uid": "55853993@fff.fr",
+      "uid": "55853993",
+      "j": 22,
+      "domicile": "CHAMOUILLEY ROCHES",
+      "exterieur": "VAUX SUR BLAISE USIB 3",
       "date": "2027-05-30T15:00:00+02:00",
-      "titre": "J22 - CHAMOUILLEY ROCHES - VAUX SUR BLAISE USIB 3",
       "lieu": "STADE MUNICIPAL",
-      "description": "Match dans 15 minutes"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853993-a-s-chamouilley-roches-s-marne-u-s-intercommunale-de-la-blaise/match"
     }
   ]
 }
