@@ -1,5 +1,5 @@
 {
-  "maj": "2026-11-11T00:28:26.704Z",
+  "maj": "2026-11-11T00:40:21.927Z",
   "matchs": [
     {
       "uid": "55853867",
@@ -11,6 +11,78 @@
       "fiche": "https://epreuves.fff.fr/competition/match/55853867-u-s-intercommunale-de-la-blaise-a-s-chamouilley-roches-s-marne/match"
     },
     {
+      "uid": "55973895",
+      "j": 1,
+      "domicile": "ORNEL CHANC SL 2",
+      "exterieur": "CHEVILLON STADE 3",
+      "date": "2026-09-27T15:00:00+02:00",
+      "lieu": "STADE MARCEL THEVENIN 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973895-s-l-de-l-ornel-a-chancenay-st-chevillon/match"
+    },
+    {
+      "uid": "55853863",
+      "j": 1,
+      "domicile": "VOILLECOMTE US",
+      "exterieur": "VALCOURT AF 2",
+      "date": "2026-09-27T15:00:00+02:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853863-u-s-de-voillecomte-a-de-football-de-valcourt/match"
+    },
+    {
+      "uid": "55853864",
+      "j": 1,
+      "domicile": "EURVILLE BIENV. DS 2",
+      "exterieur": "MONTIER EN DER US 2",
+      "date": "2026-09-27T15:00:00+02:00",
+      "lieu": "STADE LOUIS BAZIRE 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853864-diane-s-eurville-bienville-u-s-montier-en-der/match"
+    },
+    {
+      "uid": "55853865",
+      "j": 1,
+      "domicile": "SOMMEVOIRE ROZ UJ",
+      "exterieur": "MARNAVAL SC 4",
+      "date": "2026-09-27T15:00:00+02:00",
+      "lieu": "STADE ANNE DE GALLARD",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853865-u-des-jeunes-de-sommevoire-rozieres-s-marnaval-c-st-dizier/match"
+    },
+    {
+      "uid": "55973896",
+      "j": 1,
+      "domicile": "ROUVROY FC",
+      "exterieur": "JOINVILLE VECQUE FC 2",
+      "date": "2026-10-11T15:00:00+02:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973896-rouvroy-football-club-f-c-joinville-vecqueville/match"
+    },
+    {
+      "uid": "55973898",
+      "j": 2,
+      "domicile": "CHEVILLON STADE 3",
+      "exterieur": "EURVILLE BIENV. DS 2",
+      "date": "2026-09-06T12:00:00+02:00",
+      "lieu": "STADE RENE ROLLIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973898-st-chevillon-diane-s-eurville-bienville/match"
+    },
+    {
+      "uid": "55973897",
+      "j": 2,
+      "domicile": "MARNAVAL SC 4",
+      "exterieur": "ROUVROY FC",
+      "date": "2026-09-06T12:00:00+02:00",
+      "lieu": "STADE DES ACIERIES 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973897-s-marnaval-c-st-dizier-rouvroy-football-club/match"
+    },
+    {
+      "uid": "55853872",
+      "j": 2,
+      "domicile": "VALCOURT AF 2",
+      "exterieur": "ORNEL CHANC SL 2",
+      "date": "2026-09-06T13:00:00+02:00",
+      "lieu": "STADE G. MAIZIERES",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853872-a-de-football-de-valcourt-s-l-de-l-ornel-a-chancenay/match"
+    },
+    {
       "uid": "55853868",
       "j": 2,
       "domicile": "JOINVILLE VECQUE FC 2",
@@ -18,6 +90,33 @@
       "date": "2026-09-06T15:00:00+02:00",
       "lieu": "STADE MARCEL VARINOT 1",
       "fiche": "https://epreuves.fff.fr/competition/match/55853868-f-c-joinville-vecqueville-a-s-chamouilley-roches-s-marne/match"
+    },
+    {
+      "uid": "55853873",
+      "j": 2,
+      "domicile": "VOILLECOMTE US",
+      "exterieur": "VAUX SUR BLAISE USIB 3",
+      "date": "2026-09-06T15:00:00+02:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853873-u-s-de-voillecomte-u-s-intercommunale-de-la-blaise/match"
+    },
+    {
+      "uid": "55853870",
+      "j": 2,
+      "domicile": "MONTIER EN DER US 2",
+      "exterieur": "SOMMEVOIRE ROZ UJ",
+      "date": "2026-10-11T13:00:00+02:00",
+      "lieu": "STADE RAYMOND OUDIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853870-u-s-montier-en-der-u-des-jeunes-de-sommevoire-rozieres/match"
+    },
+    {
+      "uid": "55853877",
+      "j": 3,
+      "domicile": "VAUX SUR BLAISE USIB 3",
+      "exterieur": "JOINVILLE VECQUE FC 2",
+      "date": "2026-09-20T13:00:00+02:00",
+      "lieu": "STADE ROBERT LUTERS 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853877-u-s-intercommunale-de-la-blaise-f-c-joinville-vecqueville/match"
     },
     {
       "uid": "55853878",
@@ -29,6 +128,60 @@
       "fiche": "https://epreuves.fff.fr/competition/match/55853878-a-s-chamouilley-roches-s-marne-s-marnaval-c-st-dizier/match"
     },
     {
+      "uid": "55853875",
+      "j": 3,
+      "domicile": "ORNEL CHANC SL 2",
+      "exterieur": "VOILLECOMTE US",
+      "date": "2026-09-20T15:00:00+02:00",
+      "lieu": "STADE MARCEL THEVENIN 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853875-s-l-de-l-ornel-a-chancenay-u-s-de-voillecomte/match"
+    },
+    {
+      "uid": "55973900",
+      "j": 3,
+      "domicile": "ROUVROY FC",
+      "exterieur": "MONTIER EN DER US 2",
+      "date": "2026-09-20T15:00:00+02:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973900-rouvroy-football-club-u-s-montier-en-der/match"
+    },
+    {
+      "uid": "55973899",
+      "j": 3,
+      "domicile": "SOMMEVOIRE ROZ UJ",
+      "exterieur": "CHEVILLON STADE 3",
+      "date": "2026-09-20T15:00:00+02:00",
+      "lieu": "STADE ANNE DE GALLARD",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973899-u-des-jeunes-de-sommevoire-rozieres-st-chevillon/match"
+    },
+    {
+      "uid": "55853874",
+      "j": 3,
+      "domicile": "EURVILLE BIENV. DS 2",
+      "exterieur": "VALCOURT AF 2",
+      "date": "2026-09-20T15:00:00+02:00",
+      "lieu": "STADE LOUIS BAZIRE 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853874-diane-s-eurville-bienville-a-de-football-de-valcourt/match"
+    },
+    {
+      "uid": "55853880",
+      "j": 4,
+      "domicile": "MARNAVAL SC 4",
+      "exterieur": "JOINVILLE VECQUE FC 2",
+      "date": "2026-10-04T12:00:00+02:00",
+      "lieu": "STADE DES ACIERIES 4",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853880-s-marnaval-c-st-dizier-f-c-joinville-vecqueville/match"
+    },
+    {
+      "uid": "55973901",
+      "j": 4,
+      "domicile": "CHEVILLON STADE 3",
+      "exterieur": "ROUVROY FC",
+      "date": "2026-10-04T12:00:00+02:00",
+      "lieu": "STADE RENE ROLLIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973901-st-chevillon-rouvroy-football-club/match"
+    },
+    {
       "uid": "55853881",
       "j": 4,
       "domicile": "MONTIER EN DER US 2",
@@ -36,6 +189,51 @@
       "date": "2026-10-04T15:00:00+02:00",
       "lieu": "STADE RAYMOND OUDIN",
       "fiche": "https://epreuves.fff.fr/competition/match/55853881-u-s-montier-en-der-a-s-chamouilley-roches-s-marne/match"
+    },
+    {
+      "uid": "55853885",
+      "j": 4,
+      "domicile": "ORNEL CHANC SL 2",
+      "exterieur": "VAUX SUR BLAISE USIB 3",
+      "date": "2026-10-04T15:00:00+02:00",
+      "lieu": "STADE MARCEL THEVENIN 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853885-s-l-de-l-ornel-a-chancenay-u-s-intercommunale-de-la-blaise/match"
+    },
+    {
+      "uid": "55853884",
+      "j": 4,
+      "domicile": "VOILLECOMTE US",
+      "exterieur": "EURVILLE BIENV. DS 2",
+      "date": "2026-10-04T15:00:00+02:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853884-u-s-de-voillecomte-diane-s-eurville-bienville/match"
+    },
+    {
+      "uid": "55853883",
+      "j": 4,
+      "domicile": "VALCOURT AF 2",
+      "exterieur": "SOMMEVOIRE ROZ UJ",
+      "date": "2026-10-04T15:00:00+02:00",
+      "lieu": "STADE G. MAIZIERES",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853883-a-de-football-de-valcourt-u-des-jeunes-de-sommevoire-rozieres/match"
+    },
+    {
+      "uid": "55853886",
+      "j": 5,
+      "domicile": "EURVILLE BIENV. DS 2",
+      "exterieur": "ORNEL CHANC SL 2",
+      "date": "2026-10-18T12:45:00+02:00",
+      "lieu": "STADE LOUIS BAZIRE 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853886-diane-s-eurville-bienville-s-l-de-l-ornel-a-chancenay/match"
+    },
+    {
+      "uid": "55853891",
+      "j": 5,
+      "domicile": "VAUX SUR BLAISE USIB 3",
+      "exterieur": "MARNAVAL SC 4",
+      "date": "2026-10-18T13:00:00+02:00",
+      "lieu": "STADE ROBERT LUTERS 2",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853891-u-s-intercommunale-de-la-blaise-s-marnaval-c-st-dizier/match"
     },
     {
       "uid": "55973902",
@@ -47,6 +245,42 @@
       "fiche": "https://epreuves.fff.fr/competition/match/55973902-a-s-chamouilley-roches-s-marne-st-chevillon/match"
     },
     {
+      "uid": "55853888",
+      "j": 5,
+      "domicile": "JOINVILLE VECQUE FC 2",
+      "exterieur": "MONTIER EN DER US 2",
+      "date": "2026-10-18T15:00:00+02:00",
+      "lieu": "STADE MARCEL VARINOT 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853888-f-c-joinville-vecqueville-u-s-montier-en-der/match"
+    },
+    {
+      "uid": "55853887",
+      "j": 5,
+      "domicile": "SOMMEVOIRE ROZ UJ",
+      "exterieur": "VOILLECOMTE US",
+      "date": "2026-10-18T15:00:00+02:00",
+      "lieu": "STADE ANNE DE GALLARD",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853887-u-des-jeunes-de-sommevoire-rozieres-u-s-de-voillecomte/match"
+    },
+    {
+      "uid": "55973903",
+      "j": 5,
+      "domicile": "ROUVROY FC",
+      "exterieur": "VALCOURT AF 2",
+      "date": "2026-10-18T15:00:00+02:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973903-rouvroy-football-club-a-de-football-de-valcourt/match"
+    },
+    {
+      "uid": "55973904",
+      "j": 6,
+      "domicile": "CHEVILLON STADE 3",
+      "exterieur": "JOINVILLE VECQUE FC 2",
+      "date": "2026-10-25T11:30:00+01:00",
+      "lieu": "STADE RENE ROLLIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973904-st-chevillon-f-c-joinville-vecqueville/match"
+    },
+    {
       "uid": "55853894",
       "j": 6,
       "domicile": "VALCOURT AF 2",
@@ -54,6 +288,69 @@
       "date": "2026-10-25T14:30:00+01:00",
       "lieu": "STADE G. MAIZIERES",
       "fiche": "https://epreuves.fff.fr/competition/match/55853894-a-de-football-de-valcourt-a-s-chamouilley-roches-s-marne/match"
+    },
+    {
+      "uid": "55853896",
+      "j": 6,
+      "domicile": "ORNEL CHANC SL 2",
+      "exterieur": "SOMMEVOIRE ROZ UJ",
+      "date": "2026-10-25T14:30:00+01:00",
+      "lieu": "STADE MARCEL THEVENIN 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853896-s-l-de-l-ornel-a-chancenay-u-des-jeunes-de-sommevoire-rozieres/match"
+    },
+    {
+      "uid": "55973905",
+      "j": 6,
+      "domicile": "VOILLECOMTE US",
+      "exterieur": "ROUVROY FC",
+      "date": "2026-10-25T14:30:00+01:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973905-u-s-de-voillecomte-rouvroy-football-club/match"
+    },
+    {
+      "uid": "55853892",
+      "j": 6,
+      "domicile": "MONTIER EN DER US 2",
+      "exterieur": "MARNAVAL SC 4",
+      "date": "2026-10-25T14:30:00+01:00",
+      "lieu": "STADE RAYMOND OUDIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853892-u-s-montier-en-der-s-marnaval-c-st-dizier/match"
+    },
+    {
+      "uid": "55853897",
+      "j": 6,
+      "domicile": "EURVILLE BIENV. DS 2",
+      "exterieur": "VAUX SUR BLAISE USIB 3",
+      "date": "2026-10-25T14:30:00+01:00",
+      "lieu": "STADE LOUIS BAZIRE 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853897-diane-s-eurville-bienville-u-s-intercommunale-de-la-blaise/match"
+    },
+    {
+      "uid": "55853895",
+      "j": 6,
+      "domicile": "VOILLECOMTE US",
+      "exterieur": "CHEVILLON STADE 3",
+      "date": "2026-10-25T14:30:00+01:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853895-u-s-de-voillecomte-st-chevillon/match"
+    },
+    {
+      "uid": "55973907",
+      "j": 7,
+      "domicile": "MARNAVAL SC 4",
+      "exterieur": "CHEVILLON STADE 3",
+      "date": "2026-09-13T15:00:00+02:00",
+      "lieu": "STADE DES ACIERIES 4",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973907-s-marnaval-c-st-dizier-st-chevillon/match"
+    },
+    {
+      "uid": "55853903",
+      "j": 7,
+      "domicile": "VAUX SUR BLAISE USIB 3",
+      "exterieur": "MONTIER EN DER US 2",
+      "date": "2026-11-01T12:30:00+01:00",
+      "lieu": "STADE ROBERT LUTERS 2",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853903-u-s-intercommunale-de-la-blaise-u-s-montier-en-der/match"
     },
     {
       "uid": "55853900",
@@ -65,6 +362,33 @@
       "fiche": "https://epreuves.fff.fr/competition/match/55853900-a-s-chamouilley-roches-s-marne-u-s-de-voillecomte/match"
     },
     {
+      "uid": "55973906",
+      "j": 7,
+      "domicile": "ROUVROY FC",
+      "exterieur": "ORNEL CHANC SL 2",
+      "date": "2026-11-01T14:30:00+01:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973906-rouvroy-football-club-s-l-de-l-ornel-a-chancenay/match"
+    },
+    {
+      "uid": "55853901",
+      "j": 7,
+      "domicile": "JOINVILLE VECQUE FC 2",
+      "exterieur": "VALCOURT AF 2",
+      "date": "2026-11-01T14:30:00+01:00",
+      "lieu": "STADE MARCEL VARINOT 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853901-f-c-joinville-vecqueville-a-de-football-de-valcourt/match"
+    },
+    {
+      "uid": "55853899",
+      "j": 7,
+      "domicile": "SOMMEVOIRE ROZ UJ",
+      "exterieur": "EURVILLE BIENV. DS 2",
+      "date": "2026-11-01T14:30:00+01:00",
+      "lieu": "STADE ANNE DE GALLARD",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853899-u-des-jeunes-de-sommevoire-rozieres-diane-s-eurville-bienville/match"
+    },
+    {
       "uid": "55853907",
       "j": 8,
       "domicile": "ORNEL CHANC SL 2",
@@ -72,6 +396,78 @@
       "date": "2026-11-08T14:30:00+01:00",
       "lieu": "STADE MUNICIPAL",
       "fiche": "https://epreuves.fff.fr/competition/match/55853907-s-l-de-l-ornel-a-chancenay-a-s-chamouilley-roches-s-marne/match"
+    },
+    {
+      "uid": "55853906",
+      "j": 8,
+      "domicile": "VOILLECOMTE US",
+      "exterieur": "JOINVILLE VECQUE FC 2",
+      "date": "2026-11-08T14:30:00+01:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853906-u-s-de-voillecomte-f-c-joinville-vecqueville/match"
+    },
+    {
+      "uid": "55853909",
+      "j": 8,
+      "domicile": "SOMMEVOIRE ROZ UJ",
+      "exterieur": "VAUX SUR BLAISE USIB 3",
+      "date": "2026-11-08T14:30:00+01:00",
+      "lieu": "STADE ANNE DE GALLARD",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853909-u-des-jeunes-de-sommevoire-rozieres-u-s-intercommunale-de-la-blaise/match"
+    },
+    {
+      "uid": "55853905",
+      "j": 8,
+      "domicile": "VALCOURT AF 2",
+      "exterieur": "MARNAVAL SC 4",
+      "date": "2026-11-08T14:30:00+01:00",
+      "lieu": "STADE G. MAIZIERES",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853905-a-de-football-de-valcourt-s-marnaval-c-st-dizier/match"
+    },
+    {
+      "uid": "55973909",
+      "j": 8,
+      "domicile": "EURVILLE BIENV. DS 2",
+      "exterieur": "ROUVROY FC",
+      "date": "2026-11-08T14:30:00+01:00",
+      "lieu": "STADE LOUIS BAZIRE 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973909-diane-s-eurville-bienville-rouvroy-football-club/match"
+    },
+    {
+      "uid": "55973908",
+      "j": 8,
+      "domicile": "CHEVILLON STADE 3",
+      "exterieur": "MONTIER EN DER US 2",
+      "date": "2026-12-06T14:30:00+01:00",
+      "lieu": "STADE RENE ROLLIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973908-st-chevillon-u-s-montier-en-der/match"
+    },
+    {
+      "uid": "55853915",
+      "j": 9,
+      "domicile": "MARNAVAL SC 4",
+      "exterieur": "VOILLECOMTE US",
+      "date": "2026-11-15T12:00:00+01:00",
+      "lieu": "STADE DES ACIERIES 4",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853915-s-marnaval-c-st-dizier-u-s-de-voillecomte/match"
+    },
+    {
+      "uid": "55973911",
+      "j": 9,
+      "domicile": "VAUX SUR BLAISE USIB 3",
+      "exterieur": "CHEVILLON STADE 3",
+      "date": "2026-11-15T12:30:00+01:00",
+      "lieu": "STADE ROBERT LUTERS 2",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973911-u-s-intercommunale-de-la-blaise-st-chevillon/match"
+    },
+    {
+      "uid": "55853913",
+      "j": 9,
+      "domicile": "VAUX SUR BLAISE USI 3",
+      "exterieur": "ROUVROY FC",
+      "date": "2026-11-15T13:00:00+01:00",
+      "lieu": "STADE ROBERT LUTERS 2",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853913-u-s-intercommunale-de-la-blaise-rouvroy-football-club/match"
     },
     {
       "uid": "55853910",
@@ -83,6 +479,33 @@
       "fiche": "https://epreuves.fff.fr/competition/match/55853910-a-s-chamouilley-roches-s-marne-diane-s-eurville-bienville/match"
     },
     {
+      "uid": "55853912",
+      "j": 9,
+      "domicile": "JOINVILLE VECQUE FC 2",
+      "exterieur": "ORNEL CHANC SL 2",
+      "date": "2026-11-15T14:30:00+01:00",
+      "lieu": "STADE MARCEL VARINOT 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853912-f-c-joinville-vecqueville-s-l-de-l-ornel-a-chancenay/match"
+    },
+    {
+      "uid": "55853914",
+      "j": 9,
+      "domicile": "MONTIER EN DER US 2",
+      "exterieur": "VALCOURT AF 2",
+      "date": "2026-11-15T14:30:00+01:00",
+      "lieu": "STADE RAYMOND OUDIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853914-u-s-montier-en-der-a-de-football-de-valcourt/match"
+    },
+    {
+      "uid": "55973910",
+      "j": 9,
+      "domicile": "ROUVROY FC",
+      "exterieur": "SOMMEVOIRE ROZ UJ",
+      "date": "2026-11-15T14:30:00+01:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973910-rouvroy-football-club-u-des-jeunes-de-sommevoire-rozieres/match"
+    },
+    {
       "uid": "55853920",
       "j": 10,
       "domicile": "SOMMEVOIRE ROZ UJ",
@@ -90,6 +513,69 @@
       "date": "2026-11-22T14:30:00+01:00",
       "lieu": "STADE ANNE DE GALLARD",
       "fiche": "https://epreuves.fff.fr/competition/match/55853920-u-des-jeunes-de-sommevoire-rozieres-a-s-chamouilley-roches-s-marne/match"
+    },
+    {
+      "uid": "55853918",
+      "j": 10,
+      "domicile": "ORNEL CHANC SL 2",
+      "exterieur": "MARNAVAL SC 4",
+      "date": "2026-11-22T14:30:00+01:00",
+      "lieu": "STADE MARCEL THEVENIN 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853918-s-l-de-l-ornel-a-chancenay-s-marnaval-c-st-dizier/match"
+    },
+    {
+      "uid": "55853919",
+      "j": 10,
+      "domicile": "EURVILLE BIENV. DS 2",
+      "exterieur": "JOINVILLE VECQUE FC 2",
+      "date": "2026-11-22T14:30:00+01:00",
+      "lieu": "STADE LOUIS BAZIRE 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853919-diane-s-eurville-bienville-f-c-joinville-vecqueville/match"
+    },
+    {
+      "uid": "55853917",
+      "j": 10,
+      "domicile": "VOILLECOMTE US",
+      "exterieur": "MONTIER EN DER US 2",
+      "date": "2026-11-22T14:30:00+01:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853917-u-s-de-voillecomte-u-s-montier-en-der/match"
+    },
+    {
+      "uid": "55973913",
+      "j": 10,
+      "domicile": "ROUVROY FC",
+      "exterieur": "VAUX SUR BLAISE USIB 3",
+      "date": "2026-11-22T14:30:00+01:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973913-rouvroy-football-club-u-s-intercommunale-de-la-blaise/match"
+    },
+    {
+      "uid": "55973912",
+      "j": 10,
+      "domicile": "VALCOURT AF 2",
+      "exterieur": "CHEVILLON STADE 3",
+      "date": "2026-11-22T14:30:00+01:00",
+      "lieu": "STADE G. MAIZIERES",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973912-a-de-football-de-valcourt-st-chevillon/match"
+    },
+    {
+      "uid": "55973915",
+      "j": 11,
+      "domicile": "CHEVILLON STADE 3",
+      "exterieur": "VOILLECOMTE US",
+      "date": "2026-11-29T11:30:00+01:00",
+      "lieu": "STADE RENE ROLLIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973915-st-chevillon-u-s-de-voillecomte/match"
+    },
+    {
+      "uid": "55853926",
+      "j": 11,
+      "domicile": "MARNAVAL SC 4",
+      "exterieur": "EURVILLE BIENV. DS 2",
+      "date": "2026-11-29T12:00:00+01:00",
+      "lieu": "STADE DES ACIERIES 4",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853926-s-marnaval-c-st-dizier-diane-s-eurville-bienville/match"
     },
     {
       "uid": "55973914",
@@ -101,6 +587,51 @@
       "fiche": "https://epreuves.fff.fr/competition/match/55973914-a-s-chamouilley-roches-s-marne-rouvroy-football-club/match"
     },
     {
+      "uid": "55853925",
+      "j": 11,
+      "domicile": "MONTIER EN DER US 2",
+      "exterieur": "ORNEL CHANC SL 2",
+      "date": "2026-11-29T14:30:00+01:00",
+      "lieu": "STADE RAYMOND OUDIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853925-u-s-montier-en-der-s-l-de-l-ornel-a-chancenay/match"
+    },
+    {
+      "uid": "55853923",
+      "j": 11,
+      "domicile": "JOINVILLE VECQUE FC 2",
+      "exterieur": "SOMMEVOIRE ROZ UJ",
+      "date": "2026-11-29T14:30:00+01:00",
+      "lieu": "STADE MARCEL VARINOT 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853923-f-c-joinville-vecqueville-u-des-jeunes-de-sommevoire-rozieres/match"
+    },
+    {
+      "uid": "55853927",
+      "j": 11,
+      "domicile": "VALCOURT AF 2",
+      "exterieur": "VAUX SUR BLAISE USIB 3",
+      "date": "2026-11-29T14:30:00+01:00",
+      "lieu": "STADE G. MAIZIERES",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853927-a-de-football-de-valcourt-u-s-intercommunale-de-la-blaise/match"
+    },
+    {
+      "uid": "55853929",
+      "j": 12,
+      "domicile": "CHEVILLON STADE 3",
+      "exterieur": "MARNAVAL SC 4",
+      "date": "2027-02-21T11:30:00+01:00",
+      "lieu": "STADE RENE ROLLIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853929-st-chevillon-s-marnaval-c-st-dizier/match"
+    },
+    {
+      "uid": "55853933",
+      "j": 12,
+      "domicile": "VAUX SUR BLAISE USIB 3",
+      "exterieur": "VOILLECOMTE US",
+      "date": "2027-02-21T13:00:00+01:00",
+      "lieu": "STADE ROBERT LUTERS 2",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853933-u-s-intercommunale-de-la-blaise-u-s-de-voillecomte/match"
+    },
+    {
       "uid": "55853928",
       "j": 12,
       "domicile": "CHAMOUILLEY ROCHES",
@@ -108,6 +639,42 @@
       "date": "2027-02-21T14:30:00+01:00",
       "lieu": "STADE MUNICIPAL",
       "fiche": "https://epreuves.fff.fr/competition/match/55853928-a-s-chamouilley-roches-s-marne-f-c-joinville-vecqueville/match"
+    },
+    {
+      "uid": "55853932",
+      "j": 12,
+      "domicile": "ORNEL CHANC SL 2",
+      "exterieur": "VALCOURT AF 2",
+      "date": "2027-02-21T14:30:00+01:00",
+      "lieu": "STADE MARCEL THEVENIN 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853932-s-l-de-l-ornel-a-chancenay-a-de-football-de-valcourt/match"
+    },
+    {
+      "uid": "55853930",
+      "j": 12,
+      "domicile": "SOMMEVOIRE ROZ UJ",
+      "exterieur": "MONTIER EN DER US 2",
+      "date": "2027-02-21T14:30:00+01:00",
+      "lieu": "STADE ANNE DE GALLARD",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853930-u-des-jeunes-de-sommevoire-rozieres-u-s-montier-en-der/match"
+    },
+    {
+      "uid": "55973917",
+      "j": 12,
+      "domicile": "EURVILLE BIENV. DS 2",
+      "exterieur": "CHEVILLON STADE 3",
+      "date": "2027-02-21T14:30:00+01:00",
+      "lieu": "STADE LOUIS BAZIRE 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973917-diane-s-eurville-bienville-st-chevillon/match"
+    },
+    {
+      "uid": "55973916",
+      "j": 12,
+      "domicile": "ROUVROY FC",
+      "exterieur": "MARNAVAL SC 4",
+      "date": "2027-02-21T14:30:00+01:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973916-rouvroy-football-club-s-marnaval-c-st-dizier/match"
     },
     {
       "uid": "55853938",
@@ -119,6 +686,60 @@
       "fiche": "https://epreuves.fff.fr/competition/match/55853938-s-marnaval-c-st-dizier-a-s-chamouilley-roches-s-marne/match"
     },
     {
+      "uid": "55973918",
+      "j": 13,
+      "domicile": "CHEVILLON STADE 3",
+      "exterieur": "SOMMEVOIRE ROZ UJ",
+      "date": "2027-03-07T11:30:00+01:00",
+      "lieu": "STADE RENE ROLLIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973918-st-chevillon-u-des-jeunes-de-sommevoire-rozieres/match"
+    },
+    {
+      "uid": "55853937",
+      "j": 13,
+      "domicile": "JOINVILLE VECQUE FC 2",
+      "exterieur": "VAUX SUR BLAISE USIB 3",
+      "date": "2027-03-07T12:30:00+01:00",
+      "lieu": "STADE MARCEL VARINOT 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853937-f-c-joinville-vecqueville-u-s-intercommunale-de-la-blaise/match"
+    },
+    {
+      "uid": "55853935",
+      "j": 13,
+      "domicile": "VOILLECOMTE US",
+      "exterieur": "ORNEL CHANC SL 2",
+      "date": "2027-03-07T14:30:00+01:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853935-u-s-de-voillecomte-s-l-de-l-ornel-a-chancenay/match"
+    },
+    {
+      "uid": "55973919",
+      "j": 13,
+      "domicile": "MONTIER EN DER US 2",
+      "exterieur": "ROUVROY FC",
+      "date": "2027-03-07T14:30:00+01:00",
+      "lieu": "STADE RAYMOND OUDIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973919-u-s-montier-en-der-rouvroy-football-club/match"
+    },
+    {
+      "uid": "55853934",
+      "j": 13,
+      "domicile": "VALCOURT AF 2",
+      "exterieur": "EURVILLE BIENV. DS 2",
+      "date": "2027-03-07T14:30:00+01:00",
+      "lieu": "STADE G. MAIZIERES",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853934-a-de-football-de-valcourt-diane-s-eurville-bienville/match"
+    },
+    {
+      "uid": "55853945",
+      "j": 14,
+      "domicile": "VAUX SUR BLAISE USIB 3",
+      "exterieur": "ORNEL CHANC SL 2",
+      "date": "2027-03-14T13:00:00+01:00",
+      "lieu": "STADE ROBERT LUTERS 2",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853945-u-s-intercommunale-de-la-blaise-s-l-de-l-ornel-a-chancenay/match"
+    },
+    {
       "uid": "55853941",
       "j": 14,
       "domicile": "CHAMOUILLEY ROCHES",
@@ -126,6 +747,42 @@
       "date": "2027-03-14T14:30:00+01:00",
       "lieu": "STADE MUNICIPAL",
       "fiche": "https://epreuves.fff.fr/competition/match/55853941-a-s-chamouilley-roches-s-marne-u-s-montier-en-der/match"
+    },
+    {
+      "uid": "55853940",
+      "j": 14,
+      "domicile": "JOINVILLE VECQUE FC 2",
+      "exterieur": "MARNAVAL SC 4",
+      "date": "2027-03-14T14:30:00+01:00",
+      "lieu": "STADE MARCEL VARINOT 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853940-f-c-joinville-vecqueville-s-marnaval-c-st-dizier/match"
+    },
+    {
+      "uid": "55853944",
+      "j": 14,
+      "domicile": "EURVILLE BIENV. DS 2",
+      "exterieur": "VOILLECOMTE US",
+      "date": "2027-03-14T14:30:00+01:00",
+      "lieu": "STADE LOUIS BAZIRE 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853944-diane-s-eurville-bienville-u-s-de-voillecomte/match"
+    },
+    {
+      "uid": "55853943",
+      "j": 14,
+      "domicile": "SOMMEVOIRE ROZ UJ",
+      "exterieur": "VALCOURT AF 2",
+      "date": "2027-03-14T14:30:00+01:00",
+      "lieu": "STADE ANNE DE GALLARD",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853943-u-des-jeunes-de-sommevoire-rozieres-a-de-football-de-valcourt/match"
+    },
+    {
+      "uid": "55973920",
+      "j": 14,
+      "domicile": "ROUVROY FC",
+      "exterieur": "CHEVILLON STADE 3",
+      "date": "2027-03-14T14:30:00+01:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973920-rouvroy-football-club-st-chevillon/match"
     },
     {
       "uid": "55973921",
@@ -137,6 +794,60 @@
       "fiche": "https://epreuves.fff.fr/competition/match/55973921-st-chevillon-a-s-chamouilley-roches-s-marne/match"
     },
     {
+      "uid": "55853951",
+      "j": 15,
+      "domicile": "MARNAVAL SC 4",
+      "exterieur": "VAUX SUR BLAISE USIB 3",
+      "date": "2027-03-21T11:30:00+01:00",
+      "lieu": "STADE DES ACIERIES 4",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853951-s-marnaval-c-st-dizier-u-s-intercommunale-de-la-blaise/match"
+    },
+    {
+      "uid": "55853946",
+      "j": 15,
+      "domicile": "ORNEL CHANC SL 2",
+      "exterieur": "EURVILLE BIENV. DS 2",
+      "date": "2027-03-21T14:30:00+01:00",
+      "lieu": "STADE MARCEL THEVENIN 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853946-s-l-de-l-ornel-a-chancenay-diane-s-eurville-bienville/match"
+    },
+    {
+      "uid": "55853948",
+      "j": 15,
+      "domicile": "MONTIER EN DER US 2",
+      "exterieur": "JOINVILLE VECQUE FC 2",
+      "date": "2027-03-21T14:30:00+01:00",
+      "lieu": "STADE RAYMOND OUDIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853948-u-s-montier-en-der-f-c-joinville-vecqueville/match"
+    },
+    {
+      "uid": "55853947",
+      "j": 15,
+      "domicile": "VOILLECOMTE US",
+      "exterieur": "SOMMEVOIRE ROZ UJ",
+      "date": "2027-03-21T14:30:00+01:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853947-u-s-de-voillecomte-u-des-jeunes-de-sommevoire-rozieres/match"
+    },
+    {
+      "uid": "55973922",
+      "j": 15,
+      "domicile": "VALCOURT AF 2",
+      "exterieur": "ROUVROY FC",
+      "date": "2027-03-21T14:30:00+01:00",
+      "lieu": "STADE G. MAIZIERES",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973922-a-de-football-de-valcourt-rouvroy-football-club/match"
+    },
+    {
+      "uid": "55853957",
+      "j": 16,
+      "domicile": "VAUX SUR BLAISE USIB 3",
+      "exterieur": "EURVILLE BIENV. DS 2",
+      "date": "2027-04-04T13:00:00+02:00",
+      "lieu": "STADE ROBERT LUTERS 2",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853957-u-s-intercommunale-de-la-blaise-diane-s-eurville-bienville/match"
+    },
+    {
       "uid": "55853954",
       "j": 16,
       "domicile": "CHAMOUILLEY ROCHES",
@@ -144,6 +855,51 @@
       "date": "2027-04-04T15:00:00+02:00",
       "lieu": "STADE MUNICIPAL",
       "fiche": "https://epreuves.fff.fr/competition/match/55853954-a-s-chamouilley-roches-s-marne-a-de-football-de-valcourt/match"
+    },
+    {
+      "uid": "55853956",
+      "j": 16,
+      "domicile": "SOMMEVOIRE ROZ UJ",
+      "exterieur": "ORNEL CHANC SL 2",
+      "date": "2027-04-04T15:00:00+02:00",
+      "lieu": "STADE ANNE DE GALLARD",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853956-u-des-jeunes-de-sommevoire-rozieres-s-l-de-l-ornel-a-chancenay/match"
+    },
+    {
+      "uid": "55973923",
+      "j": 16,
+      "domicile": "JOINVILLE VECQUE FC 2",
+      "exterieur": "CHEVILLON STADE 3",
+      "date": "2027-04-04T15:00:00+02:00",
+      "lieu": "STADE MARCEL VARINOT 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973923-f-c-joinville-vecqueville-st-chevillon/match"
+    },
+    {
+      "uid": "55973924",
+      "j": 16,
+      "domicile": "ROUVROY FC",
+      "exterieur": "VOILLECOMTE US",
+      "date": "2027-04-04T15:00:00+02:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973924-rouvroy-football-club-u-s-de-voillecomte/match"
+    },
+    {
+      "uid": "55853952",
+      "j": 16,
+      "domicile": "MARNAVAL SC 4",
+      "exterieur": "MONTIER EN DER US 2",
+      "date": "2027-04-04T15:00:00+02:00",
+      "lieu": "STADE DES ACIERIES 4",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853952-s-marnaval-c-st-dizier-u-s-montier-en-der/match"
+    },
+    {
+      "uid": "55973926",
+      "j": 17,
+      "domicile": "CHEVILLON STADE 3",
+      "exterieur": "MARNAVAL SC 4",
+      "date": "2027-04-11T13:00:00+02:00",
+      "lieu": "STADE RENE ROLLIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973926-st-chevillon-s-marnaval-c-st-dizier/match"
     },
     {
       "uid": "55853960",
@@ -155,6 +911,69 @@
       "fiche": "https://epreuves.fff.fr/competition/match/55853960-u-s-de-voillecomte-a-s-chamouilley-roches-s-marne/match"
     },
     {
+      "uid": "55973925",
+      "j": 17,
+      "domicile": "ORNEL CHANC SL 2",
+      "exterieur": "ROUVROY FC",
+      "date": "2027-04-11T15:00:00+02:00",
+      "lieu": "STADE MARCEL THEVENIN 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973925-s-l-de-l-ornel-a-chancenay-rouvroy-football-club/match"
+    },
+    {
+      "uid": "55853961",
+      "j": 17,
+      "domicile": "VALCOURT AF 2",
+      "exterieur": "JOINVILLE VECQUE FC 2",
+      "date": "2027-04-11T15:00:00+02:00",
+      "lieu": "STADE G. MAIZIERES",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853961-a-de-football-de-valcourt-f-c-joinville-vecqueville/match"
+    },
+    {
+      "uid": "55853963",
+      "j": 17,
+      "domicile": "MONTIER EN DER US 2",
+      "exterieur": "VAUX SUR BLAISE USIB 3",
+      "date": "2027-04-11T15:00:00+02:00",
+      "lieu": "STADE RAYMOND OUDIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853963-u-s-montier-en-der-u-s-intercommunale-de-la-blaise/match"
+    },
+    {
+      "uid": "55853959",
+      "j": 17,
+      "domicile": "EURVILLE BIENV. DS 2",
+      "exterieur": "SOMMEVOIRE ROZ UJ",
+      "date": "2027-04-11T15:00:00+02:00",
+      "lieu": "STADE LOUIS BAZIRE 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853959-diane-s-eurville-bienville-u-des-jeunes-de-sommevoire-rozieres/match"
+    },
+    {
+      "uid": "55853965",
+      "j": 18,
+      "domicile": "MARNAVAL SC 4",
+      "exterieur": "VALCOURT AF 2",
+      "date": "2027-04-18T12:00:00+02:00",
+      "lieu": "STADE DES ACIERIES 4",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853965-s-marnaval-c-st-dizier-a-de-football-de-valcourt/match"
+    },
+    {
+      "uid": "55853968",
+      "j": 18,
+      "domicile": "CHEVILLON STADE 3",
+      "exterieur": "DIANE EURV. BIENV. 2",
+      "date": "2027-04-18T12:00:00+02:00",
+      "lieu": "STADE RENE ROLLIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853968-st-chevillon-diane-s-eurville-bienville/match"
+    },
+    {
+      "uid": "55853969",
+      "j": 18,
+      "domicile": "VAUX SUR BLAISE USIB 3",
+      "exterieur": "SOMMEVOIRE ROZ UJ",
+      "date": "2027-04-18T13:00:00+02:00",
+      "lieu": "STADE ROBERT LUTERS 2",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853969-u-s-intercommunale-de-la-blaise-u-des-jeunes-de-sommevoire-rozieres/match"
+    },
+    {
       "uid": "55853967",
       "j": 18,
       "domicile": "CHAMOUILLEY ROCHES",
@@ -162,6 +981,42 @@
       "date": "2027-04-18T15:00:00+02:00",
       "lieu": "STADE MUNICIPAL",
       "fiche": "https://epreuves.fff.fr/competition/match/55853967-a-s-chamouilley-roches-s-marne-s-l-de-l-ornel-a-chancenay/match"
+    },
+    {
+      "uid": "55853966",
+      "j": 18,
+      "domicile": "JOINVILLE VECQUE FC 2",
+      "exterieur": "VOILLECOMTE US",
+      "date": "2027-04-18T15:00:00+02:00",
+      "lieu": "STADE MARCEL VARINOT 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853966-f-c-joinville-vecqueville-u-s-de-voillecomte/match"
+    },
+    {
+      "uid": "55973927",
+      "j": 18,
+      "domicile": "MONTIER EN DER US 2",
+      "exterieur": "CHEVILLON STADE 3",
+      "date": "2027-04-18T15:00:00+02:00",
+      "lieu": "STADE RAYMOND OUDIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973927-u-s-montier-en-der-st-chevillon/match"
+    },
+    {
+      "uid": "55973928",
+      "j": 18,
+      "domicile": "ROUVROY FC",
+      "exterieur": "EURVILLE BIENV. DS 2",
+      "date": "2027-04-18T15:00:00+02:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973928-rouvroy-football-club-diane-s-eurville-bienville/match"
+    },
+    {
+      "uid": "55973930",
+      "j": 19,
+      "domicile": "CHEVILLON STADE 3",
+      "exterieur": "VAUX SUR BLAISE USIB 3",
+      "date": "2027-05-02T13:00:00+02:00",
+      "lieu": "STADE RENE ROLLIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973930-st-chevillon-u-s-intercommunale-de-la-blaise/match"
     },
     {
       "uid": "55853970",
@@ -173,6 +1028,69 @@
       "fiche": "https://epreuves.fff.fr/competition/match/55853970-diane-s-eurville-bienville-a-s-chamouilley-roches-s-marne/match"
     },
     {
+      "uid": "55853972",
+      "j": 19,
+      "domicile": "ORNEL CHANC SL 2",
+      "exterieur": "JOINVILLE VECQUE FC 2",
+      "date": "2027-05-02T15:00:00+02:00",
+      "lieu": "STADE MARCEL THEVENIN 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853972-s-l-de-l-ornel-a-chancenay-f-c-joinville-vecqueville/match"
+    },
+    {
+      "uid": "55853975",
+      "j": 19,
+      "domicile": "VOILLECOMTE US",
+      "exterieur": "MARNAVAL SC 4",
+      "date": "2027-05-02T15:00:00+02:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853975-u-s-de-voillecomte-s-marnaval-c-st-dizier/match"
+    },
+    {
+      "uid": "55853974",
+      "j": 19,
+      "domicile": "VALCOURT AF 2",
+      "exterieur": "MONTIER EN DER US 2",
+      "date": "2027-05-02T15:00:00+02:00",
+      "lieu": "STADE G. MAIZIERES",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853974-a-de-football-de-valcourt-u-s-montier-en-der/match"
+    },
+    {
+      "uid": "55973929",
+      "j": 19,
+      "domicile": "SOMMEVOIRE ROZ UJ",
+      "exterieur": "ROUVROY FC",
+      "date": "2027-05-02T15:00:00+02:00",
+      "lieu": "STADE ANNE DE GALLARD",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973929-u-des-jeunes-de-sommevoire-rozieres-rouvroy-football-club/match"
+    },
+    {
+      "uid": "55853978",
+      "j": 20,
+      "domicile": "MARNAVAL SC 4",
+      "exterieur": "ORNEL CHANC SL 2",
+      "date": "2027-05-09T12:00:00+02:00",
+      "lieu": "STADE DES ACIERIES 4",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853978-s-marnaval-c-st-dizier-s-l-de-l-ornel-a-chancenay/match"
+    },
+    {
+      "uid": "55973932",
+      "j": 20,
+      "domicile": "VAUX SUR BLAISE USIB 3",
+      "exterieur": "ROUVROY FC",
+      "date": "2027-05-09T13:00:00+02:00",
+      "lieu": "STADE ROBERT LUTERS 2",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973932-u-s-intercommunale-de-la-blaise-rouvroy-football-club/match"
+    },
+    {
+      "uid": "55973931",
+      "j": 20,
+      "domicile": "CHEVILLON STADE 3",
+      "exterieur": "VALCOURT AF 2",
+      "date": "2027-05-09T13:00:00+02:00",
+      "lieu": "STADE RENE ROLLIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973931-st-chevillon-a-de-football-de-valcourt/match"
+    },
+    {
       "uid": "55853980",
       "j": 20,
       "domicile": "CHAMOUILLEY ROCHES",
@@ -180,6 +1098,33 @@
       "date": "2027-05-09T15:00:00+02:00",
       "lieu": "STADE MUNICIPAL",
       "fiche": "https://epreuves.fff.fr/competition/match/55853980-a-s-chamouilley-roches-s-marne-u-des-jeunes-de-sommevoire-rozieres/match"
+    },
+    {
+      "uid": "55853979",
+      "j": 20,
+      "domicile": "JOINVILLE VECQUE FC 2",
+      "exterieur": "EURVILLE BIENV. DS 2",
+      "date": "2027-05-09T15:00:00+02:00",
+      "lieu": "STADE MARCEL VARINOT 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853979-f-c-joinville-vecqueville-diane-s-eurville-bienville/match"
+    },
+    {
+      "uid": "55853977",
+      "j": 20,
+      "domicile": "MONTIER EN DER US 2",
+      "exterieur": "VOILLECOMTE US",
+      "date": "2027-05-09T15:00:00+02:00",
+      "lieu": "STADE RAYMOND OUDIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853977-u-s-montier-en-der-u-s-de-voillecomte/match"
+    },
+    {
+      "uid": "55853987",
+      "j": 21,
+      "domicile": "VAUX SUR BLAISE USIB 3",
+      "exterieur": "VALCOURT AF 2",
+      "date": "2027-05-23T13:00:00+02:00",
+      "lieu": "STADE ROBERT LUTERS 2",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853987-u-s-intercommunale-de-la-blaise-a-de-football-de-valcourt/match"
     },
     {
       "uid": "55973933",
@@ -191,6 +1136,69 @@
       "fiche": "https://epreuves.fff.fr/competition/match/55973933-rouvroy-football-club-a-s-chamouilley-roches-s-marne/match"
     },
     {
+      "uid": "55853985",
+      "j": 21,
+      "domicile": "ORNEL CHANC SL 2",
+      "exterieur": "MONTIER EN DER US 2",
+      "date": "2027-05-23T15:00:00+02:00",
+      "lieu": "STADE MARCEL THEVENIN 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853985-s-l-de-l-ornel-a-chancenay-u-s-montier-en-der/match"
+    },
+    {
+      "uid": "55853983",
+      "j": 21,
+      "domicile": "SOMMEVOIRE ROZ UJ",
+      "exterieur": "JOINVILLE VECQUE FC 2",
+      "date": "2027-05-23T15:00:00+02:00",
+      "lieu": "STADE ANNE DE GALLARD",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853983-u-des-jeunes-de-sommevoire-rozieres-f-c-joinville-vecqueville/match"
+    },
+    {
+      "uid": "55973934",
+      "j": 21,
+      "domicile": "VOILLECOMTE US",
+      "exterieur": "CHEVILLON STADE 3",
+      "date": "2027-05-23T15:00:00+02:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973934-u-s-de-voillecomte-st-chevillon/match"
+    },
+    {
+      "uid": "55853986",
+      "j": 21,
+      "domicile": "EURVILLE BIENV. DS 2",
+      "exterieur": "MARNAVAL SC 4",
+      "date": "2027-05-23T15:00:00+02:00",
+      "lieu": "STADE LOUIS BAZIRE 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853986-diane-s-eurville-bienville-s-marnaval-c-st-dizier/match"
+    },
+    {
+      "uid": "55853984",
+      "j": 21,
+      "domicile": "VOILLECOMTE US",
+      "exterieur": "ROUVROY FC",
+      "date": "2027-05-23T15:00:00+02:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853984-u-s-de-voillecomte-rouvroy-football-club/match"
+    },
+    {
+      "uid": "55853991",
+      "j": 22,
+      "domicile": "MARNAVAL SC 4",
+      "exterieur": "SOMMEVOIRE ROZ UJ",
+      "date": "2027-05-30T12:00:00+02:00",
+      "lieu": "STADE DES ACIERIES 4",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853991-s-marnaval-c-st-dizier-u-des-jeunes-de-sommevoire-rozieres/match"
+    },
+    {
+      "uid": "55973935",
+      "j": 22,
+      "domicile": "CHEVILLON STADE 3",
+      "exterieur": "ORNEL CHANC SL 2",
+      "date": "2027-05-30T13:00:00+02:00",
+      "lieu": "STADE RENE ROLLIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973935-st-chevillon-s-l-de-l-ornel-a-chancenay/match"
+    },
+    {
       "uid": "55853993",
       "j": 22,
       "domicile": "CHAMOUILLEY ROCHES",
@@ -198,6 +1206,42 @@
       "date": "2027-05-30T15:00:00+02:00",
       "lieu": "STADE MUNICIPAL",
       "fiche": "https://epreuves.fff.fr/competition/match/55853993-a-s-chamouilley-roches-s-marne-u-s-intercommunale-de-la-blaise/match"
+    },
+    {
+      "uid": "55853988",
+      "j": 22,
+      "domicile": "ROUVROY FC",
+      "exterieur": "ORNEL CHANC SL 2",
+      "date": "2027-05-30T15:00:00+02:00",
+      "lieu": "STADE MUNICIPAL",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853988-rouvroy-football-club-s-l-de-l-ornel-a-chancenay/match"
+    },
+    {
+      "uid": "55973936",
+      "j": 22,
+      "domicile": "JOINVILLE VECQUE FC 2",
+      "exterieur": "ROUVROY FC",
+      "date": "2027-05-30T15:00:00+02:00",
+      "lieu": "STADE MARCEL VARINOT 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55973936-f-c-joinville-vecqueville-rouvroy-football-club/match"
+    },
+    {
+      "uid": "55853989",
+      "j": 22,
+      "domicile": "VALCOURT AF 2",
+      "exterieur": "VOILLECOMTE US",
+      "date": "2027-05-30T15:00:00+02:00",
+      "lieu": "STADE G. MAIZIERES",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853989-a-de-football-de-valcourt-u-s-de-voillecomte/match"
+    },
+    {
+      "uid": "55853990",
+      "j": 22,
+      "domicile": "MONTIER EN DER US 2",
+      "exterieur": "EURVILLE BIENV. DS 2",
+      "date": "2027-05-30T15:00:00+02:00",
+      "lieu": "STADE RAYMOND OUDIN",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853990-u-s-montier-en-der-diane-s-eurville-bienville/match"
     }
   ]
 }
