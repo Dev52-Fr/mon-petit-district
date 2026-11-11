@@ -634,7 +634,7 @@ function renderSettings() {
         ${estAdmin() ? `<button class="codebtn" onclick="adminVoirCode('${t.abbr}')">${codesVus[t.abbr] ? "Masquer" : "Code"}</button>` : ""}</div>
         ${estAdmin() && codesVus[t.abbr] ? `<div class="codebox">${codes[t.abbr]
           ? `<code>${esc(codes[t.abbr])}</code><button class="lien" style="margin:0" onclick="adminNouveauCode('${t.abbr}')">Changer</button>`
-          : `<span class="note" style="margin:0">Pas encore de code</span><button class="btn p" style="padding:6px 12px;font-size:13px" onclick="adminNouveauCode('${t.abbr}')">Créer le code</button>`}</div>` : ""}`).join("")}
+          : `<span class="note" style="margin:0">Création du code…</span>`}</div>` : ""}`).join("")}
     </div>
     ${estAdmin() && Object.keys(signalements || {}).length ? `<div class="sec"><h2>⚠️ Signalements</h2></div>
     <div class="card">${Object.entries(signalements).map(([u, v]) => { const m = db.matches.find(x => x.uid === u); return m ? matchRow(m).replace('<span>Journée', `<span style="color:var(--red);font-weight:700">${Object.keys(v).length} ⚠️</span> <span>Journée`) : "" }).join("")}</div>` : ""}
@@ -920,7 +920,7 @@ function initFirebase() {
       if (u && u.uid === ADMIN) {
         fbDb.ref("codes").on("value", sn => { codes = sn.val() || {}; rafraichir() });
         fbDb.ref("signalements").on("value", sn => { signalements = sn.val() || {}; rafraichir() });
-        syncAffiches();
+        syncAffiches(); codesAuto();
       }
       rafraichir();
     });
@@ -1038,17 +1038,37 @@ async function adminReset() {
 async function adminSignalementsVus() { const m = cur(); fbDb.ref("signalements/" + m.uid).remove().catch(erreurEnvoi) }
 
 // ---------- Codes club ----------
-function genCode(abbr) { const c = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let s = ""; for (let i = 0; i < 6; i++) s += c[Math.floor(Math.random() * c.length)]; return `${abbr}-${s}` }
+// Code club : 3 premières lettres du club + « - » + 4 chiffres, chiffres tous différents d'un club à l'autre (ex. CHA-4821)
+function prefixe(t) { return t.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3) }
+const formatOk = (t, c) => typeof c === "string" && new RegExp(`^${prefixe(t)}-\\d{4}$`).test(c);
+function genCode(abbr, pris) {
+  const t = db.teams.find(x => x.abbr === abbr); let n;
+  do { n = String(Math.floor(1000 + Math.random() * 9000)) } while (pris.has(n));
+  pris.add(n); return `${prefixe(t)}-${n}`;
+}
+// Admin : crée automatiquement les codes manquants (ou à l'ancien format) pour tous les clubs
+async function codesAuto() {
+  if (!fbDb || !estAdmin() || !db.teams.length) return;
+  try {
+    const actuels = (await fbDb.ref("codes").once("value")).val() || {};
+    const pris = new Set(Object.entries(actuels).filter(([a, c]) => { const t = db.teams.find(x => x.abbr === a); return t && formatOk(t, c) }).map(([, c]) => c.slice(-4)));
+    const nouv = {};
+    for (const t of db.teams) if (!formatOk(t, actuels[t.abbr])) nouv[t.abbr] = genCode(t.abbr, pris);
+    if (Object.keys(nouv).length) await fbDb.ref("codes").update(nouv);
+  } catch (e) { console.warn("codes", e) }
+}
 async function adminNouveauCode(abbr) {
-  if (codes[abbr] && !await ask(`Changer le code de ${abbr} ? Les téléphones qui utilisent l'ancien code perdront l'accès.`, "Changer")) return;
+  const t = db.teams.find(x => x.abbr === abbr);
+  if (!await ask(`Changer le code de ${t.name} ? Les téléphones qui utilisent l'ancien code perdront l'accès.`, "Changer")) return;
+  const pris = new Set(Object.entries(codes).filter(([a]) => a !== abbr).map(([, c]) => String(c).slice(-4)));
   codesVus[abbr] = true;
-  fbDb.ref("codes/" + abbr).set(genCode(abbr)).catch(erreurEnvoi);
+  fbDb.ref("codes/" + abbr).set(genCode(abbr, pris)).catch(erreurEnvoi);
 }
 function adminVoirCode(abbr) { codesVus[abbr] = !codesVus[abbr]; render() }
 async function entrerCode(f) {
   const err = document.getElementById("codeErr"), code = f.c.value.trim().toUpperCase().replace(/\s+/g, "");
-  const abbr = code.split("-")[0], t = db.teams.find(x => x.abbr === abbr);
-  if (!t) { err.textContent = "Code incorrect."; return }
+  const t = db.teams.find(x => prefixe(x) === code.split("-")[0]), abbr = t && t.abbr;
+  if (!t || !/^[A-Z]{3}-\d{4}$/.test(code)) { err.textContent = "Code incorrect."; return }
   err.textContent = "Vérification…";
   try {
     const u = await connexionAnonyme();
@@ -1070,7 +1090,7 @@ function scoreurBox() {
     <button class="btn full" onclick="quitterClub()">Ne plus être scoreur sur ce téléphone</button>` }
   return `<p class="note" style="margin:0 0 6px">Bénévole d'un club ? Entre le code donné par ton club pour saisir les scores de ses matchs.</p>
     <form onsubmit="event.preventDefault();entrerCode(this)">
-      <div class="row"><input type="text" name="c" placeholder="ex. ASCR-7K3P9Q" autocapitalize="characters" autocomplete="off" required style="flex:2">
+      <div class="row"><input type="text" name="c" placeholder="ex. CHA-4821" inputmode="text" autocapitalize="characters" autocomplete="off" required style="flex:2">
       <button class="btn p" style="flex:none">Valider</button></div>
       <p class="note" id="codeErr" style="margin:6px 0 0;color:var(--red)"></p>
     </form>
@@ -1094,7 +1114,7 @@ initFirebase();
 syncCalendrier().then(syncResultats).then(appliquerDistant).then(() => {
   // Jour de match : ouvrir directement « En direct » une fois le calendrier chargé
   if (!filtreChoisi && db.matches.some(m => isLive(m) || isImminent(m)) && filter !== "live") { filter = "live"; rafraichir() }
-}).then(syncAffiches);
+}).then(syncAffiches).then(codesAuto);
 
 /* ================= Tuto « Ajouter à l'écran d'accueil » ================= */
 const SHARE_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></span>`;
