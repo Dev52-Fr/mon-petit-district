@@ -44,6 +44,9 @@ function toISO(p) {
 }
 
 const matchs = new Map();
+const vuDans = new Map();      // uid → ensemble des calendriers qui contiennent ce match
+const equipeDu = new Map();    // calendrier → équipe à qui il appartient
+const N = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, " ").trim();
 for (const url of urls) {
   const id = (url.match(/\/([^/]+)\.ics$/) || [, "cal"])[1];
   try {
@@ -71,15 +74,39 @@ for (const url of urls) {
       const m = summary.match(/^J(\d+)\s+-\s+(.+?)\s+-\s+(.+)$/);
       if (!m) { console.log(`  ? format inconnu : ${summary}`); continue; }
       const uid = (e.UID?.value || summary).replace(/@fff\.fr$/, "");
+      if (!vuDans.has(uid)) vuDans.set(uid, new Set());
+      vuDans.get(uid).add(id);
+      const cpt = equipeDu.get(id) || new Map(); equipeDu.set(id, cpt);
+      for (const t of [m[2], m[3]]) cpt.set(N(t), (cpt.get(N(t)) || 0) + 1);
       matchs.set(uid, {
         uid, j: +m[1], domicile: m[2].trim(), exterieur: m[3].trim(),
         date: toISO(e.DTSTART),
         lieu: e.LOCATION?.value || "",
-        fiche: (desc.match(/https:\/\/epreuves\.fff\.fr\S+/) || [""])[0]
+        fiche: (desc.match(/https:\/\/epreuves\.fff\.fr\S+/) || [""])[0],
+        _maj: e.DTSTAMP?.value || ""
       });
     }
   } catch (err) { console.log(`✗ ${id} : ${err.message}`); }
 }
+
+// Tri des matchs fantômes : un vrai match figure dans le calendrier de CHAQUE équipe dont on a le lien.
+// (La FFF laisse parfois d'anciens matchs annulés dans le calendrier d'une seule des deux équipes.)
+const calDe = new Map();       // équipe → calendrier
+for (const [id, cpt] of equipeDu) { const [nom] = [...cpt].sort((a, b) => b[1] - a[1])[0] || []; if (nom) calDe.set(nom, id) }
+for (const [uid, m] of matchs) {
+  const manque = [m.domicile, m.exterieur].filter(t => calDe.has(N(t)) && !vuDans.get(uid).has(calDe.get(N(t))));
+  if (manque.length) { console.log(`  ✂ match fantôme retiré : J${m.j} ${m.domicile} - ${m.exterieur} (${uid})`); matchs.delete(uid) }
+}
+
+// Une équipe ne joue qu'une fois par journée : en cas de doublon, on garde la version la plus récente
+// (la FFF a remanié une partie du calendrier ; les anciennes versions traînent parfois dans les fichiers).
+const parEquipe = new Map();
+for (const [uid, m] of [...matchs].sort((a, b) => b[1]._maj.localeCompare(a[1]._maj))) {
+  const cles = [m.domicile, m.exterieur].map(t => `${m.j}|${N(t)}`);
+  if (cles.some(k => parEquipe.has(k))) { console.log(`  ✂ ancienne version retirée : J${m.j} ${m.domicile} - ${m.exterieur} (${uid})`); matchs.delete(uid); continue }
+  cles.forEach(k => parEquipe.set(k, uid));
+}
+for (const m of matchs.values()) delete m._maj;
 
 const liste = [...matchs.values()].sort((a, b) => a.j - b.j || String(a.date).localeCompare(String(b.date)));
 // On ne réécrit le fichier que si les rencontres ont changé (évite un commit chaque jour)
