@@ -593,6 +593,12 @@ function renderSettings() {
       ${[...db.teams].sort((a, b) => a.name.localeCompare(b.name)).map(t => `<div class="trow club">${crest(t, 28)}
         <span class="nm">${esc(t.name)}</span><span class="pos">${pos[t.id]}<sup>${pos[t.id] === 1 ? "er" : "e"}</sup></span></div>`).join("")}
     </div>
+    <div class="sec"><h2>Mes scores</h2></div>
+    <div class="card pad">
+      <p class="note" style="margin:0 0 10px">${db.matches.filter(m => m.scoreManuel && !m.officiel).length} score(s) saisi(s) sur ce téléphone. Copie-les pour les envoyer et les publier pour tout le monde.</p>
+      <button class="btn p full" onclick="copierScores()">📋 Copier mes scores</button>
+      <div id="copieZone"></div>
+    </div>
     <div class="sec"><h2>Données</h2></div>
     <div class="card pad">
       <p class="note" style="margin:0">📅 Calendrier : repris des calendriers publics MyFFF, vérifié automatiquement chaque matin${db.majCal ? ` (dernière mise à jour le ${new Date(db.majCal).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })} à ${fmtHour(db.majCal)})` : ""}.</p>
@@ -655,6 +661,29 @@ function saisirScore() {
     else return;
     save(); render();
   };
+}
+// Exporte les scores saisis sur ce téléphone (texte à coller à Claude)
+function copierScores() {
+  const lignes = db.matches.filter(m => m.scoreManuel && m.uid)
+    .sort((a, b) => a.j - b.j || a.date - b.date)
+    .map(m => `${m.uid}=${m.scoreManuel.h}-${m.scoreManuel.a} (J${m.j} ${team(m.home).abbr}-${team(m.away).abbr})`);
+  const txt = "SCORES MON PETIT DISTRICT\n" + lignes.join("\n");
+  const zone = document.getElementById("copieZone");
+  const ok = () => zone.innerHTML = `<p class="note" style="margin:10px 0 0;color:var(--green);font-weight:700">✓ ${lignes.length} scores copiés. Colle-les dans la conversation avec Claude.</p>`;
+  const repli = () => { zone.innerHTML = `<p class="note" style="margin:10px 0 6px">Sélectionne tout le texte ci-dessous et copie-le :</p><textarea readonly style="width:100%;height:160px;font-size:12px;border-radius:10px;padding:8px;background:var(--bg);color:var(--txt);border:1px solid var(--line)">${esc(txt)}</textarea>`; zone.querySelector("textarea").select() };
+  try { navigator.clipboard.writeText(txt).then(ok, repli) } catch (e) { repli() }
+}
+// Scores publiés dans le dépôt (data/resultats.json) : visibles par tout le monde
+async function syncResultats() {
+  let data; try { const r = await fetch("data/resultats.json", { cache: "no-store" }); if (!r.ok) return; data = await r.json() } catch (e) { return }
+  let change = false;
+  for (const m of db.matches) {
+    const sc = m.uid && data[m.uid]; if (!sc || isLive(m)) continue;
+    if (!m.scoreManuel || m.scoreManuel.h !== sc[0] || m.scoreManuel.a !== sc[1] || !m.officiel) {
+      m.scoreManuel = { h: sc[0], a: sc[1] }; m.officiel = true; m.status = "FIN"; m.events = m.events || []; change = true;
+    }
+  }
+  if (change) { save(); if (!document.querySelector("dialog[open]")) render() }
 }
 function stp(k, d) { const el = document.getElementById("sc-" + k); el.textContent = Math.max(0, Math.min(30, +el.textContent + d)) }
 function undo() { const m = cur(); if (m.events.length) { m.events.pop(); save(); render() } }
@@ -811,7 +840,7 @@ async function syncCalendrier() {
   }
   if (change) { save(); if (!document.querySelector("dialog[open]")) render() }
 }
-syncCalendrier();
+syncCalendrier().then(syncResultats);
 
 /* ================= Tuto « Ajouter à l'écran d'accueil » ================= */
 const SHARE_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></span>`;
