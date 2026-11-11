@@ -18,6 +18,9 @@
     if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     document.documentElement.dataset.theme = t; })();
 </script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -522,6 +525,7 @@ function renderMatch(m) {
   else badge = `<span class="badge lv">${minute(m)}'</span>`;
 
   let ctrl = "";
+  const scoreur = estScoreur();
   if (m.status === "AV") ctrl = isASaisir(m)
     ? `<button class="btn p full" onclick="saisirScore()">✎ Saisir le score final</button>`
     : `<button class="btn g full" onclick="setStatus('1MT')">▶ Coup d'envoi</button>`;
@@ -533,7 +537,12 @@ function renderMatch(m) {
     : m.scoreManuel
     ? `<button class="btn full" onclick="saisirScore()">✎ Modifier le score</button>`
     : `<button class="btn full" onclick="setStatus('2MT')">↩ Rouvrir le match</button>`;
-  const canEdit = isLive(m) || (m.status === "FIN" && !m.scoreManuel);
+  if (!scoreur) ctrl = m.officiel && m.status === "FIN" ? `<p class="note" style="margin:0;text-align:center">✓ Résultat officiel</p>`
+    : isLive(m) ? `<p class="note" style="margin:0;text-align:center"><span class="live">En direct</span> · le score se met à jour tout seul</p>`
+    : m.status === "FIN" ? `<p class="note" style="margin:0;text-align:center">Match terminé</p>`
+    : isASaisir(m) ? `<p class="note" style="margin:0;text-align:center">Score pas encore saisi</p>`
+    : `<p class="note" style="margin:0;text-align:center">Coup d'envoi prévu le ${fmtDate(m.date)} à ${fmtHour(m.date)}</p>`;
+  const canEdit = scoreur && (isLive(m) || (m.status === "FIN" && !m.scoreManuel));
 
   // Fil du match
   const evs = [...m.events].sort((a, b) => a.min - b.min);
@@ -579,8 +588,7 @@ function renderMatch(m) {
     </div></div>
 
     <div class="sec"><h2>Fil du match</h2></div>
-    <div class="card">${tl ? `<div class="tl">${tl}</div>` : `<div class="empty">Le match n'a pas commencé.</div>`}</div>
-    <button class="btn r full" style="margin-top:6px" onclick="delMatch()">Supprimer ce match</button>`;
+    <div class="card">${tl ? `<div class="tl">${tl}</div>` : `<div class="empty">Le match n'a pas commencé.</div>`}</div>`;
 }
 
 function renderSettings() {
@@ -588,7 +596,6 @@ function renderSettings() {
   const r = standings(true), pos = {}; r.forEach((x, i) => pos[x.id] = i + 1);
   const nbJ = Math.max(0, ...Object.keys(db.datesJ || {}).map(Number));
   const joues = db.matches.filter(m => m.status === "FIN" || m.base).length;
-  const nbPerso = db.matches.filter(m => m.scoreManuel && !m.officiel).length;   // scores saisis ici, pas encore dans GitHub
   app.innerHTML = `
     <div class="sec"><h2>Championnat</h2></div>
     <div class="card pad infos">
@@ -603,12 +610,8 @@ function renderSettings() {
       ${[...db.teams].sort((a, b) => a.name.localeCompare(b.name)).map(t => `<div class="trow club">${crest(t, 28)}
         <span class="nm">${esc(t.name)}</span><span class="pos">${pos[t.id]}<sup>${pos[t.id] === 1 ? "er" : "e"}</sup></span></div>`).join("")}
     </div>
-    ${nbPerso ? `<div class="sec"><h2>Mes scores</h2></div>
-    <div class="card pad">
-      <p class="note" style="margin:0 0 10px">${nbPerso} score${nbPerso > 1 ? "s" : ""} saisi${nbPerso > 1 ? "s" : ""} sur ce téléphone, pas encore publié${nbPerso > 1 ? "s" : ""}. Copie-les pour les envoyer et les publier pour tout le monde.</p>
-      <button class="btn p full" onclick="copierScores()">📋 Copier mes scores</button>
-      <div id="copieZone"></div>
-    </div>` : ""}
+    <div class="sec"><h2>Espace scoreur</h2></div>
+    <div class="card pad" id="scoreurBox">${scoreurBox()}</div>
     <div class="sec"><h2>Données</h2></div>
     <div class="card pad">
       <p class="note" style="margin:0">📅 Calendrier : repris des calendriers publics MyFFF, vérifié automatiquement chaque matin${db.majCal ? ` (dernière mise à jour le ${new Date(db.majCal).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })} à ${fmtHour(db.majCal)})` : ""}.</p>
@@ -626,7 +629,7 @@ async function setStatus(st) {
   if (st === "FIN" && !await ask("Siffler la fin du match ?", "Terminer")) return;
   if (st === "1MT") m.kick1 = Date.now();
   if (st === "2MT" && m.status === "MT") m.kick2 = Date.now();
-  m.status = st; save(); render();
+  m.status = st; save(); envoyer(m); render();
 }
 
 function addEvent(type, side) {
@@ -647,7 +650,7 @@ function addEvent(type, side) {
     if (dlg.returnValue !== "ok") return;
     const sd = side || dlg.querySelector("input[name=sd]:checked").value;
     m.events.push({ id: uid(), type, side: sd, min: +dlg.querySelector("#f-min").value || 0, who: dlg.querySelector("#f-who").value.trim() });
-    save(); render();
+    save(); envoyer(m); render();
   };
 }
 
@@ -669,19 +672,8 @@ function saisirScore() {
       m.status = "FIN";
     } else if (dlg.returnValue === "del") { delete m.scoreManuel; m.status = "AV" }
     else return;
-    save(); render();
+    save(); envoyer(m); render();
   };
-}
-// Exporte les scores saisis sur ce téléphone (texte à coller à Claude)
-function copierScores() {
-  const lignes = db.matches.filter(m => m.scoreManuel && m.uid && !m.officiel)
-    .sort((a, b) => a.j - b.j || a.date - b.date)
-    .map(m => `${m.uid}=${m.scoreManuel.h}-${m.scoreManuel.a} (J${m.j} ${team(m.home).abbr}-${team(m.away).abbr})`);
-  const txt = "SCORES MON PETIT DISTRICT\n" + lignes.join("\n");
-  const zone = document.getElementById("copieZone");
-  const ok = () => zone.innerHTML = `<p class="note" style="margin:10px 0 0;color:var(--green);font-weight:700">✓ ${lignes.length} scores copiés. Colle-les dans la conversation avec Claude.</p>`;
-  const repli = () => { zone.innerHTML = `<p class="note" style="margin:10px 0 6px">Sélectionne tout le texte ci-dessous et copie-le :</p><textarea readonly style="width:100%;height:160px;font-size:12px;border-radius:10px;padding:8px;background:var(--bg);color:var(--txt);border:1px solid var(--line)">${esc(txt)}</textarea>`; zone.querySelector("textarea").select() };
-  try { navigator.clipboard.writeText(txt).then(ok, repli) } catch (e) { repli() }
 }
 // Scores publiés dans le dépôt (data/resultats.json) : visibles par tout le monde
 async function syncResultats() {
@@ -699,7 +691,7 @@ async function syncResultats() {
   if (change) { save(); if (!document.querySelector("dialog[open]")) render() }
 }
 function stp(k, d) { const el = document.getElementById("sc-" + k); el.textContent = Math.max(0, Math.min(30, +el.textContent + d)) }
-function undo() { const m = cur(); if (m.events.length) { m.events.pop(); save(); render() } }
+function undo() { const m = cur(); if (m.events.length) { m.events.pop(); save(); envoyer(m); render() } }
 async function delMatch() { if (!await ask("Supprimer ce match ?", "Supprimer")) return; const mm = cur(); if (mm && mm.uid) { db.masques = db.masques || []; db.masques.push(mm.uid) }
   db.matches = db.matches.filter(m => m.id !== openId); openId = null; save(); render() }
 
@@ -853,7 +845,85 @@ async function syncCalendrier() {
   }
   if (change) { save(); if (!document.querySelector("dialog[open]")) render() }
 }
-syncCalendrier().then(syncResultats);
+
+/* ================= Firebase : direct partagé ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyAHXaBr7O-52Pb3Lty2fYMCzx0xbXhklys",
+  authDomain: "mon-petit-district.firebaseapp.com",
+  databaseURL: "https://mon-petit-district-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "mon-petit-district",
+  storageBucket: "mon-petit-district.firebasestorage.app",
+  messagingSenderId: "646368277238",
+  appId: "1:646368277238:web:ceda40b4f46c3fa4ae32d7"
+};
+// UID des comptes autorisés à saisir les scores (les règles Firebase vérifient la même liste)
+var SCOREURS = ["9dNftUFrQ9gBCHSyXDhwT2ICSzH3"];
+
+var fbDb = null, fbUser = null, distant = {};
+function estScoreur() { return !!fbUser && SCOREURS.includes(fbUser.uid) }
+
+function initFirebase() {
+  if (!window.firebase) return;                      // hors ligne ou aperçu sans accès : l'app reste utilisable
+  try {
+    firebase.initializeApp(firebaseConfig);
+    fbDb = firebase.database();
+    firebase.auth().onAuthStateChanged(u => { fbUser = u; if (!document.querySelector("dialog[open]")) render() });
+    // Écoute en direct de tous les matchs saisis par les scoreurs
+    fbDb.ref("matchs").on("value", snap => { distant = snap.val() || {}; appliquerDistant() });
+  } catch (e) { console.warn("Firebase indisponible", e) }
+}
+
+// Applique l'état reçu de Firebase aux matchs (les résultats officiels du dépôt restent prioritaires)
+function appliquerDistant() {
+  let change = false;
+  for (const m of db.matches) {
+    const d = m.uid && distant[m.uid];
+    if (!d || m.officiel) continue;
+    const ev = Array.isArray(d.events) ? d.events.filter(Boolean) : Object.values(d.events || {});
+    const nouv = { status: d.status || "AV", kick1: d.kick1 || null, kick2: d.kick2 || null, events: ev,
+                   scoreManuel: d.scoreManuel || undefined, forfait: d.forfait || undefined };
+    const avant = JSON.stringify({ s: m.status, k1: m.kick1, k2: m.kick2, e: m.events, sm: m.scoreManuel, f: m.forfait });
+    if (avant !== JSON.stringify({ s: nouv.status, k1: nouv.kick1, k2: nouv.kick2, e: nouv.events, sm: nouv.scoreManuel, f: nouv.forfait })) {
+      Object.assign(m, nouv); if (!nouv.scoreManuel) delete m.scoreManuel; if (!nouv.forfait) delete m.forfait;
+      change = true;
+    }
+  }
+  if (change) { save(); if (!document.querySelector("dialog[open]")) render() }
+}
+
+// Envoie l'état d'un match vers Firebase (scoreurs connectés uniquement)
+function envoyer(m) {
+  if (!fbDb || !estScoreur() || !m.uid) return;
+  fbDb.ref("matchs/" + m.uid).set({
+    status: m.status, kick1: m.kick1 || null, kick2: m.kick2 || null,
+    events: m.events.length ? m.events : null, scoreManuel: m.scoreManuel || null, forfait: m.forfait || null,
+    maj: firebase.database.ServerValue.TIMESTAMP, par: fbUser.uid
+  }).catch(e => ask("Envoi impossible : " + (e.code === "PERMISSION_DENIED" ? "ce compte n'est pas autorisé à saisir les scores." : e.message), null));
+}
+
+// Bloc « Espace scoreur » de la page Infos
+function scoreurBox() {
+  if (!window.firebase) return `<p class="note" style="margin:0">Connexion indisponible pour le moment (hors ligne ?).</p>`;
+  if (fbUser) return `<p class="note" style="margin:0 0 10px">Connecté : <b>${esc(fbUser.email || "")}</b>${estScoreur() ? " · ✅ scoreur" : " · ⚠️ compte non autorisé à saisir"}</p>
+    <p class="note" style="margin:0 0 12px">Ouvre un match : les boutons Coup d'envoi, But !, cartons et score final apparaissent. Chaque action s'affiche chez tout le monde en direct.</p>
+    <button class="btn full" onclick="firebase.auth().signOut()">Se déconnecter</button>`;
+  return `<p class="note" style="margin:0 0 6px">Réservé aux personnes qui saisissent les scores au bord du terrain.</p>
+    <form onsubmit="event.preventDefault();connexion(this)">
+      <label>E-mail</label><input type="email" name="e" autocomplete="username" required>
+      <label>Mot de passe</label><input type="password" name="p" autocomplete="current-password" required>
+      <button class="btn p full" style="margin-top:12px">Se connecter</button>
+      <p class="note" id="loginErr" style="margin:8px 0 0;color:var(--red)"></p>
+    </form>`;
+}
+function connexion(f) {
+  const err = document.getElementById("loginErr"); err.textContent = "Connexion…";
+  firebase.auth().signInWithEmailAndPassword(f.e.value.trim(), f.p.value)
+    .then(() => { err.textContent = "" })
+    .catch(e => { err.textContent = /invalid|wrong|user-not-found/i.test(e.code) ? "E-mail ou mot de passe incorrect." : "Connexion impossible : " + e.message });
+}
+
+initFirebase();
+syncCalendrier().then(syncResultats).then(appliquerDistant);
 
 /* ================= Tuto « Ajouter à l'écran d'accueil » ================= */
 const SHARE_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></span>`;
