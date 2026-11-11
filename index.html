@@ -394,21 +394,20 @@ function renderMatchs() {
   let html = `<div class="chips">${chip("live", "En direct", live.length)}${chip("av", "À venir")}${chip("fin", "Résultats")}${chip("tout", "Tout")}</div>`;
   if (filter === "tout" || filter === "live") html += block("En direct", live, `<span class="live">Live</span>`);
   if (filter === "tout" || filter === "av") {
-    // Journées rangées par date ; les matchs reportés sont à part
-    const normaux = next.filter(m => !isReporte(m)), reportes = next.filter(isReporte);
-    const byJ = {}; normaux.forEach(m => (byJ[m.j] = byJ[m.j] || []).push(m));
-    const js = Object.keys(byJ).sort((a, b) => dateJournee(+a) - dateJournee(+b));
-    const quand = j => `<span class="note" style="margin:0">${fmtDate(dateJournee(+j))}</span>`;
-    if (filter === "av") {
-      js.slice(0, 1).forEach(j => html += block(`Prochaine journée · J${j}`, byJ[j], quand(j)));
-      if (reportes.length) html += block("Matchs reportés", reportes, `<span class="rep">${reportes.length}</span>`);
-    } else {
-      js.forEach((j, i) => {
-        html += fold(`av${j}`, `${i === 0 ? "Prochaine journée · " : ""}J${j}`, byJ[j], fmtDate(dateJournee(+j)), i === 0);
-        if (i === 0) html += fold("rep", "Matchs reportés", reportes, "", true);
-      });
-      if (!js.length) html += fold("rep", "Matchs reportés", reportes, "", true);
-    }
+    // Journées rangées par date ; un match reporté est rangé dans la journée qui couvre sa nouvelle date
+    const byJ = {}; next.filter(m => !isReporte(m)).forEach(m => (byJ[m.j] = byJ[m.j] || []).push(m));
+    let js = Object.keys(byJ).sort((a, b) => dateJournee(+a) - dateJournee(+b));
+    const rep = {};
+    next.filter(isReporte).forEach(m => {
+      let cible = js[0];
+      js.forEach(j => { if (dateJournee(+j) <= m.date) cible = j });
+      if (cible === undefined) { cible = String(m.j); js = [cible] }
+      (byJ[cible] = byJ[cible] || []).push(m); rep[cible] = (rep[cible] || 0) + 1;
+    });
+    js.forEach(j => byJ[j].sort((a, b) => a.date - b.date));
+    const info = j => fmtDate(dateJournee(+j)) + (rep[j] ? ` · <span class="rep">+${rep[j]} reporté${rep[j] > 1 ? "s" : ""}</span>` : "");
+    if (filter === "av") js.slice(0, 1).forEach(j => html += block(`Prochaine journée · J${j}`, byJ[j], `<span class="note" style="margin:0">${info(j)}</span>`));
+    else js.forEach((j, i) => html += fold(`av${j}`, `${i === 0 ? "Prochaine journée · " : ""}J${j}`, byJ[j], info(j), i === 0));
     if (filter === "av" && js.length > 1)
       html += `<button class="btn full" style="margin-bottom:6px" onclick="filter='tout';render();scrollTo(0,0)">Voir tout le calendrier (${next.length} matchs)</button>`;
   }
