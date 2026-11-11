@@ -1,0 +1,44 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": "auth != null && auth.uid === '9dNftUFrQ9gBCHSyXDhwT2ICSzH3'",
+    "affiches": {
+      ".read": true
+    },
+    "codes": {
+      ".read": "auth != null && auth.uid === '9dNftUFrQ9gBCHSyXDhwT2ICSzH3'"
+    },
+    "scoreurs": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid && (!newData.exists() || (newData.child('club').isString() && root.child('codes').child(newData.child('club').val()).isString() && newData.child('code').val() === root.child('codes').child(newData.child('club').val()).val()))"
+      }
+    },
+    "signalements": {
+      ".read": "auth != null && auth.uid === '9dNftUFrQ9gBCHSyXDhwT2ICSzH3'",
+      "$match": {
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.isNumber()"
+        }
+      }
+    },
+    "matchs": {
+      ".read": true,
+      "$match": {
+        "scoreur": {
+          ".write": "(auth != null && !data.exists() && newData.child('uid').val() === auth.uid && newData.child('type').val() === 'supporter' && newData.child('pseudo').isString() && newData.child('pseudo').val().length <= 40 && now >= root.child('affiches').child($match).child('t').val() - 900000 && now <= root.child('affiches').child($match).child('t').val() + 10800000) || ((auth != null && root.child('scoreurs').child(auth.uid).child('club').isString() && root.child('codes').child(root.child('scoreurs').child(auth.uid).child('club').val()).isString() && root.child('scoreurs').child(auth.uid).child('code').val() === root.child('codes').child(root.child('scoreurs').child(auth.uid).child('club').val()).val() && (root.child('affiches').child($match).child('h').val() === root.child('scoreurs').child(auth.uid).child('club').val() || root.child('affiches').child($match).child('a').val() === root.child('scoreurs').child(auth.uid).child('club').val())) && newData.child('uid').val() === auth.uid && newData.child('type').val() === 'club')"
+        },
+        "$champ": {
+          ".write": "(auth != null && root.child('scoreurs').child(auth.uid).child('club').isString() && root.child('codes').child(root.child('scoreurs').child(auth.uid).child('club').val()).isString() && root.child('scoreurs').child(auth.uid).child('code').val() === root.child('codes').child(root.child('scoreurs').child(auth.uid).child('club').val()).val() && (root.child('affiches').child($match).child('h').val() === root.child('scoreurs').child(auth.uid).child('club').val() || root.child('affiches').child($match).child('a').val() === root.child('scoreurs').child(auth.uid).child('club').val())) || (auth != null && root.child('matchs').child($match).child('scoreur/uid').val() === auth.uid && root.child('matchs').child($match).child('scoreur/type').val() === 'supporter' && now <= root.child('affiches').child($match).child('t').val() + 10800000)"
+        },
+        "events": {
+          ".write": "(auth != null && root.child('scoreurs').child(auth.uid).child('club').isString() && root.child('codes').child(root.child('scoreurs').child(auth.uid).child('club').val()).isString() && root.child('scoreurs').child(auth.uid).child('code').val() === root.child('codes').child(root.child('scoreurs').child(auth.uid).child('club').val()).val() && (root.child('affiches').child($match).child('h').val() === root.child('scoreurs').child(auth.uid).child('club').val() || root.child('affiches').child($match).child('a').val() === root.child('scoreurs').child(auth.uid).child('club').val())) || (auth != null && root.child('matchs').child($match).child('scoreur/uid').val() === auth.uid && root.child('matchs').child($match).child('scoreur/type').val() === 'supporter' && now <= root.child('affiches').child($match).child('t').val() + 10800000)",
+          "$e": {
+            ".validate": "newData.hasChildren(['type','side','min']) && (!newData.child('who').exists() || newData.child('who').val().length <= 40)"
+          }
+        }
+      }
+    }
+  }
+}
