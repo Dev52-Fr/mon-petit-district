@@ -588,6 +588,7 @@ function renderSettings() {
   const r = standings(true), pos = {}; r.forEach((x, i) => pos[x.id] = i + 1);
   const nbJ = Math.max(0, ...Object.keys(db.datesJ || {}).map(Number));
   const joues = db.matches.filter(m => m.status === "FIN" || m.base).length;
+  const nbPerso = db.matches.filter(m => m.scoreManuel && !m.officiel).length;   // scores saisis ici, pas encore dans GitHub
   app.innerHTML = `
     <div class="sec"><h2>Championnat</h2></div>
     <div class="card pad infos">
@@ -602,12 +603,12 @@ function renderSettings() {
       ${[...db.teams].sort((a, b) => a.name.localeCompare(b.name)).map(t => `<div class="trow club">${crest(t, 28)}
         <span class="nm">${esc(t.name)}</span><span class="pos">${pos[t.id]}<sup>${pos[t.id] === 1 ? "er" : "e"}</sup></span></div>`).join("")}
     </div>
-    <div class="sec"><h2>Mes scores</h2></div>
+    ${nbPerso ? `<div class="sec"><h2>Mes scores</h2></div>
     <div class="card pad">
-      <p class="note" style="margin:0 0 10px">${db.matches.filter(m => m.scoreManuel && !m.officiel).length} score(s) saisi(s) sur ce téléphone. Copie-les pour les envoyer et les publier pour tout le monde.</p>
+      <p class="note" style="margin:0 0 10px">${nbPerso} score${nbPerso > 1 ? "s" : ""} saisi${nbPerso > 1 ? "s" : ""} sur ce téléphone, pas encore publié${nbPerso > 1 ? "s" : ""}. Copie-les pour les envoyer et les publier pour tout le monde.</p>
       <button class="btn p full" onclick="copierScores()">📋 Copier mes scores</button>
       <div id="copieZone"></div>
-    </div>
+    </div>` : ""}
     <div class="sec"><h2>Données</h2></div>
     <div class="card pad">
       <p class="note" style="margin:0">📅 Calendrier : repris des calendriers publics MyFFF, vérifié automatiquement chaque matin${db.majCal ? ` (dernière mise à jour le ${new Date(db.majCal).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })} à ${fmtHour(db.majCal)})` : ""}.</p>
@@ -673,7 +674,7 @@ function saisirScore() {
 }
 // Exporte les scores saisis sur ce téléphone (texte à coller à Claude)
 function copierScores() {
-  const lignes = db.matches.filter(m => m.scoreManuel && m.uid)
+  const lignes = db.matches.filter(m => m.scoreManuel && m.uid && !m.officiel)
     .sort((a, b) => a.j - b.j || a.date - b.date)
     .map(m => `${m.uid}=${m.scoreManuel.h}-${m.scoreManuel.a} (J${m.j} ${team(m.home).abbr}-${team(m.away).abbr})`);
   const txt = "SCORES MON PETIT DISTRICT\n" + lignes.join("\n");
