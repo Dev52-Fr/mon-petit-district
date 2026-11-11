@@ -1,0 +1,32 @@
+name: Calendrier MyFFF
+
+on:
+  schedule:
+    - cron: "17 5 * * *"      # tous les jours vers 6 h (heure de Paris)
+  workflow_dispatch:           # bouton « Run workflow » dans l'onglet Actions
+  push:
+    paths:
+      - data/calendriers.txt
+      - scripts/calendrier.mjs
+      - .github/workflows/calendrier.yml
+
+permissions:
+  contents: write
+
+jobs:
+  maj:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/calendrier.mjs
+      - name: Enregistrer si quelque chose a changé
+        run: |
+          git config user.name "calendrier-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if git diff --cached --quiet -- data/brut; then echo "Rien de neuf"; exit 0; fi
+          git commit -m "Calendrier MyFFF mis à jour"
+          git push

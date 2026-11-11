@@ -1,0 +1,2 @@
+# Un lien de calendrier MyFFF par ligne (webcal:// ou https://). Les lignes avec # sont ignorées.
+webcal://media.fff.fr/calendars/2026/eq/15232_SEM_1.ics
