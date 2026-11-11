@@ -1,0 +1,187 @@
+{
+  "maj": "2026-11-11T00:25:50.509Z",
+  "matchs": [
+    {
+      "uid": "55708289@fff.fr",
+      "date": "2026-08-16T16:00:00+02:00",
+      "titre": "J1 - CHAM. ROCHES - LUZY A.S.L.V.F",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "56594443@fff.fr",
+      "date": "2026-08-30T16:00:00+02:00",
+      "titre": "J2 - CHAM. ROCHES - DIANE EURV. BIENV.",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853868@fff.fr",
+      "date": "2026-09-06T15:00:00+02:00",
+      "titre": "J2 - JOINVILLE VECQUE FC 2 - CHAMOUILLEY ROCHES",
+      "lieu": "STADE MARCEL VARINOT 1",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "79330100@fff.fr",
+      "date": "2026-09-13T15:00:00+02:00",
+      "titre": "J2 - CHAMOUILLEY ROCHES - ROLAMPONT CA",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853878@fff.fr",
+      "date": "2026-09-20T15:00:00+02:00",
+      "titre": "J3 - CHAMOUILLEY ROCHES - MARNAVAL SC 4",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853867@fff.fr",
+      "date": "2026-09-27T15:00:00+02:00",
+      "titre": "J1 - VAUX SUR BLAISE USIB 3 - CHAMOUILLEY ROCHES",
+      "lieu": "STADE ROBERT LUTERS 2",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853881@fff.fr",
+      "date": "2026-10-04T15:00:00+02:00",
+      "titre": "J4 - MONTIER EN DER US 2 - CHAMOUILLEY ROCHES",
+      "lieu": "STADE RAYMOND OUDIN",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "79760764@fff.fr",
+      "date": "2026-10-11T15:00:00+02:00",
+      "titre": "J2 - CHAMOUILLEY ROCHES - ROUVRES AUBERIVE US",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55973902@fff.fr",
+      "date": "2026-10-18T15:00:00+02:00",
+      "titre": "J5 - CHAMOUILLEY ROCHES - CHEVILLON STADE 3",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853894@fff.fr",
+      "date": "2026-10-25T14:30:00+01:00",
+      "titre": "J6 - VALCOURT AF 2 - CHAMOUILLEY ROCHES",
+      "lieu": "STADE G. MAIZIERES",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853900@fff.fr",
+      "date": "2026-11-01T14:30:00+01:00",
+      "titre": "J7 - CHAMOUILLEY ROCHES - VOILLECOMTE US",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853907@fff.fr",
+      "date": "2026-11-08T14:30:00+01:00",
+      "titre": "J8 - ORNEL CHANC SL 2 - CHAMOUILLEY ROCHES",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853910@fff.fr",
+      "date": "2026-11-15T14:30:00+01:00",
+      "titre": "J9 - CHAMOUILLEY ROCHES - EURVILLE BIENV. DS 2",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853920@fff.fr",
+      "date": "2026-11-22T14:30:00+01:00",
+      "titre": "J10 - SOMMEVOIRE ROZ UJ - CHAMOUILLEY ROCHES",
+      "lieu": "STADE ANNE DE GALLARD",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55973914@fff.fr",
+      "date": "2026-11-29T14:30:00+01:00",
+      "titre": "J11 - CHAMOUILLEY ROCHES - ROUVROY FC",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853928@fff.fr",
+      "date": "2027-02-21T14:30:00+01:00",
+      "titre": "J12 - CHAMOUILLEY ROCHES - JOINVILLE VECQUE FC 2",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853938@fff.fr",
+      "date": "2027-03-07T11:30:00+01:00",
+      "titre": "J13 - MARNAVAL SC 4 - CHAMOUILLEY ROCHES",
+      "lieu": "STADE DES ACIERIES 4",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853941@fff.fr",
+      "date": "2027-03-14T14:30:00+01:00",
+      "titre": "J14 - CHAMOUILLEY ROCHES - MONTIER EN DER US 2",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55973921@fff.fr",
+      "date": "2027-03-21T11:30:00+01:00",
+      "titre": "J15 - CHEVILLON STADE 3 - CHAMOUILLEY ROCHES",
+      "lieu": "STADE RENE ROLLIN",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853954@fff.fr",
+      "date": "2027-04-04T15:00:00+02:00",
+      "titre": "J16 - CHAMOUILLEY ROCHES - VALCOURT AF 2",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853960@fff.fr",
+      "date": "2027-04-11T15:00:00+02:00",
+      "titre": "J17 - VOILLECOMTE US - CHAMOUILLEY ROCHES",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853967@fff.fr",
+      "date": "2027-04-18T15:00:00+02:00",
+      "titre": "J18 - CHAMOUILLEY ROCHES - ORNEL CHANC SL 2",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853970@fff.fr",
+      "date": "2027-05-02T15:00:00+02:00",
+      "titre": "J19 - EURVILLE BIENV. DS 2 - CHAMOUILLEY ROCHES",
+      "lieu": "STADE LOUIS BAZIRE 1",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853980@fff.fr",
+      "date": "2027-05-09T15:00:00+02:00",
+      "titre": "J20 - CHAMOUILLEY ROCHES - SOMMEVOIRE ROZ UJ",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55973933@fff.fr",
+      "date": "2027-05-23T15:00:00+02:00",
+      "titre": "J21 - ROUVROY FC - CHAMOUILLEY ROCHES",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    },
+    {
+      "uid": "55853993@fff.fr",
+      "date": "2027-05-30T15:00:00+02:00",
+      "titre": "J22 - CHAMOUILLEY ROCHES - VAUX SUR BLAISE USIB 3",
+      "lieu": "STADE MUNICIPAL",
+      "description": "Match dans 15 minutes"
+    }
+  ]
+}
