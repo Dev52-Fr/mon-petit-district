@@ -5,7 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#3d7a2c">
 <title>Mon petit District – Le foot amateur en direct</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2322c55e'/%3E%3Ccircle cx='13' cy='19.5' r='9' fill='%230a2463'/%3E%3Crect x='13' y='10.5' width='17' height='6.5' rx='1.5' fill='%230a2463'/%3E%3Ccircle cx='13' cy='19.5' r='3.6' fill='%2322c55e'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="description" content="Le foot amateur en direct : scores, classement et calendrier de la D3 Haute-Marne – Poule A.">
+<meta property="og:title" content="Mon petit District – Le foot amateur en direct">
+<meta property="og:description" content="Scores en direct, classement et calendrier de la D3 Haute-Marne – Poule A.">
+<meta property="og:image" content="https://dev52-fr.github.io/mon-petit-district/og.jpg">
+<meta property="og:url" content="https://dev52-fr.github.io/mon-petit-district/">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -22,6 +28,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -59,12 +66,20 @@
   .banner{position:relative;overflow:hidden;background:#3d7a2c;padding-top:env(safe-area-inset-top)}
   .banner::before{content:"";position:absolute;inset:-30px;background:url(banner.jpg) center 20%/auto 300%;filter:blur(16px) saturate(1.1)}
   .banner img{position:relative;display:block;width:100%;height:auto;max-height:260px;object-fit:cover;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 30px);mask-image:linear-gradient(to bottom,transparent 0,#000 30px)}
-  .brand{display:flex;align-items:center;gap:10px}
-  .brand .logo{width:34px;height:34px;border-radius:10px;background:var(--lime);display:grid;place-items:center;font-size:19px}
-  .brand h1{margin:0;font:800 24px/1 var(--cond);letter-spacing:.5px;text-transform:uppercase}
-  .brand h1 span{color:var(--green);display:block;font-size:26px}
-  .brand h1 small{display:block;font:700 13px/1 var(--cond);letter-spacing:1.5px;opacity:.85;margin-bottom:1px}
-  .brand .logo{width:38px;height:38px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand .logo{width:58px;height:58px;border-radius:15px;background:linear-gradient(160deg,#3fd56f,#22c55e);display:grid;place-items:center;flex:none;box-shadow:0 4px 12px rgba(34,197,94,.3)}
+  .brand .logo img{width:46px;height:auto;display:block}
+  .wm{display:flex;flex-direction:column;align-items:flex-start;line-height:1;font-family:Poppins,M,sans-serif;font-weight:700;color:var(--ink)}
+  .wm-mon{font-size:11px;letter-spacing:.45em;color:var(--mut);margin-bottom:4px}
+  .wm-p{font-size:38px;letter-spacing:.03em}
+  .wm-p i{display:inline-block;transform:skewX(-14deg);font-style:normal}
+  .wm-d{display:flex;align-items:center;gap:.45em;font-size:12px;letter-spacing:.42em;margin-top:5px}
+  .wm-d::before,.wm-d::after{content:"";width:1.6em;height:.18em;border-radius:.1em;background:var(--green)}
+  /* ---------- Écran d'ouverture ---------- */
+  #splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;transition:opacity .45s ease}
+  #splash img{width:min(56vw,240px);height:auto;border-radius:22%;box-shadow:0 18px 50px rgba(34,197,94,.35);animation:pop .6s ease-out}
+  #splash.out{opacity:0;pointer-events:none}
+  @keyframes pop{from{transform:scale(.85);opacity:0}}
   .disclaimer{text-align:center;font-size:11px;color:var(--mut);margin:22px 10px 6px}
   .league{margin-top:6px;font-size:13px;color:var(--mut)}
   main{padding:14px 14px 20px;max-width:640px;margin:0 auto}
@@ -263,9 +278,21 @@
 </style>
 </head>
 <body>
+<div id="splash"><img src="logo-c.png" alt="Mon petit District"></div>
+<script>
+  // Écran d'ouverture : une fois par session, environ 1 seconde
+  (function () {
+    const sp = document.getElementById("splash"); let vu = false;
+    try { vu = sessionStorage.getItem("splash") === "1"; sessionStorage.setItem("splash", "1") } catch (e) {}
+    if (vu) { sp.remove(); return }
+    addEventListener("load", () => setTimeout(() => { sp.classList.add("out"); setTimeout(() => sp.remove(), 500) }, 900));
+    setTimeout(() => { if (sp.isConnected) { sp.classList.add("out"); setTimeout(() => sp.remove(), 500) } }, 3000);
+  })();
+</script>
 <div class="banner"><img src="banner.jpg" alt="Football en Haute-Marne"></div>
 <header>
-  <div class="brand"><div class="logo"><svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><circle cx="5.5" cy="8.5" r="2.6" fill="none" stroke="#0a2463" stroke-width="2"/><path d="M7.5 10.5l3 3" stroke="#0a2463" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="19.5" r="9" fill="#0a2463"/><rect x="13" y="10.5" width="17" height="6.5" rx="1.5" fill="#0a2463"/><rect x="18" y="10.5" width="3" height="3" fill="#22c55e"/><circle cx="13" cy="19.5" r="3.6" fill="#22c55e"/></svg></div><h1><small>Mon petit</small><span>District</span></h1>
+  <div class="brand"><div class="logo"><img src="sifflet.png" alt=""></div>
+    <div class="wm" aria-label="Mon petit District"><span class="wm-mon">MON</span><span class="wm-p">PET<i>I</i>T</span><span class="wm-d">DISTRICT</span></div>
     <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Mode sombre"></button></div>
   <div class="league" id="sub"></div>
 </header>
