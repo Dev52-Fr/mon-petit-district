@@ -189,6 +189,18 @@
   .install .ico{display:inline-flex;vertical-align:-4px;background:var(--soft);border-radius:6px;padding:2px 4px;color:var(--blue)}
   .install .ico svg{width:16px;height:16px}
   .install .cl{position:absolute;top:8px;right:8px;background:none;border:0;font-size:20px;color:var(--mut);padding:4px 8px}
+
+  /* ---------- Volets dépliants ---------- */
+  details.fold{margin:12px 0 0}
+  details.fold summary{list-style:none;display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:13px 14px;cursor:pointer;
+    box-shadow:0 1px 3px rgba(15,23,42,.06),0 1px 0 var(--line)}
+  details.fold summary::-webkit-details-marker{display:none}
+  details.fold summary h2{margin:0;flex:1;font:700 18px/1 var(--cond);text-transform:uppercase;letter-spacing:.5px}
+  details.fold .cnt{font-size:12px;color:var(--mut);white-space:nowrap}
+  details.fold .chev{width:9px;height:9px;border-right:2.5px solid var(--mut);border-bottom:2.5px solid var(--mut);transform:rotate(45deg);margin:-4px 4px 0 2px;transition:transform .2s}
+  details.fold[open] .chev{transform:rotate(-135deg);margin-top:4px}
+  details.fold[open] summary{border-radius:14px 14px 0 0;box-shadow:none;border-bottom:1px solid var(--line)}
+  details.fold[open] .card{border-radius:0 0 16px 16px;margin-bottom:0}
 </style>
 </head>
 <body>
@@ -332,6 +344,7 @@ function standings(includeLive) {
 
 /* ================= Rendu ================= */
 const app = document.getElementById("app");
+const voletsOuverts = {};
 let tab = "matchs", openId = null, filter = db.matches.some(m => ["1MT", "MT", "2MT"].includes(m.status)) ? "live" : "av";
 
 const DISCLAIMER = `<p class="disclaimer">Application non officielle, sans lien avec la FFF ni le District de Haute-Marne.</p>`;
@@ -369,6 +382,14 @@ function renderMatchs() {
   const next = db.matches.filter(m => m.status === "AV").sort((a, b) => a.date - b.date);
   const fin = db.matches.filter(m => m.status === "FIN").sort((a, b) => b.j - a.j || b.date - a.date);
   const chip = (k, l, n) => `<button class="chip ${filter === k ? "on" : ""}" onclick="filter='${k}';render()">${l}${n ? `<span class="n">${n}</span>` : ""}</button>`;
+  // Dans « Tout » : chaque section est un volet dépliant
+  const fold = (key, title, list, extra = "", ouvert = false) => {
+    if (!list.length) return "";
+    const open = key in voletsOuverts ? voletsOuverts[key] : ouvert;
+    return `<details class="fold" ${open ? "open" : ""} ontoggle="voletsOuverts['${key}']=this.open">
+      <summary><h2>${title}</h2><span class="cnt">${extra}${extra ? " · " : ""}${list.length} match${list.length > 1 ? "s" : ""}</span><i class="chev"></i></summary>
+      <div class="card">${list.map(matchRow).join("")}</div></details>`;
+  };
   const block = (title, list, extra = "") => list.length ? `<div class="sec"><h2>${title}</h2>${extra}</div><div class="card">${list.map(matchRow).join("")}</div>` : "";
   let html = `<div class="chips">${chip("live", "En direct", live.length)}${chip("av", "À venir")}${chip("fin", "Résultats")}${chip("tout", "Tout")}</div>`;
   if (filter === "tout" || filter === "live") html += block("En direct", live, `<span class="live">Live</span>`);
@@ -378,17 +399,24 @@ function renderMatchs() {
     const byJ = {}; normaux.forEach(m => (byJ[m.j] = byJ[m.j] || []).push(m));
     const js = Object.keys(byJ).sort((a, b) => dateJournee(+a) - dateJournee(+b));
     const quand = j => `<span class="note" style="margin:0">${fmtDate(dateJournee(+j))}</span>`;
-    (filter === "av" ? js.slice(0, 1) : js).forEach((j, i) => {
-      html += block(`${i === 0 ? "Prochaine journée · " : ""}J${j}`, byJ[j], quand(j));
-      if (i === 0 && reportes.length) html += block("Matchs reportés", reportes, `<span class="rep">${reportes.length}</span>`);
-    });
-    if (!js.length && reportes.length) html += block("Matchs reportés", reportes);
+    if (filter === "av") {
+      js.slice(0, 1).forEach(j => html += block(`Prochaine journée · J${j}`, byJ[j], quand(j)));
+      if (reportes.length) html += block("Matchs reportés", reportes, `<span class="rep">${reportes.length}</span>`);
+    } else {
+      js.forEach((j, i) => {
+        html += fold(`av${j}`, `${i === 0 ? "Prochaine journée · " : ""}J${j}`, byJ[j], fmtDate(dateJournee(+j)), i === 0);
+        if (i === 0) html += fold("rep", "Matchs reportés", reportes, "", true);
+      });
+      if (!js.length) html += fold("rep", "Matchs reportés", reportes, "", true);
+    }
     if (filter === "av" && js.length > 1)
       html += `<button class="btn full" style="margin-bottom:6px" onclick="filter='tout';render();scrollTo(0,0)">Voir tout le calendrier (${next.length} matchs)</button>`;
   }
   if (filter === "tout" || filter === "fin") {
     const byJ = {}; fin.forEach(m => (byJ[m.j] = byJ[m.j] || []).push(m));
-    Object.keys(byJ).sort((a, b) => b - a).forEach(j => html += block(`Journée ${j}`, byJ[j], `<span class="note" style="margin:0">Résultats</span>`));
+    Object.keys(byJ).sort((a, b) => b - a).forEach((j, i) => html += filter === "tout"
+      ? fold(`fin${j}`, `Résultats · J${j}`, byJ[j], "", false)
+      : block(`Journée ${j}`, byJ[j], `<span class="note" style="margin:0">Résultats</span>`));
   }
   if (!db.matches.length) html += `<div class="card"><div class="empty">Aucun match saisi pour l'instant.<br>Ajoute les matchs de la prochaine journée avec le bouton ci-dessous.</div></div>`;
   else if (filter === "live" && !live.length) html += `<div class="card"><div class="empty">Aucun match en direct.<br>Ouvre un match à venir et lance le coup d'envoi.</div></div>`;
