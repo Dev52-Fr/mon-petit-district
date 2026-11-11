@@ -257,6 +257,9 @@
   .codebtn{margin-left:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700}
   .codebox{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px 12px 56px;border-top:0}
   .codebox code{font:700 17px/1 ui-monospace,Menlo,monospace;letter-spacing:1px;color:var(--ink);background:var(--soft);padding:7px 10px;border-radius:8px;user-select:all}
+  .codem{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:14px;font-weight:600}
+  .codem span{flex:1}
+  .codem code{font:800 20px/1 ui-monospace,Menlo,monospace;letter-spacing:1px;color:var(--ink);background:var(--soft);padding:7px 10px;border-radius:8px;user-select:all}
 </style>
 </head>
 <body>
@@ -551,16 +554,21 @@ function renderMatch(m) {
   const canEdit = scoreur && (isLive(m) || (m.status === "FIN" && !m.scoreManuel));
   // Bloc scoreur : qui saisit, « Je suis au match », reprendre la main, signaler, outils admin
   const ouvert = (isLive(m) || isImminent(m)) && !m.officiel;
-  const typeS = s => s.type === "club" ? "scoreur officiel" : s.type === "admin" ? "administrateur" : "supporter";
+  const typeS = s => s.type === "club" ? "scoreur officiel" : s.type === "admin" ? "administrateur" : s.type === "invite" ? "invité par l'administrateur" : "supporter";
   let blocS = "";
   if (m.scoreur) blocS += `<p class="note" style="margin:0 0 8px;text-align:center">✍️ Score saisi par <b>${esc(m.scoreur.pseudo)}</b> · ${typeS(m.scoreur)}</p>`;
   if (!scoreur && ouvert && !m.scoreur && window.firebase) blocS += `<button class="btn g full" onclick="jeSuisAuMatch()">🙋 Je suis au match, je saisis le score</button>`;
   if (fbUser && m.scoreur && m.scoreur.uid !== fbUser.uid && (estAdmin() || (monClub && clubsDu(m).includes(monClub))) && !m.officiel)
     blocS += `<button class="btn full" style="margin-top:8px" onclick="reprendreMain()">Reprendre la main</button>`;
-  if (!scoreur && m.scoreur && !m.officiel) blocS += `<button class="lien" onclick="signaler()">⚠️ Signaler une erreur de score</button>`;
+  if (!scoreur && !m.officiel && window.firebase && Date.now() <= m.date + H3) blocS += `<button class="lien" onclick="jaiUnCode()">🎟️ J'ai un code pour ce match</button>`;
+  if (!scoreur && m.scoreur && !m.officiel) blocS += `<button class="lien" style="margin-top:2px" onclick="signaler()">⚠️ Signaler une erreur de score</button>`;
   if (estAdmin() && m.uid) {
     const nb = Object.keys((signalements || {})[m.uid] || {}).length;
-    blocS += `<div class="admin">${nb ? `<p class="note" style="margin:0 0 8px;color:var(--red);font-weight:700">⚠️ ${nb} signalement${nb > 1 ? "s" : ""} sur ce match <button class="lien" style="display:inline;margin:0" onclick="adminSignalementsVus()">(marquer comme vu)</button></p>` : ""}
+    const cm = codesMatch[m.uid];
+    blocS += `<div class="admin">
+      <div class="codem"><span>🎟️ Code du match</span>${cm ? `<code>${codeMatchFmt(cm)}</code>` : ""}
+        <button class="btn ${cm ? "" : "p"}" style="padding:7px 12px;font-size:13px;flex:none" onclick="adminCodeMatch()">${cm ? "Nouveau" : "Générer"}</button></div>
+      ${nb ? `<p class="note" style="margin:0 0 8px;color:var(--red);font-weight:700">⚠️ ${nb} signalement${nb > 1 ? "s" : ""} sur ce match <button class="lien" style="display:inline;margin:0" onclick="adminSignalementsVus()">(marquer comme vu)</button></p>` : ""}
       <div class="row">${m.scoreur ? `<button class="btn" onclick="adminRetirerScoreur()">Retirer le scoreur</button>` : ""}
       ${m.distant ? `<button class="btn r" onclick="adminReset()">Remettre à zéro</button>` : ""}</div></div>`;
   }
@@ -895,14 +903,17 @@ const firebaseConfig = {
 var ADMIN = "9dNftUFrQ9gBCHSyXDhwT2ICSzH3";
 var H3 = 3 * 3600000;                                  // un supporter garde la main jusqu'à 3 h après le coup d'envoi
 
-var fbDb = null, fbUser = null, distant = {}, monClub = null, codes = {}, signalements = {}, codesVus = {};
+var fbDb = null, fbUser = null, distant = {}, monClub = null, codes = {}, signalements = {}, codesVus = {}, codesMatch = {};
+var mesInvites = {}; try { mesInvites = JSON.parse(localStorage.getItem("mesInvites") || "{}") } catch (e) {}
+function memoInvite(u, uid) { mesInvites[u] = uid; try { localStorage.setItem("mesInvites", JSON.stringify(mesInvites)) } catch (e) {} }
 function estAdmin() { return !!fbUser && fbUser.uid === ADMIN }
 function clubsDu(m) { return [team(m.home).abbr, team(m.away).abbr] }
 function estMonSupporter(m) { return !!(fbUser && m.scoreur && m.scoreur.uid === fbUser.uid && m.scoreur.type === "supporter" && Date.now() <= m.date + H3) }
 // Qui peut saisir ce match : l'admin, un scoreur officiel d'un des deux clubs, ou le supporter qui a pris la main
+function estInvite(m) { return !!(fbUser && m && m.uid && mesInvites[m.uid] === fbUser.uid && Date.now() <= m.date + H3) }
 function peutSaisir(m) {
   if (!m || m.officiel) return false;
-  return estAdmin() || (!!monClub && clubsDu(m).includes(monClub)) || estMonSupporter(m);
+  return estAdmin() || (!!monClub && clubsDu(m).includes(monClub)) || estMonSupporter(m) || estInvite(m);
 }
 function estScoreur() { return peutSaisir(cur()) }
 const refM = m => fbDb.ref("matchs/" + m.uid);
@@ -920,6 +931,7 @@ function initFirebase() {
       if (u && u.uid === ADMIN) {
         fbDb.ref("codes").on("value", sn => { codes = sn.val() || {}; rafraichir() });
         fbDb.ref("signalements").on("value", sn => { signalements = sn.val() || {}; rafraichir() });
+        fbDb.ref("codesMatch").on("value", sn => { codesMatch = sn.val() || {}; rafraichir() });
         syncAffiches(); codesAuto();
       }
       rafraichir();
@@ -972,6 +984,7 @@ function erreurEnvoi(e) {
 }
 async function prendreMainSiLibre(m) {                  // club ou admin : se déclarer scoreur si personne ne l'est
   if (m.scoreur || !fbUser) return;
+  if (estInvite(m) && !estAdmin() && !(monClub && clubsDu(m).includes(monClub))) return;   // l'invité a déjà pris la main en entrant le code
   const s = estAdmin() ? { uid: fbUser.uid, pseudo: "Administrateur", type: "admin" }
                        : { uid: fbUser.uid, pseudo: team(clubsDu(m)[0] === monClub ? m.home : m.away).name, type: "club", club: monClub };
   await refM(m).child("scoreur").set({ ...s, t: firebase.database.ServerValue.TIMESTAMP });
@@ -1036,6 +1049,37 @@ async function adminReset() {
   try { await refM(m).remove(); await fbDb.ref("signalements/" + m.uid).remove() } catch (e) { erreurEnvoi(e) }
 }
 async function adminSignalementsVus() { const m = cur(); fbDb.ref("signalements/" + m.uid).remove().catch(erreurEnvoi) }
+
+// ---------- Code pour un match (donné par l'admin au stade) ----------
+async function adminCodeMatch() {
+  const m = cur();
+  if (codesMatch[m.uid] && !await ask("Générer un nouveau code pour ce match ? L'ancien code ne marchera plus.", "Nouveau code")) return;
+  const c = String(Math.floor(100000 + Math.random() * 900000));
+  fbDb.ref("codesMatch/" + m.uid).set(c).catch(erreurEnvoi);
+}
+function codeMatchFmt(c) { return String(c).replace(/(\d{3})(\d{3})/, "$1 $2") }
+function jaiUnCode() {
+  const m = cur();
+  const dlg = document.getElementById("dlg");
+  dlg.innerHTML = `<form method="dialog"><h3>🎟️ Code du match</h3>
+    <p class="note" style="margin:6px 0 4px">Entre le code à 6 chiffres donné par l'administrateur pour saisir le score de ce match.</p>
+    <label>Code</label><input type="text" id="f-cm" inputmode="numeric" maxlength="7" placeholder="ex. 482 913" required autocomplete="off">
+    <label>Ton prénom ou pseudo</label><input type="text" id="f-ps" maxlength="20" placeholder="ex. Kevin" required>
+    <p class="note" id="cmErr" style="margin:8px 0 0;color:var(--red)"></p>
+    <div class="row" style="margin-top:14px"><button class="btn" value="no" formnovalidate>Annuler</button><button class="btn g" value="ok">Valider</button></div></form>`;
+  dlg.returnValue = ""; dlg.showModal();
+  dlg.onclose = async () => {
+    if (dlg.returnValue !== "ok") return;
+    const code = dlg.querySelector("#f-cm").value.replace(/\D/g, ""), ps = dlg.querySelector("#f-ps").value.trim().slice(0, 20) || "Invité";
+    try {
+      const u = await connexionAnonyme();
+      await fbDb.ref(`invites/${m.uid}/${u.uid}`).set(code);
+      memoInvite(m.uid, u.uid);
+      await refM(m).child("scoreur").set({ uid: u.uid, pseudo: ps, type: "invite", t: Date.now() });
+      render();
+    } catch (e) { ask("Code incorrect ou plus valable pour ce match.", null) }
+  };
+}
 
 // ---------- Codes club ----------
 // Code club : 3 premières lettres du club + « - » + 4 chiffres, chiffres tous différents d'un club à l'autre (ex. CHA-4821)
