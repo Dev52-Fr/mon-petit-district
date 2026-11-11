@@ -44,9 +44,19 @@ const matchs = new Map();
 for (const url of urls) {
   const id = (url.match(/\/([^/]+)\.ics$/) || [, "cal"])[1];
   try {
-    const res = await fetch(url, { headers: { "User-Agent": "mon-petit-district (calendrier)" } });
-    if (!res.ok) { console.log(`✗ ${id} : HTTP ${res.status}`); continue; }
-    const txt = await res.text();
+    // On essaie plusieurs « identités » : appli Calendrier iPhone, Safari, Chrome
+    const AGENTS = [
+      "iOS/18.1 (22B83) dataaccessd/1.0",
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
+    ];
+    let txt = null;
+    for (const ua of AGENTS) {
+      const res = await fetch(url, { headers: { "User-Agent": ua, "Accept": "text/calendar,*/*", "Accept-Language": "fr-FR,fr;q=0.9" } });
+      console.log(`  ${id} [${ua.slice(0, 22)}…] → HTTP ${res.status}`);
+      if (res.ok) { txt = await res.text(); break; }
+    }
+    if (!txt) { console.log(`✗ ${id} : refusé`); continue; }
     writeFileSync(`data/brut/${id}.ics`, txt);
     const evs = parseICS(txt);
     console.log(`✓ ${id} : ${evs.length} rencontres`);
