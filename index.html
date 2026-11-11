@@ -207,6 +207,14 @@
   .stp .ctl{display:flex;align-items:center;gap:6px}
   .stp .ctl button{width:40px;height:40px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-size:22px;font-weight:700;color:var(--navy)}
   .stp .ctl b{min-width:34px;text-align:center;font:800 30px/1 var(--cond);color:var(--navy)}
+  .infos .kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .infos .kv:last-child{border-bottom:0}
+  .infos .kv span{color:var(--mut)}
+  .infos .kv b{text-align:right;font-weight:600}
+  .trow.club{padding:10px 14px}
+  .trow.club .nm{flex:1;font-weight:600}
+  .trow.club .pos{font:700 16px/1 var(--cond);color:var(--navy)}
+  .trow.club sup{font-size:10px}
 </style>
 </head>
 <body>
@@ -219,7 +227,7 @@
 <nav>
   <button data-tab="matchs" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 5h-5L8 10z"/></svg>Matchs<i class="dot" id="navdot" hidden></i></button>
   <button data-tab="classement"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0zM7 6H4v1a3 3 0 003 3M17 6h3v1a3 3 0 01-3 3"/></svg>Classement</button>
-  <button data-tab="reglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Réglages</button>
+  <button data-tab="reglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>Infos</button>
 </nav>
 
 <dialog id="dlg"></dialog>
@@ -530,22 +538,29 @@ function renderMatch(m) {
 }
 
 function renderSettings() {
+  // Page « Infos » en lecture seule (les noms servent à relier le calendrier MyFFF : on ne les modifie pas)
+  const r = standings(true), pos = {}; r.forEach((x, i) => pos[x.id] = i + 1);
+  const nbJ = Math.max(0, ...Object.keys(db.datesJ || {}).map(Number));
+  const joues = db.matches.filter(m => m.status === "FIN" || m.base).length;
   app.innerHTML = `
     <div class="sec"><h2>Championnat</h2></div>
-    <div class="card pad"><label style="margin-top:0">Nom de la poule</label>
-      <input type="text" value="${esc(db.league)}" onchange="db.league=this.value;save();render()"></div>
-    <div class="sec"><h2>Équipes</h2><span class="note" style="margin:0">${db.teams.length} clubs</span></div>
-    <div class="card">
-      <div class="note" style="margin:12px 14px 8px">Les logos des clubs sont inclus. Touche un logo pour le remplacer par une autre image.</div>
-      ${db.teams.map(t => `<div class="trow"><label class="lg-btn" title="Importer le logo">${crest(t, 26, true)}<input type="file" accept="image/*" hidden onchange="importLogo('${t.id}',this)"></label>
-        <input type="text" value="${esc(t.name)}" onchange="renameTeam('${t.id}',this.value)">
-        ${t.logo ? `<button class="x" title="Revenir à l'écusson" style="color:var(--mut);padding:6px 2px" onclick="setColor('${t.id}','logo',null)">↺</button>` : ""}
-        <button class="x" onclick="delTeam('${t.id}')">✕</button></div>`).join("")}
-      <div class="trow" style="padding:12px 14px"><input type="text" id="nt" placeholder="Nouvelle équipe"><button class="btn p" style="flex:none" onclick="addTeam()">Ajouter</button></div>
+    <div class="card pad infos">
+      <div class="kv"><span>Compétition</span><b>${esc(db.league)}</b></div>
+      <div class="kv"><span>Saison</span><b>2026 / 2027</b></div>
+      <div class="kv"><span>Format</span><b>12 clubs · ${nbJ || 22} journées</b></div>
+      <div class="kv"><span>Montée / descente</span><b>1er monte en D2 · dernier descend en D4</b></div>
+      <div class="kv"><span>Matchs joués</span><b>${joues} / ${db.matches.length || 132}</b></div>
     </div>
-    <div class="sec"><h2>À propos</h2></div>
+    <div class="sec"><h2>Les clubs</h2><span class="note" style="margin:0">${db.teams.length} clubs</span></div>
+    <div class="card">
+      ${[...db.teams].sort((a, b) => a.name.localeCompare(b.name)).map(t => `<div class="trow club">${crest(t, 28)}
+        <span class="nm">${esc(t.name)}</span><span class="pos">${pos[t.id]}<sup>${pos[t.id] === 1 ? "er" : "e"}</sup></span></div>`).join("")}
+    </div>
+    <div class="sec"><h2>Données</h2></div>
     <div class="card pad">
-      <p class="note" style="margin:0">Classement de départ repris de MyFFF après la 8e journée. Version démo : les données restent sur cet appareil. Le direct partagé entre tous les spectateurs viendra dans la version suivante.</p>
+      <p class="note" style="margin:0">📅 Calendrier : repris des calendriers publics MyFFF, vérifié automatiquement chaque matin${db.majCal ? ` (dernière mise à jour le ${new Date(db.majCal).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })} à ${fmtHour(db.majCal)})` : ""}.</p>
+      <p class="note" style="margin:10px 0 0">🏆 Classement : point de départ repris de MyFFF après la 8e journée, puis calculé à partir des scores saisis.</p>
+      <p class="note" style="margin:10px 0 0">🛡️ Logos : propriété des clubs.</p>
     </div>`;
 }
 
@@ -698,6 +713,7 @@ async function syncCalendrier() {
   try { const r = await fetch("data/matchs.json", { cache: "no-store" }); if (!r.ok) return; data = await r.json() } catch (e) { return }
   const byName = {}; db.teams.forEach(t => byName[norm(t.name)] = t.id);
   db.masques = db.masques || [];
+  if (data.maj && db.majCal !== data.maj) { db.majCal = data.maj; save() }
   // Date habituelle de chaque journée (médiane de tous ses matchs, saison complète)
   const parJ = {}; (data.matchs || []).forEach(f => (parJ[f.j] = parJ[f.j] || []).push(Date.parse(f.date)));
   const datesJ = {}; for (const j in parJ) { const d = parJ[j].sort((a, b) => a - b); datesJ[j] = d[Math.floor((d.length - 1) / 2)] }
