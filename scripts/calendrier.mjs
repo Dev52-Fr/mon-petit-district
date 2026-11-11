@@ -7,15 +7,18 @@ const urls = readFileSync("data/calendriers.txt", "utf8").split("\n")
   .map(u => u.replace(/^webcal:\/\//, "https://"));
 
 mkdirSync("data/brut", { recursive: true });
+const COMPETITION = "DEPARTEMENTAL 3";   // compétition gardée (les coupes sont ignorées)
 
 // Lecture d'un fichier ICS : lignes repliées, puis un objet par VEVENT
 function parseICS(txt) {
   const lines = txt.replace(/\r\n[ \t]/g, "").replace(/\n[ \t]/g, "").split(/\r?\n/);
-  const out = []; let ev = null;
+  const out = []; let ev = null, alarm = false;
   for (const l of lines) {
     if (l === "BEGIN:VEVENT") ev = {};
     else if (l === "END:VEVENT") { if (ev) out.push(ev); ev = null; }
-    else if (ev) {
+    else if (l === "BEGIN:VALARM") alarm = true;
+    else if (l === "END:VALARM") alarm = false;
+    else if (ev && !alarm) {
       const i = l.indexOf(":"); if (i < 0) continue;
       const [key, ...params] = l.slice(0, i).split(";");
       ev[key] = { value: l.slice(i + 1).replace(/\\n/g, "\n").replace(/\\,/g, ",").replace(/\;/g, ";"), params };
@@ -61,19 +64,26 @@ for (const url of urls) {
     const evs = parseICS(txt);
     console.log(`✓ ${id} : ${evs.length} rencontres`);
     for (const e of evs) {
-      const summary = e.SUMMARY?.value || "";
-      const key = e.UID?.value || `${summary}|${e.DTSTART?.value}`;
-      matchs.set(key, {
-        uid: key,
+      const summary = e.SUMMARY?.value || "", desc = e.DESCRIPTION?.value || "";
+      const competition = desc.split("\n")[0].trim();
+      if (competition.toUpperCase() !== COMPETITION) continue;          // pas les coupes
+      const m = summary.match(/^J(\d+)\s+-\s+(.+?)\s+-\s+(.+)$/);
+      if (!m) { console.log(`  ? format inconnu : ${summary}`); continue; }
+      const uid = (e.UID?.value || summary).replace(/@fff\.fr$/, "");
+      matchs.set(uid, {
+        uid, j: +m[1], domicile: m[2].trim(), exterieur: m[3].trim(),
         date: toISO(e.DTSTART),
-        titre: summary,
         lieu: e.LOCATION?.value || "",
-        description: e.DESCRIPTION?.value || ""
+        fiche: (desc.match(/https:\/\/epreuves\.fff\.fr\S+/) || [""])[0]
       });
     }
   } catch (err) { console.log(`✗ ${id} : ${err.message}`); }
 }
 
-const liste = [...matchs.values()].sort((a, b) => String(a.date).localeCompare(String(b.date)));
-writeFileSync("data/matchs.json", JSON.stringify({ maj: new Date().toISOString(), matchs: liste }, null, 2) + "\n");
+const liste = [...matchs.values()].sort((a, b) => a.j - b.j || String(a.date).localeCompare(String(b.date)));
+// On ne réécrit le fichier que si les rencontres ont changé (évite un commit chaque jour)
+let ancien = null; try { ancien = JSON.parse(readFileSync("data/matchs.json", "utf8")) } catch (e) {}
+if (liste.length && (!ancien || JSON.stringify(ancien.matchs) !== JSON.stringify(liste)))
+  writeFileSync("data/matchs.json", JSON.stringify({ maj: new Date().toISOString(), matchs: liste }, null, 2) + "\n");
+else console.log("  (aucun changement dans les rencontres)");
 console.log(`→ data/matchs.json : ${liste.length} rencontres`);

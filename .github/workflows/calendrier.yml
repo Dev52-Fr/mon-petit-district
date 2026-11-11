@@ -27,6 +27,6 @@ jobs:
           git config user.name "calendrier-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data
-          if git diff --cached --quiet -- data/brut; then echo "Rien de neuf"; exit 0; fi
+          if git diff --cached --quiet -- data; then echo "Rien de neuf"; exit 0; fi
           git commit -m "Calendrier MyFFF mis à jour"
           git push

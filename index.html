@@ -111,6 +111,8 @@
   .badge.av{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
   .hero .bar{background:rgba(255,255,255,.15);margin:14px 6px 0;height:4px}
   .hero .bar i{background:var(--lime)}
+  .lieu{text-align:center;font-size:12px;opacity:.85;margin-top:8px}
+  .lieu a{color:#bbf7d0;text-decoration:none;font-weight:600}
   .ticks{display:flex;justify-content:space-between;font-size:10px;opacity:.6;margin:4px 6px 0}
 
   .actions{padding:14px}
@@ -362,7 +364,15 @@ function renderMatchs() {
   const block = (title, list, extra = "") => list.length ? `<div class="sec"><h2>${title}</h2>${extra}</div><div class="card">${list.map(matchRow).join("")}</div>` : "";
   let html = `<div class="chips">${chip("tout", "Tout")}${chip("live", "En direct", live.length)}${chip("av", "À venir")}${chip("fin", "Résultats")}</div>`;
   if (filter === "tout" || filter === "live") html += block("En direct", live, `<span class="live">Live</span>`);
-  if (filter === "tout" || filter === "av") html += block("À venir", next);
+  if (filter === "tout" || filter === "av") {
+    // Rangement par journée ; « Tout » ne montre que la prochaine journée
+    const byJ = {}; next.forEach(m => (byJ[m.j] = byJ[m.j] || []).push(m));
+    const js = Object.keys(byJ).sort((a, b) => a - b);
+    (filter === "tout" ? js.slice(0, 1) : js).forEach(j =>
+      html += block(`Journée ${j}`, byJ[j], `<span class="note" style="margin:0">À venir</span>`));
+    if (filter === "tout" && js.length > 1)
+      html += `<button class="btn full" style="margin-bottom:6px" onclick="filter='av';render()">Voir tout le calendrier (${next.length} matchs)</button>`;
+  }
   if (filter === "tout" || filter === "fin") {
     const byJ = {}; fin.forEach(m => (byJ[m.j] = byJ[m.j] || []).push(m));
     Object.keys(byJ).sort((a, b) => b - a).forEach(j => html += block(`Journée ${j}`, byJ[j], `<span class="note" style="margin:0">Résultats</span>`));
@@ -441,6 +451,7 @@ function renderMatch(m) {
         <div class="tm">${crest(A, 56)}<span>${esc(A.name)}</span></div>
       </div>
       <div class="st">${badge}</div>
+      ${m.lieu || m.fiche ? `<div class="lieu">${m.lieu ? `📍 ${esc(cap(m.lieu))}` : ""}${m.lieu && m.fiche ? " · " : ""}${m.fiche ? `<a href="${esc(m.fiche)}" target="_blank" rel="noopener">Fiche MyFFF ↗</a>` : ""}</div>` : ""}
       ${m.status !== "AV" ? `<div class="bar"><i style="width:${progress(m)}%"></i></div><div class="ticks"><span>0'</span><span>45'</span><span>90'</span></div>` : ""}
     </div>
 
@@ -515,7 +526,8 @@ function addEvent(type, side) {
 }
 
 function undo() { const m = cur(); if (m.events.length) { m.events.pop(); save(); render() } }
-async function delMatch() { if (!await ask("Supprimer ce match ?", "Supprimer")) return; db.matches = db.matches.filter(m => m.id !== openId); openId = null; save(); render() }
+async function delMatch() { if (!await ask("Supprimer ce match ?", "Supprimer")) return; const mm = cur(); if (mm && mm.uid) { db.masques = db.masques || []; db.masques.push(mm.uid) }
+  db.matches = db.matches.filter(m => m.id !== openId); openId = null; save(); render() }
 
 function newMatch() {
   const opts = db.teams.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join("");
@@ -572,6 +584,7 @@ function delTeam(id) {
 }
 
 /* ================= Utilitaires ================= */
+function cap(s) { return String(s).toLowerCase().replace(/(^|[\s'-])\S/g, c => c.toUpperCase()) }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])) }
 function short(n) { const w = n.split(" "); return w.length > 1 && PREFIX.test(w[0]) ? w.slice(1).join(" ") : n }
 
@@ -593,6 +606,32 @@ setInterval(() => {
 }, 15000);
 
 render();
+
+/* ================= Calendrier MyFFF (data/matchs.json, mis à jour chaque jour par GitHub) ================= */
+// Le classement de départ s'arrête à la 8e journée : on importe seulement les rencontres d'après.
+const DEBUT_IMPORT = Date.parse("2026-11-09T00:00:00+01:00");
+const norm = s => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, " ").trim();
+async function syncCalendrier() {
+  let data;
+  try { const r = await fetch("data/matchs.json", { cache: "no-store" }); if (!r.ok) return; data = await r.json() } catch (e) { return }
+  const byName = {}; db.teams.forEach(t => byName[norm(t.name)] = t.id);
+  db.masques = db.masques || [];
+  let change = false;
+  for (const f of data.matchs || []) {
+    const t = Date.parse(f.date); if (!(t >= DEBUT_IMPORT)) continue;
+    const home = byName[norm(f.domicile)], away = byName[norm(f.exterieur)];
+    if (!home || !away || db.masques.includes(f.uid)) continue;
+    const m = db.matches.find(x => x.uid === f.uid);
+    if (m) {
+      if (m.status === "AV" && (m.date !== t || m.lieu !== f.lieu)) { Object.assign(m, { date: t, j: f.j, lieu: f.lieu, fiche: f.fiche, home, away }); change = true }
+    } else {
+      db.matches.push({ id: uid(), uid: f.uid, j: f.j, home, away, date: t, lieu: f.lieu, fiche: f.fiche, status: "AV", kick1: null, kick2: null, events: [] });
+      change = true;
+    }
+  }
+  if (change) { save(); if (!document.querySelector("dialog[open]")) render() }
+}
+syncCalendrier();
 
 /* ================= Tuto « Ajouter à l'écran d'accueil » ================= */
 const SHARE_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></span>`;
