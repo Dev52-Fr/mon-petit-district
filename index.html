@@ -191,6 +191,12 @@
   .kv2 b{text-align:right;font-weight:600}
   .ev .tx small.out{color:var(--mut)}
   .ev.c .min{border-style:dashed}
+  .bts{display:grid;grid-template-columns:1fr 1fr}
+  .bts>div{padding:10px 12px;font-size:14px}
+  .bts>div+div{border-left:1px solid var(--line);text-align:right}
+  .bts .b{padding:3px 0;font-weight:600}
+  .bts .b small{color:var(--mut);font-weight:600}
+  .bts .miss{font-size:12px;color:var(--mut);padding-top:4px}
   .src{font-size:11px;color:var(--mut);text-align:center;margin:8px 4px 0}
 
   /* ---------- Classement ---------- */
@@ -704,9 +710,26 @@ function renderMatch(m) {
       ${blocS ? `<div style="margin-top:12px">${blocS}</div>` : ""}
     </div></div>
 
+    ${butsHTML(m, fi, s)}
     <div class="sec"><h2>Fil du match</h2>${evFFF ? `<span class="note" style="margin:0">Feuille de match FFF</span>` : ""}</div>
     <div class="card">${tl ? `<div class="tl">${tl}</div>` : `<div class="empty">Le match n'a pas commencé.</div>`}</div>
     ${ficheHTML(m, fi, H, A)}`;
+}
+
+// Buteurs d'un match terminé : feuille de match FFF, sinon page Facebook du club
+function butsHTML(m, fi, s) {
+  if (!fi || !fi.bt || m.status !== "FIN" || m.forfait) return "";
+  const sources = new Set();
+  const col = sd => { const b = fi.bt[sd], tot = sd === "h" ? s.h : s.a;
+    if (!tot) return `<div></div>`;
+    if (!b) return `<div><div class="miss">Buteurs non connus</div></div>`;
+    sources.add(b.src === "FFF" ? "feuille de match FFF" : "page Facebook du club");
+    const n = b.l.reduce((x, y) => x + y[1], 0);
+    return `<div>${b.l.map(([who, k]) => `<div class="b">⚽ ${esc(nomCourt(who))}${k > 1 ? ` <small>×${k}</small>` : ""}</div>`).join("")}
+      ${n < tot ? `<div class="miss">${tot - n} but${tot - n > 1 ? "s" : ""} sans buteur connu</div>` : ""}</div>` };
+  const h = col("h"), a = col("a");
+  return `<div class="sec"><h2>Buteurs</h2></div><div class="card"><div class="bts">${h}${a}</div></div>
+    <p class="src">Source : ${[...sources].join(" et ")}.</p>`;
 }
 
 // « ANTOINE F. » -> « Antoine F. »
@@ -717,7 +740,9 @@ function ficheHTML(m, fi, H, A) {
   if (!fi) return "";
   let html = "";
   // Joueurs marqués d'une icône s'ils ont marqué ou pris un carton
-  const marque = (sd, who) => (fi.ev || []).filter(e => e[2] === sd && e[3] === who && e[1] !== "remplacement")
+  const fb = sd => fi.bt && fi.bt[sd] && fi.bt[sd].src === "Facebook" ? fi.bt[sd].l : [];
+  const marque = (sd, who) => fb(sd).filter(b => b[0] === who).map(b => "⚽".repeat(b[1])).join("") +
+    (fi.ev || []).filter(e => e[2] === sd && e[3] === who && e[1] !== "remplacement")
     .map(e => e[1] === "but" ? "⚽" : e[1] === "carton-jaune" ? "🟨" : "🟥").join("");
   const entre = (sd, who) => (fi.ev || []).find(e => e[2] === sd && e[1] === "remplacement" && e[3] === who);
   const col = (sd, T, c) => `<div><div class="hd">${crest(T, 16)}<span>${esc(short(T.name))}</span></div>
@@ -737,7 +762,7 @@ function ficheHTML(m, fi, H, A) {
       ${carte ? `<div style="padding:10px 14px;border-top:1px solid var(--line)"><a class="btn full" style="display:block;text-align:center;text-decoration:none" href="${carte}" target="_blank" rel="noopener">📍 Itinéraire vers le stade</a></div>` : ""}
     </div>`;
   }
-  return html + `<p class="src">Source : feuille de match FFF.</p>`;
+  return html + `<p class="src">Compositions, stade et arbitre : feuille de match FFF.</p>`;
 }
 
 function renderSettings() {
