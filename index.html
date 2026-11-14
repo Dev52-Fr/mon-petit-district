@@ -173,6 +173,26 @@
   .phase{text-align:center;margin:6px 0;position:relative;z-index:1}
   .phase span{background:var(--bg);color:var(--mut);font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:3px 10px;border-radius:999px}
 
+
+  /* ---------- Fiche FFF : compositions, stade, arbitre ---------- */
+  .compo{display:grid;grid-template-columns:1fr 1fr}
+  .compo>div{padding:10px 12px}
+  .compo>div+div{border-left:1px solid var(--line)}
+  .compo .hd{display:flex;align-items:center;gap:6px;font-weight:700;font-size:13px;margin-bottom:6px;min-width:0}
+  .compo .hd span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .compo .sub{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin:10px 0 3px}
+  .pl{display:flex;align-items:center;gap:6px;font-size:13px;padding:3px 0;line-height:1.2}
+  .pl .no{flex:none;width:20px;height:20px;border-radius:6px;background:var(--soft);color:var(--ink);font:700 11px/20px var(--cond);text-align:center}
+  .pl .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pl .ic{flex:none;font-size:11px}
+  .kv2{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;border-top:1px solid var(--line);font-size:14px}
+  .kv2:first-child{border-top:0}
+  .kv2 span{color:var(--mut)}
+  .kv2 b{text-align:right;font-weight:600}
+  .ev .tx small.out{color:var(--mut)}
+  .ev.c .min{border-style:dashed}
+  .src{font-size:11px;color:var(--mut);text-align:center;margin:8px 4px 0}
+
   /* ---------- Classement ---------- */
   table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
   th{color:var(--mut);font-weight:600;font-size:11px;text-transform:uppercase;text-align:center;padding:10px 3px;border-bottom:1px solid var(--line)}
@@ -184,17 +204,17 @@
   tr.dn1 td.pos::before{background:var(--red)}
   td.n,th.n{text-align:left}
   td.n .w{display:flex;align-items:center;gap:8px;font-weight:600}
-  td.n .w span.t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}
+  td.n .w span.t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40vw}
   td.pts{font:800 18px/1 var(--cond);color:var(--ink)}
   tr.lv td{background:var(--card)1f2}
   .mv{font-size:10px;font-weight:800}
   .mv.u{color:var(--green)} .mv.d{color:var(--red)}
-  .form{display:flex;gap:3px;justify-content:center}
-  .form i{width:16px;height:16px;border-radius:4px;font:700 10px/16px Inter;color:#fff;font-style:normal}
+  .form{display:flex;gap:2px;justify-content:center}
+  .form i{width:9px;height:9px;border-radius:50%;font-size:0;color:transparent;font-style:normal}
   .form .V{background:var(--green)} .form .N{background:#94a3b8} .form .D{background:var(--red)}
   .legend{display:flex;gap:14px;font-size:12px;color:var(--mut);margin:10px 4px}
   .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-  .legend .a::before{background:var(--green)} .legend .b::before{background:var(--red)} .legend .c::before{background:var(--red-line)}
+  .legend .fv::before{background:linear-gradient(90deg,var(--green) 33%,#94a3b8 33% 66%,var(--red) 66%);width:18px} .legend .a::before{background:var(--green)} .legend .b::before{background:var(--red)} .legend .c::before{background:var(--red-line)}
   .hide-s{display:none}
   @media(min-width:430px){.hide-s{display:table-cell}}
 
@@ -523,9 +543,27 @@ function renderMatchs() {
   app.innerHTML = html;
 }
 
+// Classement recalculé depuis tous les résultats (sert à la forme et aux flèches ▲▼ d'une journée à l'autre)
+function historique(jMax) {
+  const t = {}; db.teams.forEach(x => t[x.id] = { id: x.id, Pts: 0, BP: 0, BC: 0, form: [], name: x.name });
+  db.matches.filter(m => m.status === "FIN" && (jMax == null || m.j <= jMax)).sort((a, b) => a.date - b.date).forEach(m => {
+    const { h, a } = score(m), H = t[m.home], A = t[m.away]; if (!H || !A) return;
+    H.BP += h; H.BC += a; A.BP += a; A.BC += h;
+    if (m.forfait) { const W = m.forfait === "home" ? A : H, L = m.forfait === "home" ? H : A; W.Pts += 3; L.Pts -= 1 }
+    else if (h > a) H.Pts += 3; else if (h < a) A.Pts += 3; else { H.Pts++; A.Pts++ }
+    H.form.push(m.forfait ? (m.forfait === "home" ? "D" : "V") : h > a ? "V" : h < a ? "D" : "N");
+    A.form.push(m.forfait ? (m.forfait === "away" ? "D" : "V") : a > h ? "V" : a < h ? "D" : "N");
+  });
+  return Object.values(t).sort((x, y) => y.Pts - x.Pts || (y.BP - y.BC) - (x.BP - x.BC) || y.BP - x.BP || x.name.localeCompare(y.name));
+}
 function renderTable() {
   const live = standings(true), before = standings(false);
   const posBefore = {}; before.forEach((r, i) => posBefore[r.id] = i);
+  // Forme (5 derniers matchs) et évolution depuis la journée précédente
+  const lastJ = Math.max(0, ...db.matches.filter(m => m.status === "FIN" && !isReporte(m)).map(m => m.j));
+  const now = historique(), prev = lastJ > 1 ? historique(lastJ - 1) : null;
+  const forme = {}; now.forEach(r => forme[r.id] = r.form);
+  const posPrev = {}; (prev || []).forEach((r, i) => posPrev[r.id] = i);
   const anyLive = db.matches.some(isLive), n = live.length;
   app.innerHTML = `
     <div class="sec"><h2>Classement</h2>${anyLive ? `<span class="live">En direct</span>` : ""}</div>
@@ -533,19 +571,22 @@ function renderTable() {
       <thead><tr><th>#</th><th class="n">Équipe</th><th>Pts</th><th>J</th><th class="hide-s">G</th><th class="hide-s">N</th><th class="hide-s">P</th><th class="hide-s">F</th><th>Diff</th><th>Forme</th></tr></thead><tbody>
       ${live.map((r, i) => {
         const d = posBefore[r.id] - i, diff = r.BP - r.BC;
-        const mv = anyLive && d > 0 ? `<span class="mv u">▲${d}</span>` : anyLive && d < 0 ? `<span class="mv d">▼${-d}</span>` : "";
+        const dj = prev ? posPrev[r.id] - i : 0;   // hors live : places gagnées/perdues depuis la journée précédente
+        const mv = anyLive ? (d > 0 ? `<span class="mv u">▲${d}</span>` : d < 0 ? `<span class="mv d">▼${-d}</span>` : "")
+          : dj > 0 ? `<span class="mv u">▲${dj}</span>` : dj < 0 ? `<span class="mv d">▼${-dj}</span>` : "";
         const zone = i === 0 ? "up1" : i === n - 1 ? "dn1" : "";
         return `<tr class="${zone} ${r.live ? "lv" : ""}">
           <td class="pos">${i + 1}</td>
           <td class="n"><div class="w">${crest(r.team, 20)}<span class="t">${esc(r.team.name)}</span>${mv}</div></td>
           <td class="pts">${r.Pts}</td><td>${r.J}</td><td class="hide-s">${r.G}</td><td class="hide-s">${r.N}</td><td class="hide-s">${r.P}</td><td class="hide-s">${r.F}</td>
           <td style="font-weight:600;color:${diff > 0 ? "var(--green)" : diff < 0 ? "var(--red)" : "inherit"}">${diff > 0 ? "+" + diff : diff}</td>
-          <td><div class="form">${r.form.slice(-3).map(f => `<i class="${f}">${f}</i>`).join("")}</div></td></tr>`;
+          <td><div class="form">${(forme[r.id] && forme[r.id].length ? forme[r.id] : r.form).slice(-5).map(f => `<i class="${f}">${f}</i>`).join("")}</div></td></tr>`;
       }).join("")}
     </tbody></table></div>
-    <div class="legend"><span class="a">Montée</span><span class="b">Descente</span>${anyLive ? `<span class="c">Match en cours</span>` : ""}</div>
+    <div class="legend"><span class="a">Montée</span><span class="b">Descente</span><span class="fv">Forme</span>${anyLive ? `<span class="c">Match en cours</span>` : ""}</div>
     <p class="note">Victoire 3 pts · Nul 1 pt · Défaite 0 pt · Forfait −1 pt. À égalité : différence de buts, puis buts marqués.
-    ${anyLive ? "<br>Le classement en direct compte les matchs en cours comme s'ils s'arrêtaient maintenant. ▲▼ = places gagnées ou perdues grâce au live." : ""}</p>`;
+    <br>Forme : les 5 derniers matchs, du plus ancien au plus récent (vert victoire, gris nul, rouge défaite).
+    ${anyLive ? "<br>Le classement en direct compte les matchs en cours comme s'ils s'arrêtaient maintenant. ▲▼ = places gagnées ou perdues grâce au live." : lastJ > 1 ? `<br>▲▼ = places gagnées ou perdues depuis la ${lastJ - 1}<sup>e</sup> journée.` : ""}</p>`;
 }
 
 function renderMatch(m) {
@@ -605,18 +646,37 @@ function renderMatch(m) {
   const icon = e => e.type === "but" ? "⚽" : e.type === "jaune" ? "🟨" : "🟥";
   const lbl = e => e.type === "but" ? "But" : e.type === "jaune" ? "Carton jaune" : "Carton rouge";
   let run = { h: 0, a: 0 }, tl = "", mtShown = false;
-  if (m.forfait) tl = `<div class="phase"><span>Match non joué · victoire par forfait (3-0)</span></div>`;
+  const fi = m.uid && fiches[m.uid];
+  // Match officiel sans direct : on reprend les faits de jeu de la feuille de match FFF
+  const evFFF = !m.forfait && m.officiel && !m.events.length && fi && fi.ev && fi.ev.length;
+  if (evFFF) {
+    const r = { h: 0, a: 0 }; let mt = false;
+    const ic = { but: "⚽", "carton-jaune": "🟨", "carton-rouge": "🟥", remplacement: "🔄" };
+    const lb = { but: "But", "carton-jaune": "Carton jaune", "carton-rouge": "Carton rouge", remplacement: "Remplacement" };
+    tl += `<div class="phase"><span>Coup d'envoi</span></div>`;
+    [...fi.ev].sort((x, y) => x[0] - y[0]).forEach(([min, ty, sd, who, out]) => {
+      if (!mt && min > 45) { tl += `<div class="phase"><span>Mi-temps${fi.butsComplets ? ` ${r.h} - ${r.a}` : ""}</span></div>`; mt = true }
+      if (ty === "but") sd === "h" ? r.h++ : r.a++;
+      const sub = ty === "but" ? (fi.butsComplets ? `${r.h} - ${r.a}` : "But") : ty === "remplacement" ? `<small class="out">remplace ${esc(nomCourt(out || ""))}</small>` : lb[ty] || "";
+      const body = `${sd === "h" ? "" : ic[ty] || ""}<span><b>${esc(nomCourt(who))}</b>${ty === "remplacement" ? sub : `<small>${sub}</small>`}</span>${sd === "h" ? ic[ty] || "" : ""}`;
+      tl += `<div class="ev ${ty === "but" ? "g" : ty === "remplacement" ? "c" : ""}"><div class="tx h">${sd === "h" ? body : ""}</div><div class="min">${min}'</div><div class="tx">${sd === "a" ? body : ""}</div></div>`;
+    });
+    if (!mt) tl += `<div class="phase"><span>Mi-temps</span></div>`;
+    tl += `<div class="phase"><span>Fin du match · ${s.h} - ${s.a}</span></div>`;
+    if (!fi.butsComplets) tl += `<p class="src">Les buteurs n'ont pas tous été notés sur la feuille de match.</p>`;
+  }
+  else if (m.forfait) tl = `<div class="phase"><span>Match non joué · victoire par forfait (3-0)</span></div>`;
   else if (m.scoreManuel && !m.events.length) tl = `<div class="phase"><span>Score final saisi après le match</span></div>`;
   else if (m.status !== "AV") tl += `<div class="phase"><span>Coup d'envoi</span></div>`;
-  evs.forEach(e => {
+  if (!evFFF) evs.forEach(e => {
     if (!mtShown && e.min > 45 && m.status !== "1MT") { tl += `<div class="phase"><span>Mi-temps ${run.h} - ${run.a}</span></div>`; mtShown = true }
     if (e.type === "but") e.side === "home" ? run.h++ : run.a++;
     const body = `${e.side === "home" ? "" : icon(e)}<span><b>${esc(e.who || lbl(e))}</b>${e.type === "but" ? `<small>${run.h} - ${run.a}</small>` : e.who ? `<small>${lbl(e)}</small>` : ""}</span>${e.side === "home" ? icon(e) : ""}`;
     tl += `<div class="ev ${e.type === "but" ? "g" : ""}">
       <div class="tx h">${e.side === "home" ? body : ""}</div><div class="min">${e.min}'</div><div class="tx">${e.side === "away" ? body : ""}</div></div>`;
   });
-  if (!mtShown && !m.scoreManuel && ["MT", "2MT", "FIN"].includes(m.status)) tl += `<div class="phase"><span>Mi-temps ${run.h} - ${run.a}</span></div>`;
-  if (m.status === "FIN" && !m.scoreManuel) tl += `<div class="phase"><span>Fin du match</span></div>`;
+  if (!evFFF && !mtShown && !m.scoreManuel && ["MT", "2MT", "FIN"].includes(m.status)) tl += `<div class="phase"><span>Mi-temps ${run.h} - ${run.a}</span></div>`;
+  if (!evFFF && m.status === "FIN" && !m.scoreManuel) tl += `<div class="phase"><span>Fin du match</span></div>`;
 
   app.innerHTML = `
     <div class="hero">
@@ -644,8 +704,40 @@ function renderMatch(m) {
       ${blocS ? `<div style="margin-top:12px">${blocS}</div>` : ""}
     </div></div>
 
-    <div class="sec"><h2>Fil du match</h2></div>
-    <div class="card">${tl ? `<div class="tl">${tl}</div>` : `<div class="empty">Le match n'a pas commencé.</div>`}</div>`;
+    <div class="sec"><h2>Fil du match</h2>${evFFF ? `<span class="note" style="margin:0">Feuille de match FFF</span>` : ""}</div>
+    <div class="card">${tl ? `<div class="tl">${tl}</div>` : `<div class="empty">Le match n'a pas commencé.</div>`}</div>
+    ${ficheHTML(m, fi, H, A)}`;
+}
+
+// « ANTOINE F. » -> « Antoine F. »
+function nomCourt(n) { return String(n).toLowerCase().replace(/(^|[\s'-])\S/g, c => c.toUpperCase()) }
+
+// Compositions, stade et arbitre (données de la feuille de match FFF)
+function ficheHTML(m, fi, H, A) {
+  if (!fi) return "";
+  let html = "";
+  // Joueurs marqués d'une icône s'ils ont marqué ou pris un carton
+  const marque = (sd, who) => (fi.ev || []).filter(e => e[2] === sd && e[3] === who && e[1] !== "remplacement")
+    .map(e => e[1] === "but" ? "⚽" : e[1] === "carton-jaune" ? "🟨" : "🟥").join("");
+  const entre = (sd, who) => (fi.ev || []).find(e => e[2] === sd && e[1] === "remplacement" && e[3] === who);
+  const col = (sd, T, c) => `<div><div class="hd">${crest(T, 16)}<span>${esc(short(T.name))}</span></div>
+    ${(c.t || []).map(([no, who]) => `<div class="pl"><span class="no">${no ?? ""}</span><span class="nm">${esc(nomCourt(who))}</span><span class="ic">${marque(sd, who)}</span></div>`).join("")}
+    ${(c.r || []).length ? `<div class="sub">Remplaçants</div>${c.r.map(([no, who]) => { const e = entre(sd, who);
+      return `<div class="pl"><span class="no">${no ?? ""}</span><span class="nm">${esc(nomCourt(who))}</span><span class="ic">${e ? e[0] + "'" : ""}${marque(sd, who)}</span></div>` }).join("")}` : ""}</div>`;
+  if ((fi.h && fi.h.t && fi.h.t.length) || (fi.a && fi.a.t && fi.a.t.length))
+    html += `<div class="sec"><h2>Compositions</h2></div><div class="card"><div class="compo">${col("h", H, fi.h || {})}${col("a", A, fi.a || {})}</div></div>`;
+  const st = fi.st, arb = (fi.arb || []).filter(o => o[1]);
+  if (st || arb.length) {
+    const carte = st && st.lat ? `https://maps.apple.com/?q=${encodeURIComponent(st.n)}&ll=${st.lat},${st.lng}` : null;
+    html += `<div class="sec"><h2>Infos du match</h2></div><div class="card">
+      ${st ? `<div class="kv2"><span>Stade</span><b>${esc(cap(st.n))}${st.a ? `<br><small style="color:var(--mut);font-weight:400">${esc(st.a.map(cap).join(", "))}</small>` : ""}</b></div>
+      ${st.s ? `<div class="kv2"><span>Terrain</span><b>${esc(st.s)}${st.dim ? ` · ${esc(st.dim)} m` : ""}</b></div>` : ""}
+      <div class="kv2"><span>Tribune</span><b>${st.trib ? "Oui" : "Non"}${st.vest ? ` · ${st.vest} vestiaires` : ""}</b></div>` : ""}
+      ${arb.map(([role, nom]) => `<div class="kv2"><span>${esc(role || "Arbitre")}</span><b>${esc(cap(nom))}</b></div>`).join("")}
+      ${carte ? `<div style="padding:10px 14px;border-top:1px solid var(--line)"><a class="btn full" style="display:block;text-align:center;text-decoration:none" href="${carte}" target="_blank" rel="noopener">📍 Itinéraire vers le stade</a></div>` : ""}
+    </div>`;
+  }
+  return html + `<p class="src">Source : feuille de match FFF.</p>`;
 }
 
 function renderSettings() {
@@ -742,6 +834,12 @@ function saisirScore() {
   };
 }
 // Scores publiés dans le dépôt (data/resultats.json) : visibles par tout le monde
+// Fiches de match FFF (compositions, stade, arbitre, faits de jeu) : data/fiches.json
+let fiches = {};
+async function syncFiches() {
+  try { const r = await fetch("data/fiches.json", { cache: "no-store" }); if (!r.ok) return; fiches = await r.json() } catch (e) { return }
+  if (!document.querySelector("dialog[open]")) render();
+}
 async function syncResultats() {
   let data; try { const r = await fetch("data/resultats.json", { cache: "no-store" }); if (!r.ok) return; data = await r.json() } catch (e) { return }
   let change = false;
@@ -1185,7 +1283,7 @@ initFirebase();
 syncCalendrier().then(syncResultats).then(appliquerDistant).then(() => {
   // Jour de match : ouvrir directement « En direct » une fois le calendrier chargé
   if (!filtreChoisi && db.matches.some(m => isLive(m) || isImminent(m)) && filter !== "live") { filter = "live"; rafraichir() }
-}).then(syncAffiches).then(codesAuto);
+}).then(syncAffiches).then(codesAuto).then(syncFiches);
 
 /* ================= Tuto « Ajouter à l'écran d'accueil » ================= */
 const SHARE_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></span>`;
