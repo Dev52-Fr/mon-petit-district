@@ -204,6 +204,28 @@
   .bts .miss{font-size:12px;color:var(--mut);padding-top:4px}
   .src{font-size:11px;color:var(--mut);text-align:center;margin:8px 4px 0}
 
+  /* ---------- Page équipe ---------- */
+  .th{background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 100%);color:#fff;border-radius:20px;padding:14px 14px 18px;text-align:center;position:relative}
+  .th .tp{display:flex;justify-content:space-between;align-items:center}
+  .th .back{background:rgba(255,255,255,.12);border:0;color:#fff;border-radius:10px;padding:6px 12px;font-weight:600;font-size:13px}
+  .th h1{margin:10px 0 2px;font:800 28px/1.05 var(--cond);text-transform:uppercase;letter-spacing:.5px}
+  .th .rk{font-size:13px;opacity:.85}
+  .fav{border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px}
+  .fav.on{background:#facc15;border-color:#facc15;color:#422006}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  .stats div{background:rgba(255,255,255,.1);border-radius:12px;padding:8px 4px}
+  .stats b{display:block;font:800 24px/1 var(--cond)}
+  .stats span{font-size:11px;opacity:.8}
+  .th .form{margin-top:12px;gap:4px}
+  .th .form i{width:12px;height:12px}
+  .lienbtn{display:block;width:100%;text-align:left;background:none;border:0;color:inherit;padding:0;font:inherit}
+  tr.favrow td{background:var(--soft)}
+  .star{color:#eab308;font-size:12px;margin-left:2px}
+  .bt-row{display:flex;justify-content:space-between;padding:9px 14px;border-top:1px solid var(--line);font-size:14px}
+  .bt-row:first-child{border-top:0}
+  .bt-row b{font:800 18px/1 var(--cond)}
+  .share{display:flex;align-items:center;justify-content:center;gap:8px}
+
   /* ---------- Classement ---------- */
   table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
   th{color:var(--mut);font-weight:600;font-size:11px;text-transform:uppercase;text-align:center;padding:10px 3px;border-bottom:1px solid var(--line)}
@@ -215,13 +237,15 @@
   tr.dn1 td.pos::before{background:var(--red)}
   td.n,th.n{text-align:left}
   td.n .w{display:flex;align-items:center;gap:8px;font-weight:600}
-  td.n .w span.t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40vw}
+  td.n .w span.t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+  td.n{width:100%;max-width:0}
+  td.n .w>*:not(.t){flex:none}
   td.pts{font:800 18px/1 var(--cond);color:var(--ink)}
   tr.lv td{background:var(--card)1f2}
   .mv{font-size:10px;font-weight:800}
   .mv.u{color:var(--green)} .mv.d{color:var(--red)}
-  .form{display:flex;gap:2px;justify-content:center}
-  .form i{width:9px;height:9px;border-radius:50%;font-size:0;color:transparent;font-style:normal}
+  .form{display:flex;gap:2px;justify-content:center;flex-wrap:nowrap}
+  .form i{flex:none;width:8px;height:8px;border-radius:50%;font-size:0;color:transparent;font-style:normal}
   .form .V{background:var(--green)} .form .N{background:#94a3b8} .form .D{background:var(--red)}
   .legend{display:flex;gap:14px;font-size:12px;color:var(--mut);margin:10px 4px}
   .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
@@ -482,7 +506,12 @@ function standings(includeLive) {
 const app = document.getElementById("app");
 const voletsOuverts = {};
 var filtreChoisi = false;   // l'utilisateur a touché un filtre : on ne le change plus tout seul
-let tab = "matchs", openId = null, filter = "av";
+let tab = "matchs", openId = null, filter = "av", openTeam = null;
+// Club favori (choisi par l'utilisateur, gardé sur l'appareil)
+let favori = null; try { favori = localStorage.getItem("club_favori") } catch (e) {}
+function favoriId() { const t = db.teams.find(x => x.abbr === favori); return t ? t.id : null }
+function toggleFavori(abbr) { favori = favori === abbr ? null : abbr; try { favori ? localStorage.setItem("club_favori", favori) : localStorage.removeItem("club_favori") } catch (e) {} render() }
+function openTeamPage(id) { openTeam = id; openId = null; render(); scrollTo(0, 0) }
 
 const DISCLAIMER = `<p class="disclaimer">Application non officielle, sans lien avec la FFF ni le District de Haute-Marne.</p>`;
 function render() {
@@ -491,6 +520,7 @@ function render() {
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab && !openId || (openId && b.dataset.tab === "matchs")));
   document.getElementById("navdot").hidden = !db.matches.some(m => isLive(m) || isImminent(m));
   if (openId) { renderMatch(db.matches.find(m => m.id === openId)); if (openId) app.insertAdjacentHTML("beforeend", DISCLAIMER); return }
+  if (openTeam) { renderTeam(openTeam); app.insertAdjacentHTML("beforeend", DISCLAIMER); return }
   if (tab === "matchs") renderMatchs();
   if (tab === "classement") renderTable();
   if (tab === "reglages") renderSettings();
@@ -506,7 +536,8 @@ function matchRow(m) {
   else if (isASaisir(m)) right = `<span class="soon">Score à saisir</span>`;
   else if (m.status === "FIN") right = `<span>Terminé</span>`;
   else right = `<span>${fmtDate(m.date)}</span>`;
-  const line = (t, g, lose) => `<div class="team ${lose ? "lose" : ""}">${crest(t, 24)}<span class="nm">${esc(t.name)}</span>
+  const fv = favoriId();
+  const line = (t, g, lose) => `<div class="team ${lose ? "lose" : ""}">${crest(t, 24)}<span class="nm">${esc(t.name)}${t.id === fv ? `<span class="star">★</span>` : ""}</span>
     ${m.status === "AV" ? "" : `<span class="g">${g}</span>`}</div>`;
   const kick = m.status === "AV" && !isASaisir(m) && !isNonSuivi(m);
   return `<button class="m ${lv ? "islive" : ""}" onclick="openMatch('${m.id}')">
@@ -530,9 +561,11 @@ function renderMatchs() {
     const open = key in voletsOuverts ? voletsOuverts[key] : ouvert;
     return `<details class="fold" ${open ? "open" : ""} ontoggle="voletsOuverts['${key}']=this.open">
       <summary><h2>${title}</h2><span class="cnt">${extra}${extra ? " · " : ""}${list.length} match${list.length > 1 ? "s" : ""}</span><i class="chev"></i></summary>
-      <div class="card">${list.map(matchRow).join("")}</div></details>`;
+      <div class="card">${favFirst(list).map(matchRow).join("")}</div></details>`;
   };
-  const block = (title, list, extra = "") => list.length ? `<div class="sec"><h2>${title}</h2>${extra}</div><div class="card">${list.map(matchRow).join("")}</div>` : "";
+  // Les matchs du club favori passent en premier dans chaque bloc
+  const fv = favoriId(), favFirst = l => fv ? [...l.filter(m => m.home === fv || m.away === fv), ...l.filter(m => m.home !== fv && m.away !== fv)] : l;
+  const block = (title, list, extra = "") => (list = favFirst(list)).length ? `<div class="sec"><h2>${title}</h2>${extra}</div><div class="card">${list.map(matchRow).join("")}</div>` : "";
   let html = `<div class="chips">${chip("live", "En direct", live.length)}${chip("av", "À venir")}${chip("fin", "Résultats")}${chip("tout", "Tout")}</div>`;
   if (filter === "tout" || filter === "live") html += block("En direct", live, `<span class="live">Live</span>`);
   if (filter === "tout" || filter === "av") {
@@ -597,16 +630,16 @@ function renderTable() {
         const mv = anyLive ? (d > 0 ? `<span class="mv u">▲${d}</span>` : d < 0 ? `<span class="mv d">▼${-d}</span>` : "")
           : dj > 0 ? `<span class="mv u">▲${dj}</span>` : dj < 0 ? `<span class="mv d">▼${-dj}</span>` : "";
         const zone = i === 0 ? "up1" : i === n - 1 ? "dn1" : "";
-        return `<tr class="${zone} ${r.live ? "lv" : ""}">
+        return `<tr class="${zone} ${r.live ? "lv" : ""} ${r.team.abbr && r.team.abbr === favori ? "favrow" : ""}" onclick="openTeamPage('${r.id}')" style="cursor:pointer">
           <td class="pos">${i + 1}</td>
-          <td class="n"><div class="w">${crest(r.team, 20)}<span class="t">${esc(r.team.name)}</span>${mv}</div></td>
+          <td class="n"><div class="w">${crest(r.team, 20)}<span class="t">${esc(r.team.name)}</span>${r.team.abbr && r.team.abbr === favori ? `<span class="star">★</span>` : ""}${mv}</div></td>
           <td class="pts">${r.Pts}</td><td>${r.J}</td><td class="hide-s">${r.G}</td><td class="hide-s">${r.N}</td><td class="hide-s">${r.P}</td><td class="hide-s">${r.F}</td>
           <td style="font-weight:600;color:${diff > 0 ? "var(--green)" : diff < 0 ? "var(--red)" : "inherit"}">${diff > 0 ? "+" + diff : diff}</td>
           <td><div class="form">${(forme[r.id] && forme[r.id].length ? forme[r.id] : r.form).slice(-5).map(f => `<i class="${f}">${f}</i>`).join("")}</div></td></tr>`;
       }).join("")}
     </tbody></table></div>
     <div class="legend"><span class="a">Montée</span><span class="b">Descente</span><span class="fv">Forme</span>${anyLive ? `<span class="c">Match en cours</span>` : ""}</div>
-    <p class="note">Victoire 3 pts · Nul 1 pt · Défaite 0 pt · Forfait −1 pt. À égalité : différence de buts, puis buts marqués.
+    <p class="note">Touche une équipe pour voir sa page.<br>Victoire 3 pts · Nul 1 pt · Défaite 0 pt · Forfait −1 pt. À égalité : différence de buts, puis buts marqués.
     <br>Forme : les 5 derniers matchs, du plus ancien au plus récent (vert victoire, gris nul, rouge défaite).
     ${anyLive ? "<br>Le classement en direct compte les matchs en cours comme s'ils s'arrêtaient maintenant. ▲▼ = places gagnées ou perdues grâce au live." : lastJ > 1 ? `<br>▲▼ = places gagnées ou perdues depuis la ${lastJ - 1}<sup>e</sup> journée.` : ""}</p>`;
 }
@@ -705,12 +738,12 @@ function renderMatch(m) {
 
   app.innerHTML = `
     <div class="hero">
-      <div class="tp"><button class="back" onclick="openId=null;render()">‹ Matchs</button><span style="font-size:12px;opacity:.75">Journée ${m.j}</span>${isReporte(m) ? ` <span class="rep">Reporté</span>` : ""}</div>
+      <div class="tp"><button class="back" onclick="openId=null;openTeam=retourEquipe;retourEquipe=null;render();scrollTo(0,0)">‹ ${retourEquipe ? esc(short(team(retourEquipe).name)) : "Matchs"}</button><span style="font-size:12px;opacity:.75">Journée ${m.j}</span>${isReporte(m) ? ` <span class="rep">Reporté</span>` : ""}</div>
       <div class="lg">${esc(db.league)}</div>
       <div class="duel">
-        <div class="tm">${crest(H, 56)}<span>${esc(H.name)}</span></div>
+        <div class="tm" onclick="openTeamPage('${H.id}')" style="cursor:pointer">${crest(H, 56)}<span>${esc(H.name)}</span></div>
         <div class="sc">${m.status === "AV" ? `<span style="font-size:40px">${isASaisir(m) || isNonSuivi(m) ? "– : –" : "VS"}</span>` : `${s.h}<small>-</small>${s.a}`}</div>
-        <div class="tm">${crest(A, 56)}<span>${esc(A.name)}</span></div>
+        <div class="tm" onclick="openTeamPage('${A.id}')" style="cursor:pointer">${crest(A, 56)}<span>${esc(A.name)}</span></div>
       </div>
       <div class="st">${badge}</div>
       ${m.lieu || m.fiche ? `<div class="lieu">${m.lieu ? `📍 ${esc(cap(m.lieu))}` : ""}${m.lieu && m.fiche ? " · " : ""}${m.fiche ? `<a href="${esc(m.fiche)}" target="_blank" rel="noopener">Fiche MyFFF ↗</a>` : ""}</div>` : ""}
@@ -727,6 +760,7 @@ function renderMatch(m) {
         <button class="mini" onclick="addEvent('rouge')"><span>🟥</span>Rouge</button>
         <button class="mini" onclick="undo()"><span>↶</span>Annuler</button></div>` : ""}
       ${ctrl}
+      ${m.status !== "AV" ? `<button class="btn full share" style="margin-top:10px" onclick="partagerScore()">📤 Partager le score</button>` : ""}
       ${blocS ? `<div style="margin-top:12px">${blocS}</div>` : ""}
     </div></div>
 
@@ -750,6 +784,130 @@ function butsHTML(m, fi, s) {
   const h = col("h"), a = col("a");
   return `<div class="sec"><h2>Buteurs</h2></div><div class="card"><div class="bts">${h}${a}</div></div>
     <p class="src">Source : ${[...sources].join(" et ")}.</p>`;
+}
+
+/* ================= Page équipe ================= */
+function buteursEquipe(id) {
+  // Buteurs connus d'une équipe : feuilles de match / Facebook (fiches), sinon saisie en direct
+  const tot = {}; let connus = 0, buts = 0;
+  db.matches.filter(m => m.status === "FIN" && !m.forfait && (m.home === id || m.away === id)).forEach(m => {
+    const sd = m.home === id ? "h" : "a", s = score(m), n = sd === "h" ? s.h : s.a; buts += n;
+    const fi = m.uid && fiches[m.uid], b = fi && fi.bt && fi.bt[sd];
+    let l = b ? b.l.map(([w, k]) => [nomCourt(w), k]) : [];
+    if (!l.length) m.events.filter(e => e.type === "but" && e.side === (sd === "h" ? "home" : "away") && e.who && e.who !== "But avant la reprise")
+      .forEach(e => l.push([e.who, 1]));
+    l.forEach(([w, k]) => { tot[w] = (tot[w] || 0) + k; connus += k });
+  });
+  return { liste: Object.entries(tot).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])), connus, buts };
+}
+function renderTeam(id) {
+  const T = team(id); if (!T || T.id === "?") { openTeam = null; return render() }
+  const cl = standings(true), i = cl.findIndex(r => r.id === id), r = cl[i] || {};
+  const form = ((historique().find(x => x.id === id) || {}).form || []).slice(-5);
+  const mine = db.matches.filter(m => m.home === id || m.away === id);
+  const joues = mine.filter(m => m.status === "FIN" || isLive(m)).sort((a, b) => b.date - a.date);
+  const avenir = mine.filter(m => m.status === "AV").sort((a, b) => a.date - b.date);
+  const prochain = avenir.find(m => !isASaisir(m));
+  // Stade : celui de ses matchs à domicile (feuilles FFF)
+  const dom = mine.filter(m => m.home === id).map(m => m.uid && fiches[m.uid] && fiches[m.uid].st).filter(Boolean);
+  const st = dom[0];
+  const bt = buteursEquipe(id);
+  const diff = (r.BP || 0) - (r.BC || 0), fav = T.abbr && T.abbr === favori;
+  app.innerHTML = `
+    <div class="th">
+      <div class="tp"><button class="back" onclick="openTeam=null;render();scrollTo(0,0)">‹ Retour</button>
+        ${T.abbr ? `<button class="fav ${fav ? "on" : ""}" onclick="toggleFavori('${T.abbr}')">${fav ? "★ Mon club" : "☆ C'est mon club"}</button>` : ""}</div>
+      <div style="margin-top:12px">${crest(T, 64)}</div>
+      <h1>${esc(T.name)}</h1>
+      <div class="rk">${i + 1}<sup>${i === 0 ? "er" : "e"}</sup> sur ${cl.length} · ${esc(db.league)}</div>
+      ${form.length ? `<div class="form">${form.map(f => `<i class="${f}">${f}</i>`).join("")}</div>` : ""}
+      <div class="stats">
+        <div><b>${r.Pts ?? 0}</b><span>Points</span></div>
+        <div><b>${r.J ?? 0}</b><span>Joués</span></div>
+        <div><b>${r.G ?? 0}-${r.N ?? 0}-${r.P ?? 0}</b><span>V-N-D</span></div>
+        <div><b>${diff > 0 ? "+" + diff : diff}</b><span>Diff.</span></div>
+      </div>
+    </div>
+    ${prochain ? `<div class="sec"><h2>Prochain match</h2></div><div class="card">${matchRow(prochain)}</div>` : ""}
+    ${joues.length ? `<div class="sec"><h2>Derniers résultats</h2></div><div class="card">${joues.slice(0, 5).map(matchRow).join("")}</div>` : ""}
+    ${bt.liste.length ? `<div class="sec"><h2>Buteurs connus</h2><span class="note" style="margin:0">${bt.connus} but${bt.connus > 1 ? "s" : ""} sur ${bt.buts}</span></div>
+      <div class="card">${bt.liste.slice(0, 8).map(([w, k]) => `<div class="bt-row"><span>⚽ ${esc(w)}</span><b>${k}</b></div>`).join("")}</div>
+      <p class="src">Pas un classement officiel : tous les buteurs ne sont pas connus.</p>` : ""}
+    ${st ? `<div class="sec"><h2>Stade</h2></div><div class="card">
+      <div class="kv2"><span>${esc(cap(st.n))}</span><b>${st.a ? esc(st.a.map(cap).join(", ")) : ""}</b></div>
+      ${st.s ? `<div class="kv2"><span>Terrain</span><b>${esc(st.s)}${st.dim ? ` · ${esc(st.dim)} m` : ""}</b></div>` : ""}
+      ${st.lat ? `<div style="padding:10px 14px;border-top:1px solid var(--line)"><a class="btn full" style="display:block;text-align:center;text-decoration:none" href="https://maps.apple.com/?q=${encodeURIComponent(st.n)}&ll=${st.lat},${st.lng}" target="_blank" rel="noopener">📍 Itinéraire vers le stade</a></div>` : ""}</div>` : ""}
+    ${joues.length > 5 ? `<details class="fold"><summary><h2>Tous les résultats</h2><span class="cnt">${joues.length} matchs</span><i class="chev"></i></summary><div class="card">${joues.map(matchRow).join("")}</div></details>` : ""}
+    ${avenir.length ? `<details class="fold"><summary><h2>Calendrier</h2><span class="cnt">${avenir.length} matchs</span><i class="chev"></i></summary><div class="card">${avenir.map(matchRow).join("")}</div></details>` : ""}`;
+}
+
+/* ================= Partager le score en image ================= */
+function chargerImage(src) { return new Promise(res => { if (!src) return res(null); const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => res(i); i.onerror = () => res(null); i.src = src }) }
+async function imageScore(m) {
+  const W = 1080, Hh = 1350, c = document.createElement("canvas"); c.width = W; c.height = Hh;
+  const g = c.getContext("2d"), H = team(m.home), A = team(m.away), s = score(m);
+  try { await Promise.all([document.fonts.load('800 200px "Barlow Condensed"'), document.fonts.load('700 44px Inter'), document.fonts.load('700 40px Poppins')]) } catch (e) {}
+  // Fond
+  const bg = g.createLinearGradient(0, 0, W, Hh); bg.addColorStop(0, "#0a2463"); bg.addColorStop(1, "#1e3a8a");
+  g.fillStyle = bg; g.fillRect(0, 0, W, Hh);
+  g.strokeStyle = "rgba(255,255,255,.06)"; g.lineWidth = 4; g.beginPath(); g.arc(W - 60, Hh - 160, 330, 0, 7); g.stroke();
+  g.beginPath(); g.arc(80, 120, 210, 0, 7); g.stroke();
+  g.textAlign = "center"; g.fillStyle = "rgba(255,255,255,.75)"; g.font = '600 34px Inter';
+  g.fillText(`${db.league.toUpperCase()}  ·  JOURNÉE ${m.j}`, W / 2, 110);
+  g.font = '500 30px Inter'; g.fillText(new Date(m.date).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }), W / 2, 158);
+  // Logos
+  const logo = t => t.logo || (t.abbr ? `logos/${t.abbr.toLowerCase()}.png` : null);
+  const [lh, la] = await Promise.all([chargerImage(logo(H)), chargerImage(logo(A))]);
+  [[lh, 210], [la, 870]].forEach(([im, x]) => {
+    g.fillStyle = "#fff"; g.beginPath(); g.arc(x, 400, 118, 0, 7); g.fill();
+    if (im) { const r = Math.min(165 / im.width, 165 / im.height); g.drawImage(im, x - im.width * r / 2, 400 - im.height * r / 2, im.width * r, im.height * r) }
+  });
+  // Noms (sur 2 lignes si besoin)
+  g.fillStyle = "#fff"; g.font = '700 42px Inter';
+  const nom = (t, x) => { const w = t.name.split(" "); let l1 = "", l2 = "";
+    w.forEach(x2 => { if (!l2 && g.measureText((l1 + " " + x2).trim()).width < 400) l1 = (l1 + " " + x2).trim(); else l2 = (l2 + " " + x2).trim() });
+    g.fillText(l1, x, 590); if (l2) g.fillText(l2, x, 640) };
+  nom(H, 210); nom(A, 870);
+  // Score
+  g.font = '800 200px "Barlow Condensed", Inter, sans-serif'; g.fillText(`${s.h}-${s.a}`, W / 2, 470);
+  // Statut
+  const lv = isLive(m), stt = m.status === "FIN" ? (m.forfait ? "VICTOIRE PAR FORFAIT" : "TERMINÉ") : m.status === "MT" ? "MI-TEMPS" : lv ? `EN DIRECT · ${minute(m)}'` : "";
+  if (stt) { g.font = '800 34px Inter'; const w = g.measureText(stt).width + 60;
+    g.fillStyle = lv ? "#e11d48" : "rgba(255,255,255,.15)"; g.beginPath(); g.roundRect(W / 2 - w / 2, 720, w, 66, 33); g.fill();
+    g.fillStyle = "#fff"; g.fillText(stt, W / 2, 765) }
+  // Buteurs
+  const fi = m.uid && fiches[m.uid], lst = sd => {
+    const b = fi && fi.bt && fi.bt[sd]; if (b) return b.l.map(([w, k]) => nomCourt(w) + (k > 1 ? ` ×${k}` : ""));
+    return m.events.filter(e => e.type === "but" && e.side === (sd === "h" ? "home" : "away") && e.who && e.who !== "But avant la reprise").map(e => `${e.who} ${e.min}'`) };
+  const bh = lst("h"), ba = lst("a");
+  if (bh.length || ba.length) {
+    const nl = Math.min(6, Math.max(bh.length, ba.length));
+    g.fillStyle = "rgba(255,255,255,.08)"; g.beginPath(); g.roundRect(70, 840, W - 140, 40 + nl * 50, 28); g.fill();
+    g.font = '600 36px Inter'; g.fillStyle = "#fff";
+    bh.slice(0, 6).forEach((t, i) => { g.textAlign = "left"; g.fillText("⚽ " + t, 110, 905 + i * 50) });
+    ba.slice(0, 6).forEach((t, i) => { g.textAlign = "right"; g.fillText(t + " ⚽", W - 110, 905 + i * 50) });
+    g.textAlign = "center";
+  }
+  // Signature de l'app
+  const sif = await chargerImage("sifflet.png");
+  g.font = '700 44px Poppins, Inter, sans-serif'; const tw = g.measureText("MON PETIT DISTRICT").width;
+  const sw = sif ? sif.width * 60 / sif.height : 0, x0 = W / 2 - (tw + sw + 18) / 2;
+  if (sif) { g.save(); g.filter = "brightness(1.9)"; g.drawImage(sif, x0, 1220, sw, 60); g.restore() }
+  g.fillStyle = "#fff"; g.textAlign = "left"; g.fillText("MON PETIT DISTRICT", x0 + sw + 18, 1266);
+  g.textAlign = "center"; g.font = '500 28px Inter'; g.fillStyle = "rgba(255,255,255,.7)"; g.fillText("dev52-fr.github.io/mon-petit-district", W / 2, 1318);
+  return c;
+}
+async function partagerScore() {
+  const m = cur(); if (!m) return;
+  const c = await imageScore(m), H = team(m.home), A = team(m.away), s = score(m);
+  const txt = `${H.name} ${s.h}-${s.a} ${A.name} · ${db.league}, journée ${m.j}`;
+  const blob = await new Promise(r => c.toBlob(r, "image/png"));
+  const file = new File([blob], `score-j${m.j}.png`, { type: "image/png" });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: txt + "\nhttps://dev52-fr.github.io/mon-petit-district/" }); return }
+  } catch (e) { if (e && e.name === "AbortError") return }
+  // Sans partage natif : on télécharge l'image
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
 }
 
 // « ANTOINE F. » -> « Antoine F. »
@@ -821,7 +979,8 @@ function renderSettings() {
 }
 
 /* ================= Actions ================= */
-function openMatch(id) { openId = id; render(); scrollTo(0, 0) }
+let retourEquipe = null;   // page équipe d'où on a ouvert un match (pour le bouton retour)
+function openMatch(id) { retourEquipe = openTeam; openId = id; render(); scrollTo(0, 0) }
 function cur() { return db.matches.find(m => m.id === openId) }
 
 async function setStatus(st) {
@@ -1012,7 +1171,7 @@ function ask(msg, okLabel = "Confirmer") {
   return new Promise(res => d.onclose = () => res(d.returnValue === "ok"));
 }
 
-document.querySelectorAll("nav button").forEach(b => b.onclick = () => { tab = b.dataset.tab; openId = null; render(); scrollTo(0, 0) });
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => { tab = b.dataset.tab; openId = null; openTeam = null; render(); scrollTo(0, 0) });
 
 // Rafraîchit le chrono toutes les 15 s (sauf pendant une saisie)
 setInterval(() => {
