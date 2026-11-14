@@ -892,19 +892,20 @@ async function imageScore(m) {
   const sif = await chargerImage("sifflet.png");
   g.font = '700 44px Poppins, Inter, sans-serif'; const tw = g.measureText("MON PETIT DISTRICT").width;
   const sw = sif ? sif.width * 60 / sif.height : 0, x0 = W / 2 - (tw + sw + 18) / 2;
-  if (sif) { g.save(); g.filter = "brightness(1.9)"; g.drawImage(sif, x0, 1220, sw, 60); g.restore() }
-  g.fillStyle = "#fff"; g.textAlign = "left"; g.fillText("MON PETIT DISTRICT", x0 + sw + 18, 1266);
-  g.textAlign = "center"; g.font = '500 28px Inter'; g.fillStyle = "rgba(255,255,255,.7)"; g.fillText("dev52-fr.github.io/mon-petit-district", W / 2, 1318);
+  if (sif) {   // sifflet éclairci (le filtre « brightness » ne marche pas dans Safari : on le blanchit sur un canevas à part)
+    const o = document.createElement("canvas"); o.width = Math.round(sw * 2); o.height = 120; const og = o.getContext("2d");
+    og.drawImage(sif, 0, 0, o.width, o.height); og.globalCompositeOperation = "source-atop"; og.fillStyle = "rgba(255,255,255,.5)"; og.fillRect(0, 0, o.width, o.height);
+    g.drawImage(o, x0, 1235, sw, 60) }
+  g.fillStyle = "#fff"; g.textAlign = "left"; g.fillText("MON PETIT DISTRICT", x0 + sw + 18, 1281);
   return c;
 }
 async function partagerScore() {
   const m = cur(); if (!m) return;
-  const c = await imageScore(m), H = team(m.home), A = team(m.away), s = score(m);
-  const txt = `${H.name} ${s.h}-${s.a} ${A.name} · ${db.league}, journée ${m.j}`;
+  const c = await imageScore(m);
   const blob = await new Promise(r => c.toBlob(r, "image/png"));
   const file = new File([blob], `score-j${m.j}.png`, { type: "image/png" });
   try {
-    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: txt + "\nhttps://dev52-fr.github.io/mon-petit-district/" }); return }
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], url: "https://dev52-fr.github.io/mon-petit-district/" }); return }
   } catch (e) { if (e && e.name === "AbortError") return }
   // Sans partage natif : on télécharge l'image
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
