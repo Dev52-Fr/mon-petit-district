@@ -706,7 +706,10 @@ function renderMatch(m) {
   let run = { h: 0, a: 0 }, tl = "", mtShown = false;
   const fi = m.uid && fiches[m.uid];
   // Match officiel sans direct : on reprend les faits de jeu de la feuille de match FFF
-  const evFFF = !m.forfait && m.officiel && !m.events.length && fi && fi.ev && fi.ev.length;
+  // Feuille FFF utilisée si pas de direct, ou si elle nomme au moins autant de buteurs que le direct
+  const nomsLive = m.events.filter(e => e.type === "but" && e.who && e.who !== "But avant la reprise").length;
+  const nomsFFF = fi && fi.ev ? fi.ev.filter(e => e[1] === "but" && e[3] && e[3] !== "Anonyme").length : 0;
+  const evFFF = !m.forfait && m.officiel && fi && fi.ev && fi.ev.length && (!m.events.length || nomsFFF >= nomsLive && nomsFFF > 0);
   if (evFFF) {
     const r = { h: 0, a: 0 }; let mt = false;
     const ic = { but: "⚽", "carton-jaune": "🟨", "carton-rouge": "🟥", remplacement: "🔄" };
