@@ -706,25 +706,39 @@ function renderMatch(m) {
   let run = { h: 0, a: 0 }, tl = "", mtShown = false;
   const fi = m.uid && fiches[m.uid];
   // Match officiel sans direct : on reprend les faits de jeu de la feuille de match FFF
-  // Feuille FFF utilisée si pas de direct, ou si elle nomme au moins autant de buteurs que le direct
-  const nomsLive = m.events.filter(e => e.type === "but" && e.who && e.who !== "But avant la reprise").length;
-  const nomsFFF = fi && fi.ev ? fi.ev.filter(e => e[1] === "but" && e[3] && e[3] !== "Anonyme").length : 0;
-  const evFFF = !m.forfait && m.officiel && fi && fi.ev && fi.ev.length && (!m.events.length || nomsFFF >= nomsLive && nomsFFF > 0);
+  // Match officiel avec feuille FFF : on fusionne le direct (s'il y en a eu) et la feuille de match.
+  // Un fait du direct qui correspond à un fait FFF (même type, même équipe, à 5' près) n'apparaît qu'une fois ;
+  // le nom du buteur est pris là où il est connu. Ce qui manque d'un côté est complété par l'autre.
+  let evList = null; const fusion = m.events.length > 0;
+  if (!m.forfait && m.officiel && fi && fi.ev && fi.ev.length) {
+    const list = fi.ev.map(e => [...e]), used = new Set(), ty = { but: "but", jaune: "carton-jaune", rouge: "carton-rouge" };
+    m.events.forEach(e => {
+      const t = ty[e.type], sd = e.side === "home" ? "h" : "a", who = e.who && e.who !== "But avant la reprise" ? e.who : "";
+      let best = -1, bd = 99;
+      list.forEach((f, i) => { if (used.has(i) || f[1] !== t || f[2] !== sd) return; const d = Math.abs(f[0] - e.min); if (d <= 5 && d < bd) { bd = d; best = i } });
+      if (best >= 0) { used.add(best); if ((!list[best][3] || list[best][3] === "Anonyme") && who) list[best][3] = who }
+      else list.push([e.min, t, sd, who]);
+    });
+    evList = list;
+  }
+  const evFFF = !!evList;
   if (evFFF) {
     const r = { h: 0, a: 0 }; let mt = false;
     const ic = { but: "⚽", "carton-jaune": "🟨", "carton-rouge": "🟥", remplacement: "🔄" };
     const lb = { but: "But", "carton-jaune": "Carton jaune", "carton-rouge": "Carton rouge", remplacement: "Remplacement" };
     tl += `<div class="phase"><span>Coup d'envoi</span></div>`;
-    [...fi.ev].sort((x, y) => x[0] - y[0]).forEach(([min, ty, sd, who, out]) => {
-      if (!mt && min > 45) { tl += `<div class="phase"><span>Mi-temps${fi.butsComplets ? ` ${r.h} - ${r.a}` : ""}</span></div>`; mt = true }
+    const butsNommes = evList.filter(e => e[1] === "but" && e[3] && e[3] !== "Anonyme").length;
+    [...evList].sort((x, y) => x[0] - y[0]).forEach(([min, ty, sd, who, out]) => {
+      who = who && who !== "Anonyme" ? who : "";
+      if (!mt && min > 45) { tl += `<div class="phase"><span>Mi-temps ${r.h} - ${r.a}</span></div>`; mt = true }
       if (ty === "but") sd === "h" ? r.h++ : r.a++;
-      const sub = ty === "but" ? (fi.butsComplets ? `${r.h} - ${r.a}` : "But") : ty === "remplacement" ? `<small class="out">remplace ${esc(nomCourt(out || ""))}</small>` : lb[ty] || "";
-      const body = `${sd === "h" ? "" : ic[ty] || ""}<span><b>${esc(nomCourt(who))}</b>${ty === "remplacement" ? sub : `<small>${sub}</small>`}</span>${sd === "h" ? ic[ty] || "" : ""}`;
+      const sub = ty === "but" ? `${r.h} - ${r.a}` : ty === "remplacement" ? `<small class="out">remplace ${esc(nomCourt(out || ""))}</small>` : lb[ty] || "";
+      const body = `${sd === "h" ? "" : ic[ty] || ""}<span><b>${who ? esc(nomCourt(who)) : lb[ty]}</b>${ty === "remplacement" ? sub : `<small>${sub}</small>`}</span>${sd === "h" ? ic[ty] || "" : ""}`;
       tl += `<div class="ev ${ty === "but" ? "g" : ty === "remplacement" ? "c" : ""}"><div class="tx h">${sd === "h" ? body : ""}</div><div class="min">${min}'</div><div class="tx">${sd === "a" ? body : ""}</div></div>`;
     });
     if (!mt) tl += `<div class="phase"><span>Mi-temps</span></div>`;
     tl += `<div class="phase"><span>Fin du match · ${s.h} - ${s.a}</span></div>`;
-    if (!fi.butsComplets) tl += `<p class="src">Les buteurs n'ont pas tous été notés sur la feuille de match.</p>`;
+    if (butsNommes < s.h + s.a) tl += `<p class="src">Tous les buteurs ne sont pas connus.</p>`;
   }
   else if (m.forfait) tl = `<div class="phase"><span>Match non joué · victoire par forfait (3-0)</span></div>`;
   else if (m.scoreManuel && !m.events.length) tl = `<div class="phase"><span>Score final saisi après le match</span></div>`;
@@ -768,7 +782,7 @@ function renderMatch(m) {
     </div></div>
 
     ${butsHTML(m, fi, s)}
-    <div class="sec"><h2>Fil du match</h2>${evFFF ? `<span class="note" style="margin:0">Feuille de match FFF</span>` : ""}</div>
+    <div class="sec"><h2>Fil du match</h2>${evFFF ? `<span class="note" style="margin:0">${fusion ? "Direct + feuille FFF" : "Feuille de match FFF"}</span>` : ""}</div>
     <div class="card">${tl ? `<div class="tl">${tl}</div>` : `<div class="empty">${isNonSuivi(m) ? "Personne ne suit ce match pour l'instant." : "Le match n'a pas commencé."}</div>`}</div>
     ${ficheHTML(m, fi, H, A)}`;
 }
