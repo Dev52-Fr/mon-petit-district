@@ -777,7 +777,7 @@ function renderMatch(m) {
         <button class="mini" onclick="addEvent('rouge')"><span>🟥</span>Rouge</button>
         <button class="mini" onclick="undo()"><span>↶</span>Annuler</button></div>` : ""}
       ${ctrl}
-      ${m.status !== "AV" ? `<button class="btn full share" style="margin-top:10px" onclick="partagerScore()">📤 Partager le score</button>` : ""}
+      ${m.status !== "AV" ? `<div class="row" style="margin-top:10px"><button class="btn share" onclick="partagerScore()">📤 Partager</button><button class="btn share" onclick="partagerStory()">📸 Story</button></div>` : ""}
       ${blocS ? `<div style="margin-top:12px">${blocS}</div>` : ""}
     </div></div>
 
@@ -856,6 +856,81 @@ function avantMatchHTML(m, H, A) {
     ${ligne("Buts encaissés / match", moy(bh.BC, bh.J), moy(ba.BC, ba.J))}
     ${aller ? (() => { const s = score(aller); return `<div class="kv2"><span>Match aller (J${aller.j})</span><b>${esc(short(team(aller.home).name))} ${s.h}-${s.a} ${esc(short(team(aller.away).name))}</b></div>` })() : ""}
   </div><p class="src">Bilan à domicile pour ${esc(short(H.name))}, à l'extérieur pour ${esc(short(A.name))}.</p>`;
+}
+
+/* ================= Story (format 9:16 pour Snapchat / Instagram, avec QR code) ================= */
+function chargerScript(src) { return new Promise((ok, ko) => { if (document.querySelector(`script[src="${src}"]`)) return ok(); const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = ko; document.head.appendChild(s) }) }
+async function imageStory(m) {
+  const W = 1080, Hh = 1920, c = document.createElement("canvas"); c.width = W; c.height = Hh;
+  const g = c.getContext("2d"), H = team(m.home), A = team(m.away), s = score(m);
+  try { await Promise.all([document.fonts.load('800 200px "Barlow Condensed"'), document.fonts.load('700 44px Inter'), document.fonts.load('700 40px Poppins')]) } catch (e) {}
+  // Fond : dégradé + halo
+  const bg = g.createLinearGradient(0, 0, 0, Hh); bg.addColorStop(0, "#071a4a"); bg.addColorStop(.55, "#0a2463"); bg.addColorStop(1, "#1e3a8a");
+  g.fillStyle = bg; g.fillRect(0, 0, W, Hh);
+  const halo = g.createRadialGradient(W / 2, 760, 50, W / 2, 760, 700); halo.addColorStop(0, "rgba(37,99,235,.45)"); halo.addColorStop(1, "rgba(37,99,235,0)");
+  g.fillStyle = halo; g.fillRect(0, 0, W, Hh);
+  g.strokeStyle = "rgba(255,255,255,.05)"; g.lineWidth = 4;
+  [[W / 2, 760, 330], [W / 2, 760, 520]].forEach(([x, y, r]) => { g.beginPath(); g.arc(x, y, r, 0, 7); g.stroke() });
+  g.textAlign = "center";
+  // En-tête : sifflet + MON PETIT DISTRICT
+  const sif = await chargerImage("sifflet.png");
+  g.font = '700 46px Poppins, Inter, sans-serif'; const tw = g.measureText("MON PETIT DISTRICT").width;
+  const sw = sif ? sif.width * 64 / sif.height : 0, x0 = W / 2 - (tw + sw + 20) / 2;
+  if (sif) { const o = document.createElement("canvas"); o.width = Math.round(sw * 2); o.height = 128; const og = o.getContext("2d");
+    og.drawImage(sif, 0, 0, o.width, o.height); og.globalCompositeOperation = "source-atop"; og.fillStyle = "rgba(255,255,255,.5)"; og.fillRect(0, 0, o.width, o.height); g.drawImage(o, x0, 150, sw, 64) }
+  g.fillStyle = "#fff"; g.textAlign = "left"; g.fillText("MON PETIT DISTRICT", x0 + sw + 20, 198); g.textAlign = "center";
+  // Compétition
+  g.fillStyle = "rgba(255,255,255,.7)"; g.font = '600 36px Inter'; g.fillText(`${db.league.toUpperCase()}`, W / 2, 320);
+  g.font = '500 32px Inter'; g.fillText(`Journée ${m.j} · ` + new Date(m.date).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }), W / 2, 370);
+  // Statut
+  const lv = isLive(m), stt = m.status === "FIN" ? (m.forfait ? "VICTOIRE PAR FORFAIT" : "SCORE FINAL") : m.status === "MT" ? "MI-TEMPS" : lv ? `EN DIRECT · ${minute(m)}'` : "";
+  if (stt) { g.font = '800 36px Inter'; const w = g.measureText(stt).width + 70;
+    g.fillStyle = lv ? "#e11d48" : "#16a34a"; g.beginPath(); g.roundRect(W / 2 - w / 2, 450, w, 72, 36); g.fill(); g.fillStyle = "#fff"; g.fillText(stt, W / 2, 499) }
+  // Logos
+  const logo = t => t.logo || (t.abbr ? `logos/${t.abbr.toLowerCase()}.png` : null);
+  const [lh, la] = await Promise.all([chargerImage(logo(H)), chargerImage(logo(A))]);
+  [[lh, 250], [la, 830]].forEach(([im, x]) => {
+    g.save(); g.shadowColor = "rgba(0,0,0,.35)"; g.shadowBlur = 40; g.fillStyle = "#fff"; g.beginPath(); g.arc(x, 720, 150, 0, 7); g.fill(); g.restore();
+    if (im) { const r = Math.min(210 / im.width, 210 / im.height); g.drawImage(im, x - im.width * r / 2, 720 - im.height * r / 2, im.width * r, im.height * r) } });
+  // Noms
+  g.fillStyle = "#fff"; g.font = '700 44px Inter';
+  const nom = (t, x) => { const w = t.name.split(" "); let l1 = "", l2 = "";
+    w.forEach(x2 => { if (!l2 && g.measureText((l1 + " " + x2).trim()).width < 430) l1 = (l1 + " " + x2).trim(); else l2 = (l2 + " " + x2).trim() });
+    g.fillText(l1, x, 945); if (l2) g.fillText(l2, x, 998) };
+  nom(H, 250); nom(A, 830);
+  // Score géant
+  g.font = '800 300px "Barlow Condensed", Inter, sans-serif'; g.fillStyle = "#fff";
+  g.fillText(`${s.h}`, 370, 1300); g.fillText(`${s.a}`, 710, 1300);
+  g.fillStyle = "rgba(255,255,255,.5)"; g.fillText("-", W / 2, 1285);
+  // Buteurs
+  const fi = m.uid && fiches[m.uid], lst = sd => {
+    const b = fi && fi.bt && fi.bt[sd]; if (b) return b.l.map(([w, k]) => nomCourt(w) + (k > 1 ? ` ×${k}` : ""));
+    return m.events.filter(e => e.type === "but" && e.side === (sd === "h" ? "home" : "away") && e.who && e.who !== "But avant la reprise").map(e => `${e.who} ${e.min}'`) };
+  const bh = lst("h"), ba = lst("a"), nl = Math.min(4, Math.max(bh.length, ba.length));
+  if (nl) { g.font = '600 36px Inter'; g.fillStyle = "#fff";
+    bh.slice(0, 4).forEach((t, i) => { g.textAlign = "left"; g.fillText("⚽ " + t, 90, 1395 + i * 50) });
+    ba.slice(0, 4).forEach((t, i) => { g.textAlign = "right"; g.fillText(t + " ⚽", W - 90, 1395 + i * 50) }); g.textAlign = "center" }
+  // QR code vers le match dans l'app
+  try {
+    await chargerScript("js/qrcode.min.js");
+    const q = qrcode(0, "M"); q.addData(`https://dev52-fr.github.io/mon-petit-district/#m=${m.uid || ""}`); q.make();
+    const n = q.getModuleCount(), taille = 230, cell = taille / n, qx = W / 2 - 340, qy = 1615;
+    g.fillStyle = "#fff"; g.beginPath(); g.roundRect(qx - 22, qy - 22, taille + 44, taille + 44, 28); g.fill();
+    g.fillStyle = "#0a2463";
+    for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (q.isDark(r, k)) g.fillRect(qx + k * cell, qy + r * cell, Math.ceil(cell), Math.ceil(cell));
+    g.textAlign = "left"; g.fillStyle = "#fff"; g.font = '800 48px Inter'; g.fillText("Suis le foot amateur", qx + taille + 70, qy + 80);
+    g.fillText("en direct 📲", qx + taille + 70, qy + 140);
+    g.font = '500 32px Inter'; g.fillStyle = "rgba(255,255,255,.7)"; g.fillText("Scanne le QR code", qx + taille + 70, qy + 200);
+  } catch (e) {}
+  return c;
+}
+async function partagerStory() {
+  const m = cur(); if (!m) return;
+  const c = await imageStory(m), blob = await new Promise(r => c.toBlob(r, "image/png"));
+  const file = new File([blob], `story-j${m.j}.png`, { type: "image/png" });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return } }   // image seule : Snapchat / Instagram la proposent en story
+  catch (e) { if (e && e.name === "AbortError") return }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
 }
 
 /* ================= Page équipe ================= */
@@ -1379,6 +1454,13 @@ function initFirebase() {
     fbDb.ref("matchs").on("value", snap => { distant = snap.val() || {}; appliquerDistant() });
   } catch (e) { console.warn("Firebase indisponible", e) }
 }
+// Lien direct vers un match (QR code des stories) : …/#m=<uid>
+function ouvrirDepuisLien() {
+  const u = (location.hash.match(/^#m=(\d+)/) || [])[1]; if (!u) return;
+  const m = db.matches.find(x => x.uid === u); if (!m) return;
+  history.replaceState(null, "", location.pathname); tab = "matchs"; openTeam = null; openMatch(m.id);
+}
+addEventListener("hashchange", ouvrirDepuisLien);
 function rafraichir() { if (!document.querySelector("dialog[open]") && document.activeElement.tagName !== "INPUT") render() }
 async function connexionAnonyme() { if (!fbUser) await firebase.auth().signInAnonymously(); return fbUser || firebase.auth().currentUser }
 
@@ -1598,7 +1680,7 @@ initFirebase();
 syncCalendrier().then(syncResultats).then(appliquerDistant).then(() => {
   // Jour de match : ouvrir directement « En direct » une fois le calendrier chargé
   if (!filtreChoisi && db.matches.some(m => isLive(m) || isImminent(m)) && filter !== "live") { filter = "live"; rafraichir() }
-}).then(syncAffiches).then(codesAuto).then(syncFiches);
+}).then(syncAffiches).then(codesAuto).then(syncFiches).then(ouvrirDepuisLien);
 
 /* ================= Tuto « Ajouter à l'écran d'accueil » ================= */
 const SHARE_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></span>`;
