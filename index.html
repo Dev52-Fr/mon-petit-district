@@ -686,11 +686,9 @@ function renderMatch(m) {
   if (!scoreur && ouvert && !m.scoreur && window.firebase) blocS += `<button class="btn g full" onclick="jeSuisAuMatch()">🙋 Je suis au match, je saisis le score</button>`;
   if (fbUser && m.scoreur && m.scoreur.uid !== fbUser.uid && (estAdmin() || (monClub && clubsDu(m).includes(monClub))) && !m.officiel)
     blocS += `<button class="btn full" style="margin-top:8px" onclick="reprendreMain()">Reprendre la main</button>`;
-  if (!scoreur && !m.officiel && window.firebase && Date.now() <= m.date + H3) {
-    blocS += `<button class="lien" onclick="jaiUnCode()">🎟️ J'ai un code pour ce match</button>`;
-    // Petite explication, comme dans l'Espace scoreur
-    if (!m.scoreur) blocS += `<p class="note" style="margin:4px 0 0;text-align:center;font-size:12px">Code à 6 chiffres donné par l'organisateur, valable pour ce match uniquement.<br>${ouvert ? "Pas de code ? Touche « 🙋 Je suis au match » ci-dessus." : `Pas de code ? Le jour du match, dès ${fmtHour(m.date - 30 * 60000)}, tu pourras toucher « 🙋 Je suis au match ».`}</p>`;
-  }
+  // Avant l'ouverture : on explique comment saisir le score le jour J
+  if (!scoreur && !m.officiel && !m.scoreur && !ouvert && m.status === "AV" && !isASaisir(m) && window.firebase)
+    blocS += `<p class="note" style="margin:6px 0 0;text-align:center;font-size:12px">Tu seras au stade ? Le jour du match, dès ${fmtHour(m.date - 30 * 60000)}, touche « 🙋 Je suis au match » pour saisir le score.</p>`;
   if (!scoreur && m.scoreur && !m.officiel) blocS += `<button class="lien" style="margin-top:2px" onclick="signaler()">⚠️ Signaler une erreur de score</button>`;
   if (estAdmin() && m.uid) {
     const nb = Object.keys((signalements || {})[m.uid] || {}).length;
@@ -1657,6 +1655,7 @@ async function adminNouveauCode(abbr) {
 function adminVoirCode(abbr) { codesVus[abbr] = !codesVus[abbr]; render() }
 async function entrerCode(f) {
   const err = document.getElementById("codeErr"), code = f.c.value.trim().toUpperCase().replace(/\s+/g, "");
+  if (/^\d{6}$/.test(code)) return entrerCodeMatch(code, err);
   const t = db.teams.find(x => prefixe(x) === code.split("-")[0]), abbr = t && t.abbr;
   if (!t || !/^[A-Z]{3}-\d{4}$/.test(code)) { err.textContent = "Code incorrect."; return }
   err.textContent = "Vérification…";
@@ -1665,6 +1664,28 @@ async function entrerCode(f) {
     await fbDb.ref("scoreurs/" + u.uid).set({ club: abbr, code });
     monClub = abbr; err.textContent = ""; render();
   } catch (e) { err.textContent = "Code incorrect ou plus valable." }
+}
+// Code d'un match (6 chiffres, généré par l'administrateur) tapé dans l'Espace scoreur :
+// on l'essaie sur les matchs proches ; Firebase n'accepte que le bon.
+async function entrerCodeMatch(code, err) {
+  err.textContent = "Vérification…";
+  const now = Date.now(), cands = db.matches.filter(m => m.uid && !m.officiel && m.status !== "FIN" && m.date > now - 3 * 3600000 && m.date < now + 8 * 86400000).sort((a, b) => a.date - b.date);
+  let u, trouve = null;
+  try { u = await connexionAnonyme() } catch (e) { err.textContent = "Connexion impossible pour le moment."; return }
+  for (const m of cands) { try { await fbDb.ref(`invites/${m.uid}/${u.uid}`).set(code); trouve = m; break } catch (e) {} }
+  if (!trouve) { err.textContent = "Code incorrect ou plus valable."; return }
+  err.textContent = ""; memoInvite(trouve.uid, u.uid);
+  const H = team(trouve.home), A = team(trouve.away), dlg = document.getElementById("dlg");
+  dlg.innerHTML = `<form method="dialog"><h3>🎟️ Code accepté</h3>
+    <p class="note" style="margin:6px 0 4px">Tu pourras saisir le score de <b>${esc(H.name)} - ${esc(A.name)}</b> (${fmtDate(trouve.date)} à ${fmtHour(trouve.date)}).</p>
+    <label>Ton prénom ou pseudo</label><input type="text" id="f-ps" maxlength="20" placeholder="ex. Kevin" required>
+    <div class="row" style="margin-top:14px"><button class="btn g full" value="ok">C'est parti</button></div></form>`;
+  dlg.returnValue = ""; dlg.showModal();
+  dlg.onclose = async () => {
+    const ps = (dlg.querySelector("#f-ps").value || "").trim().slice(0, 20) || "Invité";
+    try { await refM(trouve).child("scoreur").set({ uid: u.uid, pseudo: ps, type: "invite", t: Date.now() }) } catch (e) {}
+    tab = "matchs"; openMatch(trouve.id);
+  };
 }
 async function quitterClub() { try { await fbDb.ref("scoreurs/" + fbUser.uid).remove() } catch (e) {} monClub = null; render() }
 
@@ -1678,7 +1699,7 @@ function scoreurBox() {
     return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${t ? crest(t, 28) : ""}<div><b>Scoreur officiel</b><br><span class="note" style="margin:0">${esc(t ? t.name : monClub)}</span></div></div>
     <p class="note" style="margin:0 0 12px">Ouvre un match de ton club : les boutons Coup d'envoi, But !, cartons et score final apparaissent. Tu peux aussi reprendre la main si un supporter saisit à ta place.</p>
     <button class="btn full" onclick="quitterClub()">Ne plus être scoreur sur ce téléphone</button>` }
-  return `<p class="note" style="margin:0 0 6px">Bénévole d'un club ? Entre le code donné par ton club pour saisir les scores de ses matchs.</p>
+  return `<p class="note" style="margin:0 0 6px">Bénévole d'un club ? Entre le code donné par ton club pour saisir les scores de ses matchs. Un code de match à 6 chiffres se tape ici aussi.</p>
     <form onsubmit="event.preventDefault();entrerCode(this)">
       <div class="row"><input type="text" name="c" placeholder="ex. CHA-4821" inputmode="text" autocapitalize="characters" autocomplete="off" required style="flex:2">
       <button class="btn p" style="flex:none">Valider</button></div>
