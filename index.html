@@ -316,6 +316,10 @@
   .tip::before{content:"";position:absolute;top:-7px;right:26px;width:14px;height:14px;background:inherit;transform:rotate(45deg);border-radius:3px}
   .tip b{display:block;font:800 16px/1.1 var(--cond);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
   .tip .x{position:absolute;top:6px;right:6px;color:#fff;opacity:.8;font-size:16px}
+  /* Bulle « code club » au-dessus de l'onglet Infos */
+  .tip.bas{position:fixed;top:auto;right:10px;bottom:calc(68px + env(safe-area-inset-bottom));cursor:pointer}
+  .tip.bas::before{top:auto;bottom:-7px;right:calc(16.66vw - 17px)}
+  .tip.bas u{font-weight:700}
   @keyframes tipIn{from{opacity:0;transform:translateY(-6px)}}
   /* ---------- Pastilles des logos ---------- */
   .lgo{flex:none;display:inline-grid;place-items:center;border-radius:50%;background:#fff;box-shadow:0 0 0 1px var(--line),0 1px 3px rgba(15,23,42,.10)}
@@ -1731,11 +1735,24 @@ syncCalendrier().then(syncResultats).then(appliquerDistant).then(() => {
 const SHARE_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></span>`;
 const MENU_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h12M4 17h8"/></svg></span>`;
 const PLUS_ICO = `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg></span>`;
+// Bulle « Tu as un code club ? » (une seule fois, après les autres aides)
+function codeTip() {
+  let vu = false; try { vu = localStorage.getItem("tuto_code_vu") === "1" } catch (e) {}
+  if (vu || monClub || (typeof estAdmin === "function" && estAdmin())) return;
+  const tip = document.createElement("div");
+  tip.className = "tip bas"; tip.id = "codeTip";
+  tip.innerHTML = `<b>Bénévole d'un club ?</b>Tu as un code club ? Entre-le dans <u>Infos → Espace scoreur</u> pour saisir les scores de ton club.<button class="x" aria-label="Fermer">✕</button>`;
+  const fermer = () => { tip.remove(); try { localStorage.setItem("tuto_code_vu", "1") } catch (e) {} };
+  tip.querySelector(".x").onclick = e => { e.stopPropagation(); fermer() };
+  tip.onclick = () => { fermer(); tab = "reglages"; openId = null; openTeam = null; render();
+    setTimeout(() => { const i = document.querySelector('input[name="c"]'); if (i) { i.scrollIntoView({ block: "center", behavior: "smooth" }); i.focus({ preventScroll: true }) } }, 150) };
+  document.body.appendChild(tip);
+}
 function installTip() {
   const ua = navigator.userAgent;
   const standalone = window.navigator.standalone || matchMedia("(display-mode: standalone)").matches;
   let seen = false; try { seen = localStorage.getItem("tuto_install_vu") === "1" } catch (e) {}
-  if (standalone || seen) return;
+  if (standalone || seen) return setTimeout(codeTip, 1500);
   const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
   const iosSafari = ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
   let steps = "";
@@ -1750,7 +1767,7 @@ function installTip() {
   box.innerHTML = `<button class="cl" aria-label="Fermer">✕</button>
     <div class="hd"><img src="apple-touch-icon.png" alt=""><div><b>Installe l'app</b><span>Retrouve tes matchs en un geste, comme une vraie appli.</span></div></div>
     ${steps}<button class="btn full">Plus tard</button>`;
-  const close = () => { box.remove(); try { localStorage.setItem("tuto_install_vu", "1") } catch (e) {} };
+  const close = () => { box.remove(); try { localStorage.setItem("tuto_install_vu", "1") } catch (e) {} setTimeout(codeTip, 800) };
   box.querySelector(".cl").onclick = close; box.querySelector(".btn").onclick = close;
   document.body.appendChild(box);
 }
