@@ -992,7 +992,8 @@ function renderTeam(id) {
         let rang = 0, prec = null;
         return `<div class="sec"><h2>Classement des buteurs</h2><span class="note" style="margin:0">${bt.buts} buts</span></div>
         <div class="card">${bt.liste.map(([w, k], i) => { if (k !== prec) { rang = i + 1; prec = k }
-          const md = rang === 1 ? "🥇" : rang === 2 ? "🥈" : rang === 3 ? "🥉" : `<span style="display:inline-block;width:20px;text-align:center;color:var(--mut);font-weight:700">${rang}</span>`;
+          // Médailles seulement quand tous les buts de l'équipe ont un buteur connu
+          const md = !manque && rang === 1 ? "🥇" : !manque && rang === 2 ? "🥈" : !manque && rang === 3 ? "🥉" : `<span style="display:inline-block;width:20px;text-align:center;color:var(--mut);font-weight:700">${rang}</span>`;
           return `<div class="bt-row"><span>${md} ${esc(w)}</span><b>${k}</b></div>` }).join("")}
           ${bt.cscs ? `<div class="bt-row"><span style="color:var(--mut)">Contre son camp</span><b style="color:var(--mut)">${bt.cscs}</b></div>` : ""}
           ${manque ? `<div class="bt-row"><span style="color:var(--mut)">But${manque > 1 ? "s" : ""} sans buteur connu</span><b style="color:var(--mut)">${manque}</b></div>` : ""}</div>
