@@ -797,7 +797,9 @@ function butsHTML(m, fi, s) {
     if (!b) return `<div><div class="miss">Buteurs non connus</div></div>`;
     sources.add(b.src === "FFF" ? "feuille de match FFF" : "page Facebook du club");
     const n = b.l.reduce((x, y) => x + y[1], 0);
-    return `<div>${b.l.map(([who, k]) => `<div class="b">⚽ ${esc(nomCourt(who))}${k > 1 ? ` <small>×${k}</small>` : ""}</div>`).join("")}
+    const jr = c => c ? [...(c.t || []), ...(c.r || [])].map(x => x[1]) : [], nous = jr(fi[sd]), eux = jr(fi[sd === "h" ? "a" : "h"]);
+    const csc = w => nous.length && !nous.includes(w) && eux.includes(w);
+    return `<div>${b.l.map(([who, k]) => `<div class="b">⚽ ${esc(nomCourt(who))}${csc(who) ? ` <small>(csc)</small>` : ""}${k > 1 ? ` <small>×${k}</small>` : ""}</div>`).join("")}
       ${n < tot ? `<div class="miss">${tot - n} but${tot - n > 1 ? "s" : ""} sans buteur connu</div>` : ""}</div>` };
   const h = col("h"), a = col("a");
   return `<div class="sec"><h2>Buteurs</h2></div><div class="card"><div class="bts">${h}${a}</div></div>
@@ -936,16 +938,18 @@ async function partagerStory() {
 /* ================= Page équipe ================= */
 function buteursEquipe(id) {
   // Buteurs connus d'une équipe : feuilles de match / Facebook (fiches), sinon saisie en direct
-  const tot = {}; let connus = 0, buts = 0;
+  const tot = {}; let connus = 0, buts = 0, cscs = 0;
   db.matches.filter(m => m.status === "FIN" && !m.forfait && (m.home === id || m.away === id)).forEach(m => {
     const sd = m.home === id ? "h" : "a", s = score(m), n = sd === "h" ? s.h : s.a; buts += n;
     const fi = m.uid && fiches[m.uid], b = fi && fi.bt && fi.bt[sd];
-    let l = b ? b.l.map(([w, k]) => [nomCourt(w), k]) : [];
+    // Un « buteur » qui joue dans l'équipe adverse = but contre son camp (on ne le compte pas dans le classement)
+    const joueurs = c => c ? [...(c.t || []), ...(c.r || [])].map(x => x[1]) : null, nous = joueurs(fi && fi[sd]), eux = joueurs(fi && fi[sd === "h" ? "a" : "h"]);
+    let l = b ? b.l.filter(([w, k]) => { const csc = nous && eux && !nous.includes(w) && eux.includes(w); if (csc) { cscs += k; connus += k } return !csc }).map(([w, k]) => [nomCourt(w), k]) : [];
     if (!l.length) m.events.filter(e => e.type === "but" && e.side === (sd === "h" ? "home" : "away") && e.who && e.who !== "But avant la reprise")
       .forEach(e => l.push([e.who, 1]));
     l.forEach(([w, k]) => { tot[w] = (tot[w] || 0) + k; connus += k });
   });
-  return { liste: Object.entries(tot).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])), connus, buts };
+  return { liste: Object.entries(tot).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])), connus, buts, cscs };
 }
 function renderTeam(id) {
   const T = team(id); if (!T || T.id === "?") { openTeam = null; return render() }
@@ -980,9 +984,24 @@ function renderTeam(id) {
     ${ev.length > 1 ? `<div class="sec"><h2>Évolution au classement</h2></div><div class="card" style="padding:10px 8px 4px">${graphEvolution(ev, db.teams.length)}</div>` : ""}` })()}
     ${prochain ? `<div class="sec"><h2>Prochain match</h2></div><div class="card">${matchRow(prochain)}</div>` : ""}
     ${joues.length ? `<div class="sec"><h2>Derniers résultats</h2></div><div class="card">${joues.slice(0, 5).map(matchRow).join("")}</div>` : ""}
-    ${bt.liste.length ? `<div class="sec"><h2>Buteurs connus</h2><span class="note" style="margin:0">${bt.connus} but${bt.connus > 1 ? "s" : ""} sur ${bt.buts}</span></div>
+    ${(() => {
+      if (!bt.liste.length) return "";
+      // Classement des buteurs de l'équipe si presque tous ses buts ont un buteur connu (90 % et plus)
+      const complet = bt.buts > 0 && bt.connus / bt.buts >= 0.9, manque = bt.buts - bt.connus;
+      if (complet) {
+        let rang = 0, prec = null;
+        return `<div class="sec"><h2>Classement des buteurs</h2><span class="note" style="margin:0">${bt.buts} buts</span></div>
+        <div class="card">${bt.liste.map(([w, k], i) => { if (k !== prec) { rang = i + 1; prec = k }
+          const md = rang === 1 ? "🥇" : rang === 2 ? "🥈" : rang === 3 ? "🥉" : `<span style="display:inline-block;width:20px;text-align:center;color:var(--mut);font-weight:700">${rang}</span>`;
+          return `<div class="bt-row"><span>${md} ${esc(w)}</span><b>${k}</b></div>` }).join("")}
+          ${bt.cscs ? `<div class="bt-row"><span style="color:var(--mut)">Contre son camp</span><b style="color:var(--mut)">${bt.cscs}</b></div>` : ""}
+          ${manque ? `<div class="bt-row"><span style="color:var(--mut)">But${manque > 1 ? "s" : ""} sans buteur connu</span><b style="color:var(--mut)">${manque}</b></div>` : ""}</div>
+        <p class="src">Depuis la J1 · feuilles de match FFF et page Facebook du club.</p>`;
+      }
+      return `<div class="sec"><h2>Buteurs connus</h2><span class="note" style="margin:0">${bt.connus} but${bt.connus > 1 ? "s" : ""} sur ${bt.buts}</span></div>
       <div class="card">${bt.liste.slice(0, 8).map(([w, k]) => `<div class="bt-row"><span>⚽ ${esc(w)}</span><b>${k}</b></div>`).join("")}</div>
-      <p class="src">Pas un classement officiel : tous les buteurs ne sont pas connus.</p>` : ""}
+      <p class="src">Pas de classement : trop de buteurs inconnus pour cette équipe.</p>`;
+    })()}
     ${st ? `<div class="sec"><h2>Stade</h2></div><div class="card">
       <div class="kv2"><span>${esc(cap(st.n))}</span><b>${st.a ? esc(st.a.map(cap).join(", ")) : ""}</b></div>
       ${st.s ? `<div class="kv2"><span>Terrain</span><b>${esc(st.s)}${st.dim ? ` · ${esc(st.dim)} m` : ""}</b></div>` : ""}
