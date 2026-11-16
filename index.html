@@ -686,7 +686,11 @@ function renderMatch(m) {
   if (!scoreur && ouvert && !m.scoreur && window.firebase) blocS += `<button class="btn g full" onclick="jeSuisAuMatch()">🙋 Je suis au match, je saisis le score</button>`;
   if (fbUser && m.scoreur && m.scoreur.uid !== fbUser.uid && (estAdmin() || (monClub && clubsDu(m).includes(monClub))) && !m.officiel)
     blocS += `<button class="btn full" style="margin-top:8px" onclick="reprendreMain()">Reprendre la main</button>`;
-  if (!scoreur && !m.officiel && window.firebase && Date.now() <= m.date + H3) blocS += `<button class="lien" onclick="jaiUnCode()">🎟️ J'ai un code pour ce match</button>`;
+  if (!scoreur && !m.officiel && window.firebase && Date.now() <= m.date + H3) {
+    blocS += `<button class="lien" onclick="jaiUnCode()">🎟️ J'ai un code pour ce match</button>`;
+    // Petite explication, comme dans l'Espace scoreur
+    if (!m.scoreur) blocS += `<p class="note" style="margin:4px 0 0;text-align:center;font-size:12px">Code à 6 chiffres donné par l'organisateur, valable pour ce match uniquement.<br>${ouvert ? "Pas de code ? Touche « 🙋 Je suis au match » ci-dessus." : `Pas de code ? Le jour du match, dès ${fmtHour(m.date - 30 * 60000)}, tu pourras toucher « 🙋 Je suis au match ».`}</p>`;
+  }
   if (!scoreur && m.scoreur && !m.officiel) blocS += `<button class="lien" style="margin-top:2px" onclick="signaler()">⚠️ Signaler une erreur de score</button>`;
   if (estAdmin() && m.uid) {
     const nb = Object.keys((signalements || {})[m.uid] || {}).length;
