@@ -415,8 +415,8 @@ const score = m => m.scoreManuel ? { ...m.scoreManuel } : ({
 });
 const isLive = m => ["1MT", "MT", "2MT"].includes(m.status);
 const FIN_ESTIMEE = 110 * 60000;   // coup d'envoi + 45' + 15' de pause + 45' + arrêts de jeu
-const isASaisir = m => m.status === "AV" && Date.now() > m.date + FIN_ESTIMEE;   // joué, mais score pas encore rentré
-const isImminent = m => m.status === "AV" && Date.now() >= m.date - 30 * 60000 && Date.now() <= m.date + FIN_ESTIMEE;
+const isASaisir = m => m.status === "AV" && !m.rep && Date.now() > m.date + FIN_ESTIMEE;   // joué, mais score pas encore rentré
+const isImminent = m => m.status === "AV" && !m.rep && Date.now() >= m.date - 30 * 60000 && Date.now() <= m.date + FIN_ESTIMEE;
 // « Direct non suivi » : l'heure du coup d'envoi est passée mais personne ne saisit le match → chrono estimé, pas de score
 const isNonSuivi = m => isImminent(m) && Date.now() >= m.date && !m.officiel;
 function minuteEstimee(m) {
@@ -432,7 +432,7 @@ function dateJournee(j) {
   const d = db.matches.filter(m => m.j === j).map(m => m.date).sort((a, b) => a - b);
   return d.length ? d[Math.floor((d.length - 1) / 2)] : 0;
 }
-const isReporte = m => m.date - dateJournee(m.j) > 3 * 86400000;
+const isReporte = m => !!m.rep || m.date - dateJournee(m.j) > 3 * 86400000;
 
 /* ================= Écussons générés ================= */
 function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h }
@@ -535,6 +535,7 @@ function matchRow(m) {
   const s = score(m), H = team(m.home), A = team(m.away), lv = isLive(m);
   let right;
   if (lv) right = m.status === "MT" ? `<span class="live">Mi-temps</span>` : `<span class="live">${minute(m)}'</span>`;
+  else if (m.rep && m.status === "AV") right = `<span class="rep">Date à fixer</span>`;
   else if (isNonSuivi(m)) right = `<span class="ns">≈ ${minuteEstimee(m).txt} · non suivi</span>`;
   else if (isImminent(m)) right = `<span class="soon">Coup d'envoi ${fmtHour(m.date)}</span>`;
   else if (isASaisir(m)) right = `<span class="soon">Score à saisir</span>`;
@@ -543,7 +544,7 @@ function matchRow(m) {
   const fv = favoriId();
   const line = (t, g, lose) => `<div class="team ${lose ? "lose" : ""}">${crest(t, 24)}<span class="nm">${esc(t.name)}${t.id === fv ? `<span class="star">★</span>` : ""}</span>
     ${m.status === "AV" ? "" : `<span class="g">${g}</span>`}</div>`;
-  const kick = m.status === "AV" && !isASaisir(m) && !isNonSuivi(m);
+  const kick = m.status === "AV" && !m.rep && !isASaisir(m) && !isNonSuivi(m);
   return `<button class="m ${lv ? "islive" : ""}" onclick="openMatch('${m.id}')">
     <div class="top"><span>Journée ${m.j}${isReporte(m) ? ` <span class="rep">Reporté</span>` : ""}${m.forfait ? ` <span class="rep">Forfait ${esc(short(team(m.forfait === "home" ? m.home : m.away).name))}</span>` : ""}</span>${right}</div>
     <div style="display:flex;align-items:center;gap:12px"><div style="flex:1">
@@ -574,10 +575,11 @@ function renderMatchs() {
   if (filter === "tout" || filter === "live") html += block("En direct", live, `<span class="live">Live</span>`);
   if (filter === "tout" || filter === "av") {
     // Journées rangées par date ; un match reporté est rangé dans la journée qui couvre sa nouvelle date
+    const sansDate = next.filter(m => m.rep);
     const byJ = {}; next.filter(m => !isReporte(m)).forEach(m => (byJ[m.j] = byJ[m.j] || []).push(m));
     let js = Object.keys(byJ).sort((a, b) => dateJournee(+a) - dateJournee(+b));
     const rep = {};
-    next.filter(isReporte).forEach(m => {
+    next.filter(m => isReporte(m) && !m.rep).forEach(m => {
       let cible = js[0];
       js.forEach(j => { if (dateJournee(+j) <= m.date) cible = j });
       if (cible === undefined) { cible = String(m.j); js = [cible] }
@@ -587,6 +589,7 @@ function renderMatchs() {
     const info = j => fmtDate(dateJournee(+j)) + (rep[j] ? ` · <span class="rep">+${rep[j]} reporté${rep[j] > 1 ? "s" : ""}</span>` : "");
     if (filter === "av") js.slice(0, 1).forEach(j => html += block(`Prochaine journée · J${j}`, byJ[j], `<span class="note" style="margin:0">${info(j)}</span>`));
     else js.forEach((j, i) => html += fold(`av${j}`, `${i === 0 ? "Prochaine journée · " : ""}J${j}`, byJ[j], info(j), i === 0));
+    if (sansDate.length) html += filter === "av" ? block("Reportés · date à fixer", sansDate) : fold("avrep", "Reportés", sansDate, "date à fixer", false);
     if (filter === "av" && js.length > 1)
       html += `<button class="btn full" style="margin-bottom:6px" onclick="filter='tout';render();scrollTo(0,0)">Voir tout le calendrier (${next.length} matchs)</button>`;
   }
@@ -654,6 +657,7 @@ function renderMatch(m) {
   let badge;
   if (isASaisir(m)) badge = `<span class="badge mt">SCORE À SAISIR · ${fmtDate(m.date)}</span>`;
   else if (isNonSuivi(m)) badge = `<span class="badge ns">≈ ${minuteEstimee(m).txt} · SCORE NON SUIVI</span>`;
+  else if (m.status === "AV" && m.rep) badge = `<span class="badge mt">REPORTÉ · DATE À FIXER</span>`;
   else if (m.status === "AV") badge = isImminent(m) ? `<span class="badge mt">COUP D'ENVOI IMMINENT · ${fmtHour(m.date)}</span>` : `<span class="badge av">${fmtDate(m.date)} · ${fmtHour(m.date)}</span>`;
   else if (m.status === "MT") badge = `<span class="badge mt">MI-TEMPS</span>`;
   else if (m.status === "FIN") badge = m.forfait
@@ -663,7 +667,7 @@ function renderMatch(m) {
 
   let ctrl = "";
   const scoreur = peutSaisir(m);
-  if (m.status === "AV") ctrl = isASaisir(m)
+  if (m.status === "AV") ctrl = m.rep ? `<p class="note" style="margin:0;text-align:center">Match reporté · nouvelle date pas encore fixée</p>` : isASaisir(m)
     ? `<button class="btn p full" onclick="saisirScore()">✎ Saisir le score final</button>`
     : isNonSuivi(m) ? `<button class="btn g full" onclick="rejoindreMatch()">▶ Le match a commencé : reprendre en cours</button>`
     : `<button class="btn g full" onclick="setStatus('1MT')">▶ Coup d'envoi</button>`;
@@ -680,6 +684,7 @@ function renderMatch(m) {
     : m.status === "FIN" ? `<p class="note" style="margin:0;text-align:center">Match terminé</p>`
     : isASaisir(m) ? `<p class="note" style="margin:0;text-align:center">Score pas encore saisi</p>`
     : isNonSuivi(m) ? `<p class="note" style="margin:0;text-align:center">Le match devrait être en cours, mais personne ne saisit le score pour l'instant.<br>Tu es au stade ? Prends la main 👇</p>`
+    : m.rep ? `<p class="note" style="margin:0;text-align:center">Match reporté · nouvelle date pas encore fixée</p>`
     : `<p class="note" style="margin:0;text-align:center">Coup d'envoi prévu le ${fmtDate(m.date)} à ${fmtHour(m.date)}</p>`;
   const canEdit = scoreur && (isLive(m) || (m.status === "FIN" && !m.scoreManuel));
   // Bloc scoreur : qui saisit, « Je suis au match », reprendre la main, signaler, outils admin
@@ -1421,9 +1426,9 @@ async function syncCalendrier() {
     if (!home || !away || db.masques.includes(f.uid)) continue;
     const m = db.matches.find(x => x.uid === f.uid);
     if (m) {
-      if (m.status === "AV" && (m.date !== t || m.lieu !== f.lieu || m.base !== base)) { Object.assign(m, { date: t, j: f.j, lieu: f.lieu, fiche: f.fiche, home, away, base }); change = true }
+      if (m.status === "AV" && (m.date !== t || m.lieu !== f.lieu || m.base !== base || !!m.rep !== !!f.reporte)) { Object.assign(m, { date: t, j: f.j, lieu: f.lieu, fiche: f.fiche, home, away, base, rep: !!f.reporte }); change = true }
     } else {
-      db.matches.push({ id: uid(), uid: f.uid, j: f.j, home, away, date: t, lieu: f.lieu, fiche: f.fiche, base, status: "AV", kick1: null, kick2: null, events: [] });
+      db.matches.push({ id: uid(), uid: f.uid, j: f.j, home, away, date: t, lieu: f.lieu, fiche: f.fiche, base, rep: !!f.reporte, status: "AV", kick1: null, kick2: null, events: [] });
       change = true;
     }
   }

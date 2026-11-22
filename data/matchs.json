@@ -503,7 +503,8 @@
       "exterieur": "MARNAVAL SC 4",
       "date": "2026-11-22T14:30:00+01:00",
       "lieu": "STADE MARCEL THEVENIN 1",
-      "fiche": "https://epreuves.fff.fr/competition/match/55853918-s-l-de-l-ornel-a-chancenay-s-marnaval-c-st-dizier/match"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853918-s-l-de-l-ornel-a-chancenay-s-marnaval-c-st-dizier/match",
+      "reporte": true
     },
     {
       "uid": "55853919",
@@ -521,7 +522,8 @@
       "exterieur": "MONTIER EN DER US 2",
       "date": "2026-11-22T14:30:00+01:00",
       "lieu": "STADE MUNICIPAL",
-      "fiche": "https://epreuves.fff.fr/competition/match/55853917-u-s-de-voillecomte-u-s-montier-en-der/match"
+      "fiche": "https://epreuves.fff.fr/competition/match/55853917-u-s-de-voillecomte-u-s-montier-en-der/match",
+      "reporte": true
     },
     {
       "uid": "55973913",
