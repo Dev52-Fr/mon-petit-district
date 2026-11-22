@@ -79,6 +79,15 @@
   @keyframes pop{from{transform:scale(.85);opacity:0}}
   .disclaimer{text-align:center;font-size:11px;color:var(--mut);margin:22px 10px 6px}
   .league{margin-top:6px;font-size:13px;color:var(--mut)}
+  #mcTop:not(:empty){padding:calc(10px + env(safe-area-inset-top)) 14px 2px;max-width:640px;margin:0 auto}
+  #mcTop .mc{margin:0}
+  #mcTop:not(:empty)+header{padding-top:10px;padding-bottom:10px;background:none;border-bottom:0}
+  #mcTop:not(:empty)+header .brand .logo{width:46px}
+  #mcTop:not(:empty)+header .wm-p{font-size:24px}
+  #mcTop:not(:empty)+header .wm-mon{font-size:9px}
+  #mcTop:not(:empty)+header .wm-d{font-size:9px}
+  #mcTop:not(:empty)+header .theme-btn{transform:scale(.8)}
+  #mcTop:not(:empty)+header .league{margin-top:4px;font-size:12px}
   main{padding:14px 14px 20px;max-width:640px;margin:0 auto}
 
   /* ---------- Navigation ---------- */
@@ -365,6 +374,7 @@
     setTimeout(() => { if (sp.isConnected) { sp.classList.add("out"); setTimeout(() => sp.remove(), 500) } }, 3000);
   })();
 </script>
+<div id="mcTop"></div>
 <header>
   <div class="brand"><img class="logo" src="sifflet.png" alt="">
     <div class="wm" aria-label="Mon petit District"><span class="wm-mon">MON</span><span class="wm-p">PET<i>I</i>T</span><span class="wm-d">DISTRICT</span></div>
@@ -536,6 +546,7 @@ function openTeamPage(id) { openTeam = id; openId = null; render(); scrollTo(0, 
 const DISCLAIMER = `<p class="disclaimer">Application non officielle, sans lien avec la FFF ni le District de Haute-Marne.</p>`;
 function render() {
   crestN = 0;
+  const mcTop = document.getElementById("mcTop"); if (mcTop) mcTop.innerHTML = tab === "matchs" && !openId && !openTeam ? carteMonClub() : "";
   document.getElementById("sub").textContent = db.league;
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab && !openId || (openId && b.dataset.tab === "matchs")));
   document.getElementById("navdot").hidden = !db.matches.some(m => isLive(m) || isImminent(m));
@@ -631,7 +642,7 @@ function renderMatchs() {
   // Les matchs du club favori passent en premier dans chaque bloc
   const fv = favoriId(), favFirst = l => fv ? [...l.filter(m => m.home === fv || m.away === fv), ...l.filter(m => m.home !== fv && m.away !== fv)] : l;
   const block = (title, list, extra = "") => (list = favFirst(list)).length ? `<div class="sec"><h2>${title}</h2>${extra}</div><div class="card">${list.map(matchRow).join("")}</div>` : "";
-  let html = carteMonClub() + `<div class="chips">${chip("live", "En direct", live.length)}${chip("av", "À venir")}${chip("fin", "Résultats")}${chip("tout", "Tout")}</div>`;
+  let html = `<div class="chips">${chip("live", "En direct", live.length)}${chip("av", "À venir")}${chip("fin", "Résultats")}${chip("tout", "Tout")}</div>`;
   if (filter === "tout" || filter === "live") html += block("En direct", live, `<span class="live">Live</span>`);
   if (filter === "tout" || filter === "av") {
     // Journées rangées par date ; un match reporté est rangé dans la journée qui couvre sa nouvelle date
