@@ -61,11 +61,8 @@
   button{font-family:inherit;cursor:pointer}
 
   /* ---------- En-tête ---------- */
-  header{background:var(--card);color:var(--ink);padding:12px 18px 14px;border-bottom:1px solid var(--line)}
+  header{background:var(--card);color:var(--ink);padding:calc(12px + env(safe-area-inset-top)) 18px 14px;border-bottom:1px solid var(--line)}
   header>*{max-width:612px;margin-left:auto;margin-right:auto}
-  .banner{position:relative;overflow:hidden;background:#3d7a2c;padding-top:env(safe-area-inset-top)}
-  .banner::before{content:"";position:absolute;inset:-30px;background:url(banner.jpg) center 20%/auto 300%;filter:blur(16px) saturate(1.1)}
-  .banner img{position:relative;display:block;width:100%;height:auto;max-height:260px;object-fit:cover;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 30px);mask-image:linear-gradient(to bottom,transparent 0,#000 30px)}
   .brand{display:flex;align-items:center;gap:12px}
   .brand .logo{width:74px;height:auto;flex:none;display:block;filter:drop-shadow(0 3px 4px rgba(0,0,0,.18))}
   :root[data-theme=dark] .brand .logo{filter:brightness(1.9) saturate(1.2) drop-shadow(0 0 6px rgba(120,160,255,.35))}
@@ -109,6 +106,26 @@
   @keyframes pulse{50%{opacity:.2}}
   .empty{color:var(--mut);text-align:center;padding:22px;font-size:14px}
   .note{font-size:12px;color:var(--mut);margin:10px 4px}
+
+  /* ---------- Carte « Mon club » ---------- */
+  .mc{display:block;width:100%;text-align:left;border:0;color:inherit;font:inherit;padding:12px 14px;margin:4px 0 14px;background:var(--card);border-radius:16px;box-shadow:0 1px 3px rgba(15,23,42,.06),0 1px 0 var(--line)}
+  .mc.lv{box-shadow:0 0 0 2px var(--red)}
+  .mc .hd{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mut);font-weight:600}
+  .mc .hd .star{color:var(--amber)}
+  .mc .tag{font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--blue)}
+  .mc .tag.v{background:rgba(22,163,74,.12);color:var(--green)}.mc .tag.d{background:rgba(225,29,72,.1);color:var(--red)}.mc .tag.n{background:var(--soft);color:var(--mut)}
+  .mc .bd{display:flex;align-items:center;gap:12px;margin-top:10px}
+  .mc .tms{flex:1;min-width:0}
+  .mc .tm{display:flex;align-items:center;gap:9px;padding:3px 0;font-weight:700;font-size:15px}
+  .mc .tm span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mc .tm.me span{color:var(--blue)}
+  .mc .sc{font:800 30px/1 var(--cond);white-space:nowrap}
+  .mc .hr{text-align:right;font:800 22px/1 var(--cond)}.mc .hr small{display:block;font:600 12px Inter,sans-serif;color:var(--mut);margin-top:4px}
+  .mc .ft{font-size:12px;color:var(--mut);margin-top:9px;line-height:1.4}
+  .mc .mv.u{color:var(--green);font-weight:800}.mc .mv.d{color:var(--red);font-weight:800}
+  .mc .pick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+  .mc .pick button{background:none;border:0;padding:2px;border-radius:50%}
+  .mc .cta{text-align:center}.mc .cta b{display:block;font-size:15px}
 
   /* ---------- Filtres ---------- */
   .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none}
@@ -348,7 +365,6 @@
     setTimeout(() => { if (sp.isConnected) { sp.classList.add("out"); setTimeout(() => sp.remove(), 500) } }, 3000);
   })();
 </script>
-<div class="banner"><img src="banner.jpg" alt="Football en Haute-Marne"></div>
 <header>
   <div class="brand"><img class="logo" src="sifflet.png" alt="">
     <div class="wm" aria-label="Mon petit District"><span class="wm-mon">MON</span><span class="wm-p">PET<i>I</i>T</span><span class="wm-d">DISTRICT</span></div>
@@ -554,6 +570,50 @@ function matchRow(m) {
   </button>`;
 }
 
+// Carte « Mon club » : prochain match, direct, résultat, ou choix du club favori
+function carteMonClub() {
+  const fv = favoriId();
+  if (!fv) return `<div class="mc"><div class="cta"><b>★ Suis ton club en un coup d'œil</b><span class="note" style="margin:0">Son prochain match, son score en direct, sa place. Touche ton écusson :</span></div>
+    <div class="pick">${[...db.teams].sort((a, b) => a.name.localeCompare(b.name)).map(t => `<button onclick="toggleFavori('${esc(t.abbr || "")}')" aria-label="${esc(t.name)}">${crest(t, 36)}</button>`).join("")}</div></div>`;
+  const T = team(fv), mine = db.matches.filter(m => m.home === fv || m.away === fv);
+  const live = standings(true), pos = live.findIndex(r => r.id === fv) + 1, me = live[pos - 1] || { Pts: 0 };
+  const rang = p => p + (p === 1 ? "er" : "e");
+  const mvTxt = d => d > 0 ? ` <span class="mv u">▲${d}</span>` : d < 0 ? ` <span class="mv d">▼${-d}</span>` : "";
+  const lignes = (m, avecScore) => { const s = score(m), H = team(m.home), A = team(m.away);
+    return `<div class="bd"><div class="tms"><div class="tm ${m.home === fv ? "me" : ""}">${crest(H, 24)}<span>${esc(H.name)}</span></div><div class="tm ${m.away === fv ? "me" : ""}">${crest(A, 24)}<span>${esc(A.name)}</span></div></div>
+      ${avecScore ? `<div class="sc">${s.h} – ${s.a}</div>` : `<div class="hr">${fmtHour(m.date)}<small>${fmtDate(m.date)}</small></div>`}</div>` };
+  const hd = (droite, extra = "") => `<div class="hd"><span><span class="star">★</span> ${esc(short(T.name))}${extra}</span>${droite}</div>`;
+  // 1) En direct (ou coup d'envoi imminent)
+  const lm = mine.find(m => isLive(m) || isImminent(m));
+  if (lm) {
+    const avant = standings(false).findIndex(r => r.id === fv) + 1;
+    const droite = isLive(lm) ? `<span class="live">${lm.status === "MT" ? "Mi-temps" : minute(lm) + "'"}</span>`
+      : isNonSuivi(lm) ? `<span class="tag n">≈ ${minuteEstimee(lm).txt} · non suivi</span>` : `<span class="tag">Coup d'envoi ${fmtHour(lm.date)}</span>`;
+    return `<button class="mc ${isLive(lm) ? "lv" : ""}" onclick="openMatch('${lm.id}')">${hd(droite)}${lignes(lm, isLive(lm))}
+      ${isLive(lm) ? `<div class="ft">Classement en direct : <b>${rang(pos)}</b>${mvTxt(avant - pos)}</div>` : `<div class="ft">${rang(pos)} au classement · ${me.Pts} pts</div>`}</button>`;
+  }
+  // 2) Match terminé depuis moins de 3 jours
+  const fin = mine.filter(m => m.status === "FIN").sort((a, b) => b.date - a.date)[0];
+  const prochain = mine.filter(m => m.status === "AV" && !m.rep && !isASaisir(m)).sort((a, b) => a.date - b.date)[0];
+  if (fin && (Date.now() - fin.date < 3 * 86400000 || !prochain)) {
+    const s = score(fin), pour = fin.home === fv ? s.h : s.a, contre = fin.home === fv ? s.a : s.h;
+    const res = fin.forfait ? (fin.forfait === (fin.home === fv ? "home" : "away") ? "d" : "v") : pour > contre ? "v" : pour < contre ? "d" : "n";
+    const lastJ = Math.max(0, ...db.matches.filter(m => m.status === "FIN" && !isReporte(m)).map(m => m.j));
+    const prev = lastJ > 1 ? historique(lastJ - 1) : null, pp = prev ? prev.findIndex(r => r.id === fv) + 1 : 0;
+    const fi = fin.uid && fiches[fin.uid], b = fi && fi.bt && fi.bt[fin.home === fv ? "h" : "a"];
+    const but = b && b.l.length ? `Buteurs : ${b.l.map(([w, k]) => esc(nomCourt(w)) + (k > 1 ? " ×" + k : "")).join(", ")} · ` : "";
+    return `<button class="mc" onclick="openMatch('${fin.id}')">${hd(`<span class="tag ${res}">${{ v: "Victoire", d: "Défaite", n: "Match nul" }[res]}</span>`, " · terminé")}${lignes(fin, true)}
+      <div class="ft">${but}<b>${rang(pos)}</b> · ${me.Pts} pts${pp ? mvTxt(pp - pos) : ""}</div></button>`;
+  }
+  // 3) Prochain match
+  if (prochain) {
+    const j = Math.round((new Date(prochain.date).setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) / 86400000);
+    const dans = j <= 0 ? "Aujourd'hui" : j === 1 ? "Demain" : `Dans ${j} j`;
+    return `<button class="mc" onclick="openMatch('${prochain.id}')">${hd(`<span class="tag">${dans}</span>`, ` · ${rang(pos)} · ${me.Pts} pts`)}${lignes(prochain, false)}</button>`;
+  }
+  return "";
+}
+
 function renderMatchs() {
   const live = db.matches.filter(m => isLive(m) || isImminent(m)).sort((a, b) => a.date - b.date);
   const next = db.matches.filter(m => m.status === "AV" && !isImminent(m) && !isASaisir(m)).sort((a, b) => a.date - b.date);
@@ -571,7 +631,7 @@ function renderMatchs() {
   // Les matchs du club favori passent en premier dans chaque bloc
   const fv = favoriId(), favFirst = l => fv ? [...l.filter(m => m.home === fv || m.away === fv), ...l.filter(m => m.home !== fv && m.away !== fv)] : l;
   const block = (title, list, extra = "") => (list = favFirst(list)).length ? `<div class="sec"><h2>${title}</h2>${extra}</div><div class="card">${list.map(matchRow).join("")}</div>` : "";
-  let html = `<div class="chips">${chip("live", "En direct", live.length)}${chip("av", "À venir")}${chip("fin", "Résultats")}${chip("tout", "Tout")}</div>`;
+  let html = carteMonClub() + `<div class="chips">${chip("live", "En direct", live.length)}${chip("av", "À venir")}${chip("fin", "Résultats")}${chip("tout", "Tout")}</div>`;
   if (filter === "tout" || filter === "live") html += block("En direct", live, `<span class="live">Live</span>`);
   if (filter === "tout" || filter === "av") {
     // Journées rangées par date ; un match reporté est rangé dans la journée qui couvre sa nouvelle date
