@@ -539,7 +539,7 @@ function matchRow(m) {
   else if (isNonSuivi(m)) right = `<span class="ns">≈ ${minuteEstimee(m).txt} · non suivi</span>`;
   else if (isImminent(m)) right = `<span class="soon">Coup d'envoi ${fmtHour(m.date)}</span>`;
   else if (isASaisir(m)) right = `<span class="soon">Score à saisir</span>`;
-  else if (m.status === "FIN") right = `<span>Terminé</span>`;
+  else if (m.status === "FIN") right = `<span>Terminé · ${fmtDate(m.date)}</span>`;
   else right = `<span>${fmtDate(m.date)}</span>`;
   const fv = favoriId();
   const line = (t, g, lose) => `<div class="team ${lose ? "lose" : ""}">${crest(t, 24)}<span class="nm">${esc(t.name)}${t.id === fv ? `<span class="star">★</span>` : ""}</span>
@@ -662,7 +662,7 @@ function renderMatch(m) {
   else if (m.status === "MT") badge = `<span class="badge mt">MI-TEMPS</span>`;
   else if (m.status === "FIN") badge = m.forfait
     ? `<span class="badge mt">FORFAIT · ${esc(team(m.forfait === "home" ? m.home : m.away).name)}</span>`
-    : `<span class="badge fin">TERMINÉ</span>`;
+    : `<span class="badge fin">TERMINÉ · ${fmtDate(m.date)} · ${fmtHour(m.date)}</span>`;
   else badge = `<span class="badge lv">${minute(m)}'</span>`;
 
   let ctrl = "";
