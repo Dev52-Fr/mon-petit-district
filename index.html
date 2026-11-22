@@ -81,7 +81,12 @@
   .league{margin-top:6px;font-size:13px;color:var(--mut)}
   #mcTop:not(:empty){padding:calc(10px + env(safe-area-inset-top)) 14px 2px;max-width:640px;margin:0 auto}
   #mcTop .mc{margin:0}
-  #mcTop:not(:empty)+header{padding-top:10px;padding-bottom:10px;background:none;border-bottom:0}
+  #mcTop:not(:empty)+header{padding:10px 14px;margin:10px auto 0;width:calc(100% - 28px);max-width:612px;background:#0a2463;border:0;border-radius:16px;color:#fff}
+  #mcTop:not(:empty)+header .brand .logo,:root[data-theme=dark] #mcTop:not(:empty)+header .brand .logo{filter:brightness(0) invert(1)}
+  #mcTop:not(:empty)+header .wm{color:#fff}
+  #mcTop:not(:empty)+header .wm-mon{color:#b5c7f0}
+  #mcTop:not(:empty)+header .league{color:#b5c7f0}
+  #mcTop:not(:empty)+header .theme-btn{background:transparent;border-color:rgba(255,255,255,.35);color:#fff}
   #mcTop:not(:empty)+header .brand .logo{width:46px}
   #mcTop:not(:empty)+header .wm-p{font-size:24px}
   #mcTop:not(:empty)+header .wm-mon{font-size:9px}
