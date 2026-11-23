@@ -79,6 +79,13 @@
   @keyframes pop{from{transform:scale(.85);opacity:0}}
   .disclaimer{text-align:center;font-size:11px;color:var(--mut);margin:22px 10px 6px}
   .league{margin-top:6px;font-size:13px;color:var(--mut)}
+  .champ{display:inline-flex;align-items:center;gap:5px;border:1.5px solid var(--line);background:var(--bg);color:var(--txt);border-radius:999px;padding:5px 11px;font:600 13px Inter,sans-serif}
+  .champ svg{width:14px;height:14px;color:var(--mut)}
+  .chl .grp{font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin:14px 2px 2px}
+  .chl button{display:flex;width:100%;justify-content:space-between;align-items:center;background:none;border:0;border-top:1px solid var(--line);padding:12px 2px;font:600 15px Inter,sans-serif;color:var(--mut)}
+  .chl .grp+button{border-top:0}
+  .chl button.on{color:var(--txt)}.chl button.on b{color:var(--blue);font-size:18px}
+  .chl .soon{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--rep-bg);color:var(--rep-txt)}
   #mcTop:not(:empty){padding:calc(10px + env(safe-area-inset-top)) 14px 2px;max-width:640px;margin:0 auto}
   #mcTop .mc{margin:0}
   #mcTop:not(:empty)+header{padding:10px 14px;margin:10px auto 0;width:calc(100% - 28px);max-width:612px;background:var(--card);border:0;border-radius:16px;box-shadow:0 1px 3px rgba(15,23,42,.06),0 1px 0 var(--line)}
@@ -558,7 +565,7 @@ const DISCLAIMER = `<p class="disclaimer">Application non officielle, sans lien 
 function render() {
   crestN = 0;
   const mcTop = document.getElementById("mcTop"); if (mcTop) mcTop.innerHTML = tab === "matchs" && !openId && !openTeam ? carteMonClub() : "";
-  document.getElementById("sub").textContent = db.league;
+  document.getElementById("sub").innerHTML = `<button class="champ" onclick="choisirChampionnat()">${esc(db.league)} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>`;
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab && !openId || (openId && b.dataset.tab === "matchs")));
   document.getElementById("navdot").hidden = !db.matches.some(m => isLive(m) || isImminent(m));
   if (openId) { renderMatch(db.matches.find(m => m.id === openId)); if (openId) app.insertAdjacentHTML("beforeend", DISCLAIMER); return }
@@ -634,6 +641,18 @@ function carteMonClub() {
     return `<button class="mc" onclick="openMatch('${prochain.id}')">${hd(`<span class="tag">${dans}</span>`, ` · ${rang(pos)} · ${me.Pts} pts`)}${lignes(prochain, false)}</button>`;
   }
   return "";
+}
+
+// Sélecteur de championnat (une seule poule active pour l'instant)
+function choisirChampionnat() {
+  const dlg = document.getElementById("dlg");
+  const it = (nom, actif) => `<button type="button" class="${actif ? "on" : ""}" onclick="${actif ? "document.getElementById('dlg').close()" : "this.querySelector('.soon').textContent='Bientôt disponible'"}"><span>${nom}</span>${actif ? "<b>✓</b>" : `<span class="soon">Prochainement</span>`}</button>`;
+  dlg.innerHTML = `<div class="chl"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:17px">Choisir un championnat</b>
+    <button type="button" onclick="document.getElementById('dlg').close()" aria-label="Fermer" style="width:auto;border:0;padding:4px;font-size:20px;color:var(--mut)">✕</button></div>
+    <div class="grp">Départemental 3</div>${it("Poule A", true)}${it("Poule B")}${it("Poule C")}
+    <div class="grp">Autres niveaux</div>${it("Départemental 1")}${it("Départemental 2")}${it("Départemental 4")}
+    <p class="note" style="margin:12px 2px 0">D'autres poules arrivent bientôt. Ton club n'est pas encore là ? Dis-le-nous depuis la page Infos.</p></div>`;
+  dlg.onclose = null; dlg.returnValue = ""; dlg.showModal();
 }
 
 function renderMatchs() {
