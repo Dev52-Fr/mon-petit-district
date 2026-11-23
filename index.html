@@ -134,6 +134,10 @@
   .empty{color:var(--mut);text-align:center;padding:22px;font-size:14px}
   .note{font-size:12px;color:var(--mut);margin:10px 4px}
 
+  .m.reprow{position:relative}
+  .m.reprow .team .nm,.m.reprow .top{color:var(--mut)}
+  .m.reprow .team img,.m.reprow .team .crest{opacity:.55}
+  .tampon{position:absolute;right:16px;top:50%;transform:translateY(-30%) rotate(-10deg);border:2.5px solid var(--rep-txt);color:var(--rep-txt);font:800 14px/1 var(--cond);letter-spacing:.12em;text-transform:uppercase;padding:5px 10px 4px;border-radius:7px;background:var(--card);opacity:.9;pointer-events:none}
   /* ---------- Carte « Mon club » ---------- */
   .mc{display:block;width:100%;text-align:left;border:0;color:inherit;font:inherit;padding:12px 14px;margin:4px 0 14px;background:var(--card);border-radius:16px;box-shadow:0 1px 3px rgba(15,23,42,.06),0 1px 0 var(--line)}
   .mc.lv{box-shadow:0 0 0 2px var(--red)}
@@ -576,10 +580,11 @@ function render() {
   app.insertAdjacentHTML("beforeend", DISCLAIMER);
 }
 
-function matchRow(m) {
+function matchRow(m, tampon = false) {
   const s = score(m), H = team(m.home), A = team(m.away), lv = isLive(m);
   let right;
-  if (lv) right = m.status === "MT" ? `<span class="live">Mi-temps</span>` : `<span class="live">${minute(m)}'</span>`;
+  if (tampon) right = `<span>${m.rep ? "Date à fixer" : "Reporté au " + fmtDate(m.date)}</span>`;
+  else if (lv) right = m.status === "MT" ? `<span class="live">Mi-temps</span>` : `<span class="live">${minute(m)}'</span>`;
   else if (m.rep && m.status === "AV") right = `<span class="rep">Date à fixer</span>`;
   else if (isNonSuivi(m)) right = `<span class="ns">≈ ${minuteEstimee(m).txt} · non suivi</span>`;
   else if (isImminent(m)) right = `<span class="soon">Coup d'envoi ${fmtHour(m.date)}</span>`;
@@ -589,9 +594,9 @@ function matchRow(m) {
   const fv = favoriId();
   const line = (t, g, lose) => `<div class="team ${lose ? "lose" : ""}">${crest(t, 24)}<span class="nm">${esc(t.name)}${t.id === fv ? `<span class="star">★</span>` : ""}</span>
     ${m.status === "AV" ? "" : `<span class="g">${g}</span>`}</div>`;
-  const kick = m.status === "AV" && !m.rep && !isASaisir(m) && !isNonSuivi(m);
-  return `<button class="m ${lv ? "islive" : ""}" onclick="openMatch('${m.id}')">
-    <div class="top"><span>Journée ${m.j}${isReporte(m) ? ` <span class="rep">Reporté</span>` : ""}${m.forfait ? ` <span class="rep">Forfait ${esc(short(team(m.forfait === "home" ? m.home : m.away).name))}</span>` : ""}</span>${right}</div>
+  const kick = !tampon && m.status === "AV" && !m.rep && !isASaisir(m) && !isNonSuivi(m);
+  return `<button class="m ${lv ? "islive" : ""} ${tampon ? "reprow" : ""}" onclick="openMatch('${m.id}')">${tampon ? `<span class="tampon">Reporté</span>` : ""}
+    <div class="top"><span>Journée ${m.j}${isReporte(m) && !tampon ? ` <span class="rep">Reporté</span>` : ""}${m.forfait ? ` <span class="rep">Forfait ${esc(short(team(m.forfait === "home" ? m.home : m.away).name))}</span>` : ""}</span>${right}</div>
     <div style="display:flex;align-items:center;gap:12px"><div style="flex:1">
       ${line(H, s.h, m.status === "FIN" && s.h < s.a)}${line(A, s.a, m.status === "FIN" && s.a < s.h)}
     </div>${kick ? `<div class="kick">${fmtHour(m.date)}</div>` : ""}</div>
@@ -667,11 +672,11 @@ function renderMatchs() {
     const open = key in voletsOuverts ? voletsOuverts[key] : ouvert;
     return `<details class="fold" ${open ? "open" : ""} ontoggle="voletsOuverts['${key}']=this.open">
       <summary><h2>${title}</h2><span class="cnt">${extra}${extra ? " · " : ""}${list.length} match${list.length > 1 ? "s" : ""}</span><i class="chev"></i></summary>
-      <div class="card">${favFirst(list).map(matchRow).join("")}</div></details>`;
+      <div class="card">${favFirst(list).map(m => matchRow(m)).join("")}</div></details>`;
   };
   // Les matchs du club favori passent en premier dans chaque bloc
   const fv = favoriId(), favFirst = l => fv ? [...l.filter(m => m.home === fv || m.away === fv), ...l.filter(m => m.home !== fv && m.away !== fv)] : l;
-  const block = (title, list, extra = "") => (list = favFirst(list)).length ? `<div class="sec"><h2>${title}</h2>${extra}</div><div class="card">${list.map(matchRow).join("")}</div>` : "";
+  const block = (title, list, extra = "") => (list = favFirst(list)).length ? `<div class="sec"><h2>${title}</h2>${extra}</div><div class="card">${list.map(m => matchRow(m)).join("")}</div>` : "";
   let html = `<div class="chips">${chip("live", "En direct", live.length)}${chip("av", "À venir")}${chip("fin", "Résultats")}${chip("tout", "Tout")}</div>`;
   if (filter === "tout" || filter === "live") html += block("En direct", live, `<span class="live">Live</span>`);
   if (filter === "tout" || filter === "av") {
@@ -696,9 +701,18 @@ function renderMatchs() {
   }
   if (filter === "tout" || filter === "fin") {
     const byJ = {}; fin.forEach(m => (byJ[m.j] = byJ[m.j] || []).push(m));
-    Object.keys(byJ).sort((a, b) => b - a).forEach((j, i) => html += filter === "tout"
-      ? fold(`fin${j}`, `Résultats · J${j}`, byJ[j], "", false)
-      : block(`Journée ${j}`, byJ[j], `<span class="note" style="margin:0">Résultats</span>`));
+    // Les matchs reportés restent visibles dans leur journée d'origine, avec un tampon « Reporté »
+    const repJ = {}; db.matches.filter(m => m.status === "AV" && isReporte(m) && !isASaisir(m) && !isImminent(m) && byJ[m.j])
+      .forEach(m => (repJ[m.j] = repJ[m.j] || []).push(m));
+    Object.keys(byJ).sort((a, b) => b - a).forEach(j => {
+      const l = favFirst(byJ[j]), r = favFirst(repJ[j] || []);
+      const rows = l.map(m => matchRow(m)).join("") + r.map(m => matchRow(m, true)).join("");
+      const cnt = r.length ? `${l.length} joué${l.length > 1 ? "s" : ""} · ${r.length} reporté${r.length > 1 ? "s" : ""}` : "";
+      if (filter === "tout") {
+        const k = `fin${j}`, open = k in voletsOuverts ? voletsOuverts[k] : false;
+        html += `<details class="fold" ${open ? "open" : ""} ontoggle="voletsOuverts['${k}']=this.open"><summary><h2>Résultats · J${j}</h2><span class="cnt">${cnt || l.length + " match" + (l.length > 1 ? "s" : "")}</span><i class="chev"></i></summary><div class="card">${rows}</div></details>`;
+      } else html += `<div class="sec"><h2>Journée ${j}</h2><span class="note" style="margin:0">${cnt || "Résultats"}</span></div><div class="card">${rows}</div>`;
+    });
   }
   if (!db.matches.length) html += `<div class="card"><div class="empty">Le calendrier se charge…</div></div>`;
   else if (filter === "live" && !live.length) html += `<div class="card"><div class="empty">Aucun match en direct.<br>Ouvre un match à venir et lance le coup d'envoi.</div></div>`;
@@ -1095,7 +1109,7 @@ function renderTeam(id) {
     ${b.dom.J + b.ext.J ? `<div class="sec"><h2>Domicile / Extérieur</h2></div><div class="card">${blocBilan(b)}</div>` : ""}
     ${ev.length > 1 ? `<div class="sec"><h2>Évolution au classement</h2></div><div class="card" style="padding:10px 8px 4px">${graphEvolution(ev, db.teams.length)}</div>` : ""}` })()}
     ${prochain ? `<div class="sec"><h2>Prochain match</h2></div><div class="card">${matchRow(prochain)}</div>` : ""}
-    ${joues.length ? `<div class="sec"><h2>Derniers résultats</h2></div><div class="card">${joues.slice(0, 5).map(matchRow).join("")}</div>` : ""}
+    ${joues.length ? `<div class="sec"><h2>Derniers résultats</h2></div><div class="card">${joues.slice(0, 5).map(m => matchRow(m)).join("")}</div>` : ""}
     ${(() => {
       if (!bt.liste.length) return "";
       // Classement des buteurs de l'équipe si presque tous ses buts ont un buteur connu (90 % et plus)
@@ -1119,8 +1133,8 @@ function renderTeam(id) {
       <div class="kv2"><span>${esc(cap(st.n))}</span><b>${st.a ? esc(st.a.map(cap).join(", ")) : ""}</b></div>
       ${st.s ? `<div class="kv2"><span>Terrain</span><b>${esc(st.s)}${st.dim ? ` · ${esc(st.dim)} m` : ""}</b></div>` : ""}
       ${st.lat ? `<div style="padding:10px 14px;border-top:1px solid var(--line)"><a class="btn full" style="display:block;text-align:center;text-decoration:none" href="https://maps.apple.com/?q=${encodeURIComponent(st.n)}&ll=${st.lat},${st.lng}" target="_blank" rel="noopener">📍 Itinéraire vers le stade</a></div>` : ""}</div>` : ""}
-    ${joues.length > 5 ? `<details class="fold"><summary><h2>Tous les résultats</h2><span class="cnt">${joues.length} matchs</span><i class="chev"></i></summary><div class="card">${joues.map(matchRow).join("")}</div></details>` : ""}
-    ${avenir.length ? `<details class="fold"><summary><h2>Calendrier</h2><span class="cnt">${avenir.length} matchs</span><i class="chev"></i></summary><div class="card">${avenir.map(matchRow).join("")}</div></details>` : ""}`;
+    ${joues.length > 5 ? `<details class="fold"><summary><h2>Tous les résultats</h2><span class="cnt">${joues.length} matchs</span><i class="chev"></i></summary><div class="card">${joues.map(m => matchRow(m)).join("")}</div></details>` : ""}
+    ${avenir.length ? `<details class="fold"><summary><h2>Calendrier</h2><span class="cnt">${avenir.length} matchs</span><i class="chev"></i></summary><div class="card">${avenir.map(m => matchRow(m)).join("")}</div></details>` : ""}`;
 }
 
 /* ================= Partager le score en image ================= */
