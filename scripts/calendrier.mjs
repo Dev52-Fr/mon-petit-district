@@ -111,6 +111,10 @@ for (const m of matchs.values()) delete m._maj;
 const liste = [...matchs.values()].sort((a, b) => a.j - b.j || String(a.date).localeCompare(String(b.date)));
 // On ne réécrit le fichier que si les rencontres ont changé (évite un commit chaque jour)
 let ancien = null; try { ancien = JSON.parse(readFileSync("data/matchs.json", "utf8")) } catch (e) {}
+// « reporte » est posé à la main (match reporté, nouvelle date pas encore fixée) : on le garde
+// tant que la FFF n'a pas donné de nouvelle date ; dès que la date change, le marqueur tombe.
+const avant = new Map((ancien?.matchs || []).map(m => [m.uid, m]));
+for (const m of liste) { const o = avant.get(m.uid); if (o?.reporte && o.date === m.date) m.reporte = true }
 if (liste.length && (!ancien || JSON.stringify(ancien.matchs) !== JSON.stringify(liste)))
   writeFileSync("data/matchs.json", JSON.stringify({ maj: new Date().toISOString(), matchs: liste }, null, 2) + "\n");
 else console.log("  (aucun changement dans les rencontres)");
