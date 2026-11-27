@@ -596,7 +596,7 @@ function matchRow(m, tampon = false) {
     ${m.status === "AV" ? "" : `<span class="g">${g}</span>`}</div>`;
   const kick = !tampon && m.status === "AV" && !m.rep && !isASaisir(m) && !isNonSuivi(m);
   return `<button class="m ${lv ? "islive" : ""} ${tampon ? "reprow" : ""}" onclick="openMatch('${m.id}')">${tampon ? `<span class="tampon">Reporté</span>` : ""}
-    <div class="top"><span>Journée ${m.j}${isReporte(m) && !tampon ? ` <span class="rep">Reporté</span>` : ""}${m.forfait ? ` <span class="rep">Forfait ${esc(short(team(m.forfait === "home" ? m.home : m.away).name))}</span>` : ""}</span>${right}</div>
+    <div class="top"><span>Journée ${m.j}${isReporte(m) && !tampon ? ` <span class="rep">${m.rep ? "Reporté" : "Match en retard"}</span>` : ""}${m.forfait ? ` <span class="rep">Forfait ${esc(short(team(m.forfait === "home" ? m.home : m.away).name))}</span>` : ""}</span>${right}</div>
     <div style="display:flex;align-items:center;gap:12px"><div style="flex:1">
       ${line(H, s.h, m.status === "FIN" && s.h < s.a)}${line(A, s.a, m.status === "FIN" && s.a < s.h)}
     </div>${kick ? `<div class="kick">${fmtHour(m.date)}</div>` : ""}</div>
@@ -692,7 +692,7 @@ function renderMatchs() {
       (byJ[cible] = byJ[cible] || []).push(m); rep[cible] = (rep[cible] || 0) + 1;
     });
     js.forEach(j => byJ[j].sort((a, b) => a.date - b.date));
-    const info = j => fmtDate(dateJournee(+j)) + (rep[j] ? ` · <span class="rep">+${rep[j]} reporté${rep[j] > 1 ? "s" : ""}</span>` : "");
+    const info = j => fmtDate(dateJournee(+j)) + (rep[j] ? ` · <span class="rep">+${rep[j]} match${rep[j] > 1 ? "s" : ""} en retard</span>` : "");
     if (filter === "av") js.slice(0, 1).forEach(j => html += block(`Prochaine journée · J${j}`, byJ[j], `<span class="note" style="margin:0">${info(j)}</span>`));
     else js.forEach((j, i) => html += fold(`av${j}`, `${i === 0 ? "Prochaine journée · " : ""}J${j}`, byJ[j], info(j), i === 0));
     if (sansDate.length) html += filter === "av" ? block("Reportés · date à fixer", sansDate) : fold("avrep", "Reportés", sansDate, "date à fixer", false);
@@ -881,7 +881,7 @@ function renderMatch(m) {
 
   app.innerHTML = `
     <div class="hero">
-      <div class="tp"><button class="back" onclick="openId=null;openTeam=retourEquipe;retourEquipe=null;render();scrollTo(0,0)">‹ ${retourEquipe ? esc(short(team(retourEquipe).name)) : "Matchs"}</button><span style="font-size:12px;opacity:.75">Journée ${m.j}</span>${isReporte(m) ? ` <span class="rep">Reporté</span>` : ""}</div>
+      <div class="tp"><button class="back" onclick="openId=null;openTeam=retourEquipe;retourEquipe=null;render();scrollTo(0,0)">‹ ${retourEquipe ? esc(short(team(retourEquipe).name)) : "Matchs"}</button><span style="font-size:12px;opacity:.75">Journée ${m.j}</span>${isReporte(m) ? ` <span class="rep">${m.rep ? "Reporté" : "Match en retard"}</span>` : ""}</div>
       <div class="lg">${esc(db.league)}</div>
       <div class="duel">
         <div class="tm" onclick="openTeamPage('${H.id}')" style="cursor:pointer">${crest(H, 56)}<span>${esc(H.name)}</span></div>
