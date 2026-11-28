@@ -9,6 +9,7 @@
       ".read": "auth != null && auth.uid === '9dNftUFrQ9gBCHSyXDhwT2ICSzH3'"
     },
     "scoreurs": {
+      ".read": "auth != null && auth.uid === '9dNftUFrQ9gBCHSyXDhwT2ICSzH3'",
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid && (!newData.exists() || (newData.child('club').isString() && root.child('codes').child(newData.child('club').val()).isString() && newData.child('code').val() === root.child('codes').child(newData.child('club').val()).val()))"

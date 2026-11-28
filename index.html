@@ -356,6 +356,8 @@
   .trow.club .nm{flex:1;font-weight:600}
   .trow.club .pos{font:700 16px/1 var(--cond);color:var(--ink)}
   .trow.club sup{font-size:10px}
+  .trow.club .act{display:block;font-size:11px;font-weight:600;color:var(--mut);margin-top:2px}
+  .trow.club .act.on{color:var(--green)}
 
   /* ---------- Bulle d'aide du bouton thème ---------- */
   header{position:relative}
@@ -1254,10 +1256,10 @@ function renderSettings() {
       <div class="kv"><span>Montée / descente</span><b>1er monte en D2 · dernier descend en D4</b></div>
       <div class="kv"><span>Matchs joués</span><b>${joues} / ${db.matches.length || 132}</b></div>
     </div>
-    <div class="sec"><h2>Les clubs</h2><span class="note" style="margin:0">${db.teams.length} clubs</span></div>
+    <div class="sec"><h2>Les clubs</h2><span class="note" style="margin:0">${estAdmin() && scoreursTous ? `${db.teams.filter(t => activation(t.abbr)).length} / ${db.teams.length} codes activés` : `${db.teams.length} clubs`}</span></div>
     <div class="card">
       ${[...db.teams].sort((a, b) => a.name.localeCompare(b.name)).map(t => `<div class="trow club">${crest(t, 28)}
-        <span class="nm">${esc(t.name)}</span><span class="pos">${pos[t.id]}<sup>${pos[t.id] === 1 ? "er" : "e"}</sup></span>
+        <span class="nm">${esc(t.name)}${estAdmin() && scoreursTous ? suiviCode(t.abbr) : ""}</span><span class="pos">${pos[t.id]}<sup>${pos[t.id] === 1 ? "er" : "e"}</sup></span>
         ${estAdmin() ? `<button class="codebtn" onclick="adminVoirCode('${t.abbr}')">${codesVus[t.abbr] ? "Masquer" : "Code"}</button>` : ""}</div>
         ${estAdmin() && codesVus[t.abbr] ? `<div class="codebox">${codes[t.abbr]
           ? `<code>${esc(codes[t.abbr])}</code><button class="lien" style="margin:0" onclick="adminNouveauCode('${t.abbr}')">Changer</button>`
@@ -1564,7 +1566,7 @@ const firebaseConfig = {
 var ADMIN = "9dNftUFrQ9gBCHSyXDhwT2ICSzH3";
 var H3 = 3 * 3600000;                                  // un supporter garde la main jusqu'à 3 h après le coup d'envoi
 
-var fbDb = null, fbUser = null, distant = {}, monClub = null, codes = {}, signalements = {}, codesVus = {}, codesMatch = {};
+var fbDb = null, fbUser = null, distant = {}, monClub = null, codes = {}, signalements = {}, codesVus = {}, codesMatch = {}, scoreursTous = null;
 var mesInvites = {}; try { mesInvites = JSON.parse(localStorage.getItem("mesInvites") || "{}") } catch (e) {}
 function memoInvite(u, uid) { mesInvites[u] = uid; try { localStorage.setItem("mesInvites", JSON.stringify(mesInvites)) } catch (e) {} }
 function estAdmin() { return !!fbUser && fbUser.uid === ADMIN }
@@ -1587,12 +1589,14 @@ function initFirebase() {
     firebase.auth().onAuthStateChanged(async u => {
       fbUser = u; monClub = null;
       if (u && u.uid !== ADMIN) {
-        try { const v = (await fbDb.ref("scoreurs/" + u.uid).once("value")).val(); monClub = v && v.club || null } catch (e) {}
+        try { const v = (await fbDb.ref("scoreurs/" + u.uid).once("value")).val(); monClub = v && v.club || null;
+          if (monClub) fbDb.ref("scoreurs/" + u.uid + "/vu").set(firebase.database.ServerValue.TIMESTAMP).catch(() => {}) } catch (e) {}
       }
       if (u && u.uid === ADMIN) {
         fbDb.ref("codes").on("value", sn => { codes = sn.val() || {}; rafraichir() });
         fbDb.ref("signalements").on("value", sn => { signalements = sn.val() || {}; rafraichir() });
         fbDb.ref("codesMatch").on("value", sn => { codesMatch = sn.val() || {}; rafraichir() });
+        fbDb.ref("scoreurs").on("value", sn => { scoreursTous = sn.val() || {}; rafraichir() }, () => { scoreursTous = null });
         syncAffiches(); codesAuto();
       }
       rafraichir();
@@ -1776,6 +1780,16 @@ async function adminNouveauCode(abbr) {
   codesVus[abbr] = true;
   fbDb.ref("codes/" + abbr).set(genCode(abbr, pris)).catch(erreurEnvoi);
 }
+// Suivi admin : quels clubs ont entré leur code (appareils encore connectés avec le bon code)
+function activation(abbr) {
+  const l = Object.values(scoreursTous || {}).filter(v => v && v.club === abbr && v.code === codes[abbr]);
+  return l.length ? { n: l.length, t: Math.min(...l.map(v => v.t || Infinity)), vu: Math.max(0, ...l.map(v => v.vu || v.t || 0)) } : null;
+}
+function suiviCode(abbr) {
+  const a = activation(abbr), j = d => new Date(d).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }) + " à " + fmtHour(d);
+  if (!a) return `<span class="act">— code pas encore utilisé</span>`;
+  return `<span class="act on">✅ Code activé${isFinite(a.t) ? " le " + j(a.t) : ""} · ${a.n} appareil${a.n > 1 ? "s" : ""}${a.vu && a.vu !== a.t ? " · vu le " + j(a.vu) : ""}</span>`;
+}
 function adminVoirCode(abbr) { codesVus[abbr] = !codesVus[abbr]; render() }
 async function entrerCode(f) {
   const err = document.getElementById("codeErr"), code = f.c.value.trim().toUpperCase().replace(/\s+/g, "");
@@ -1785,7 +1799,7 @@ async function entrerCode(f) {
   err.textContent = "Vérification…";
   try {
     const u = await connexionAnonyme();
-    await fbDb.ref("scoreurs/" + u.uid).set({ club: abbr, code });
+    await fbDb.ref("scoreurs/" + u.uid).set({ club: abbr, code, t: firebase.database.ServerValue.TIMESTAMP });
     monClub = abbr; err.textContent = ""; render();
   } catch (e) { err.textContent = "Code incorrect ou plus valable." }
 }
