@@ -1,5 +1,5 @@
 {
-  "maj": "2026-11-23T16:01:54.613Z",
+  "maj": "2026-11-28T14:14:36.244Z",
   "matchs": [
     {
       "uid": "55853867",
@@ -497,16 +497,6 @@
       "fiche": "https://epreuves.fff.fr/competition/match/55853920-u-des-jeunes-de-sommevoire-rozieres-a-s-chamouilley-roches-s-marne/match"
     },
     {
-      "uid": "55853918",
-      "j": 10,
-      "domicile": "ORNEL CHANC SL 2",
-      "exterieur": "MARNAVAL SC 4",
-      "date": "2026-11-22T14:30:00+01:00",
-      "lieu": "STADE MARCEL THEVENIN 1",
-      "fiche": "https://epreuves.fff.fr/competition/match/55853918-s-l-de-l-ornel-a-chancenay-s-marnaval-c-st-dizier/match",
-      "reporte": true
-    },
-    {
       "uid": "55853919",
       "j": 10,
       "domicile": "EURVILLE BIENV. DS 2",
@@ -542,6 +532,15 @@
       "date": "2026-11-22T14:30:00+01:00",
       "lieu": "STADE G. MAIZIERES",
       "fiche": "https://epreuves.fff.fr/competition/match/55973912-a-de-football-de-valcourt-st-chevillon/match"
+    },
+    {
+      "uid": "55853918",
+      "j": 10,
+      "domicile": "ORNEL CHANC SL 2",
+      "exterieur": "MARNAVAL SC 4",
+      "date": "2026-12-06T14:30:00+01:00",
+      "lieu": "STADE MARCEL THEVENIN 1",
+      "fiche": "https://epreuves.fff.fr/competition/match/55853918-s-l-de-l-ornel-a-chancenay-s-marnaval-c-st-dizier/match"
     },
     {
       "uid": "55973915",
